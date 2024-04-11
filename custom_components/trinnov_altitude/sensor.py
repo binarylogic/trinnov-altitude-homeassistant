@@ -1,0 +1,114 @@
+"""Sensor platform for Trinnov Altitude integration."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
+from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
+from homeassistant.const import PERCENTAGE, EntityCategory
+
+from .const import DOMAIN
+from .entity import TrinnovAltitudeEntity
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from trinnov_altitude.trinnov_altitude import TrinnovAltitude
+
+    from homeassistant.config_entries import ConfigEntry
+    from homeassistant.core import HomeAssistant
+    from homeassistant.helpers.entity_platform import AddEntitiesCallback
+    from homeassistant.helpers.typing import StateType
+
+
+@dataclass(frozen=True, kw_only=True)
+class TrinnovAltitudeSensorEntityDescription(SensorEntityDescription):
+    """Describes Trinnov Altitude sensor entity."""
+
+    value_fn: Callable[[TrinnovAltitude], StateType]
+
+
+SENSOR_TYPES: tuple[TrinnovAltitudeSensorEntityDescription, ...] = (
+    TrinnovAltitudeSensorEntityDescription(
+        key="audiosync",
+        translation_key="audiosync",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda device: device.audiosync,
+    ),
+    TrinnovAltitudeSensorEntityDescription(
+        key="bypass",
+        translation_key="bypass",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda device: device.bypass,
+    ),
+    TrinnovAltitudeSensorEntityDescription(
+        key="decoder",
+        translation_key="decoder",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda device: device.decoder,
+    ),
+    TrinnovAltitudeSensorEntityDescription(
+        key="dim",
+        translation_key="dim",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda device: device.dim,
+    ),
+    TrinnovAltitudeSensorEntityDescription(
+        key="mute",
+        translation_key="mute",
+        value_fn=lambda device: device.mute,
+    ),
+    TrinnovAltitudeSensorEntityDescription(
+        key="source",
+        translation_key="source",
+        value_fn=lambda device: device.source,
+    ),
+    TrinnovAltitudeSensorEntityDescription(
+        key="preset",
+        translation_key="preset",
+        value_fn=lambda device: device.preset,
+    ),
+    TrinnovAltitudeSensorEntityDescription(
+        key="upmixer",
+        translation_key="upmixer",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda device: device.upmixer,
+    ),
+    TrinnovAltitudeSensorEntityDescription(
+        key="volume",
+        translation_key="volume",
+        value_fn=lambda device: device.volume,
+    ),
+)
+
+
+async def async_setup_entry(
+    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+) -> None:
+    """Set up the platform from a config entry."""
+    device: TrinnovAltitude = hass.data[DOMAIN][entry.entry_id]
+    async_add_entities(
+        TrinnovAltitudeSensor(device, description) for description in SENSOR_TYPES
+    )
+
+
+class TrinnovAltitudeSensor(TrinnovAltitudeEntity, SensorEntity):
+    """Representation of a Trinnov Altitude sensor."""
+
+    entity_description: TrinnovAltitudeSensorEntityDescription
+
+    def __init__(
+        self,
+        device: TrinnovAltitude,
+        entity_description: TrinnovAltitudeSensorEntityDescription,
+    ) -> None:
+        """Initialize sensor."""
+        super().__init__(device)
+        self.entity_description = entity_description
+        self._attr_unique_id = f"{self._attr_unique_id}-{entity_description.key}"
+
+    @property
+    def native_value(self) -> StateType:
+        """Return value of sensor."""
+        return self.entity_description.value_fn(self._device)

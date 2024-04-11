@@ -1,0 +1,52 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "Device is already configured"
+    },
+    "error": {
+      "cannot_connect": "Failed to connect. Is the device powered on?",
+      "invalid_host": "Host is invalid",
+      "invalid_mac": "MAC address is invalid",
+      "unknown": "Unexpected error"
+    },
+    "step": {
+      "user": {
+        "data": {
+          "host": "Host",
+          "mac": "MAC Address"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "audiosync": {
+        "name": "Audiosync"
+      },
+      "bypass": {
+        "name": "Bypass"
+      },
+      "decoder": {
+        "name": "Decoder"
+      },
+      "dim": {
+        "name": "Dim"
+      },
+      "mute": {
+        "name": "Mute"
+      },
+      "source": {
+        "name": "Source"
+      },
+      "preset": {
+        "name": "Preset"
+      },
+      "upmixer": {
+        "name": "Upmixer"
+      },
+      "volume": {
+        "name": "Volume"
+      }
+    }
+  }
+}
