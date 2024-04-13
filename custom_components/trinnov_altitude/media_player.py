@@ -42,7 +42,8 @@ class TrinnovAltitudeMediaPlayer(TrinnovAltitudeEntity, MediaPlayerEntity):
     _attr_device_class = MediaPlayerDeviceClass.RECEIVER
     _attr_name = None
     _attr_supported_features = (
-        MediaPlayerEntityFeature.TURN_ON
+        MediaPlayerEntityFeature.SELECT_SOURCE
+        | MediaPlayerEntityFeature.TURN_ON
         | MediaPlayerEntityFeature.TURN_OFF
         | MediaPlayerEntityFeature.VOLUME_MUTE
         | MediaPlayerEntityFeature.VOLUME_SET
@@ -85,19 +86,19 @@ class TrinnovAltitudeMediaPlayer(TrinnovAltitudeEntity, MediaPlayerEntity):
         return True
 
     @property
-    def is_volume_muted(self) -> bool | None:  # type: ignore
-        """Boolean if volume is currently muted."""
-        return self._device.mute
-
-    @property
-    def source(self) -> str | None:  # type: ignore
+    def input_source(self) -> str | None:  # type: ignore
         """Current source."""
         return self._device.source
 
     @property
-    def source_list(self) -> list[str] | None:  # type: ignore
+    def input_source_list(self) -> list[str] | None:  # type: ignore
         """Current source."""
         return list(self._device.sources.values())
+
+    @property
+    def is_volume_muted(self) -> bool | None:  # type: ignore
+        """Boolean if volume is currently muted."""
+        return self._device.mute
 
     @property
     def state(self) -> MediaPlayerState:  # type: ignore

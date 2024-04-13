@@ -50,7 +50,7 @@ class TrinnovAltitudeEntity(Entity):
         """Register update listener."""
 
         @callback
-        def _update(event: str, message: Message | None = None):
+        def _update(event: str, message: Message | None = None) -> None:
             """Handle device state changes."""
             self.async_write_ha_state()
 
@@ -61,4 +61,4 @@ class TrinnovAltitudeEntity(Entity):
         """Deregister update listener."""
 
         if self._callback is not None:
-            self._device.deregister_callback(self._callback)
+            self._device.deregister_callback(self._callback)  # type: ignore
