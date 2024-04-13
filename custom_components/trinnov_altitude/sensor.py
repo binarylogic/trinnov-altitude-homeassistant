@@ -105,10 +105,10 @@ class TrinnovAltitudeSensor(TrinnovAltitudeEntity, SensorEntity):
     ) -> None:
         """Initialize sensor."""
         super().__init__(device)
-        self.entity_description = entity_description
+        self.entity_description = entity_description  # type: ignore
         self._attr_unique_id = f"{self._attr_unique_id}-{entity_description.key}"
 
     @property
-    def native_value(self) -> StateType:
+    def native_value(self) -> StateType:  # type: ignore
         """Return value of sensor."""
         return self.entity_description.value_fn(self._device)

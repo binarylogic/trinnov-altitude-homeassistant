@@ -58,7 +58,7 @@ class TrinnovAltitudeConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors[CONF_HOST] = "invalid_host"
             except ConnectionTimeoutError:
                 errors["base"] = "cannot_connect"
-            except Exception:  # pylint: disable=broad-except
+            except Exception as e:  # pylint: disable=broad-except
                 _LOGGER.exception(f"Unexpected exception: {e}")
                 errors["base"] = "unknown"
             else:

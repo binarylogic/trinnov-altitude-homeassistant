@@ -74,17 +74,17 @@ class TrinnovAltitudeRemote(TrinnovAltitudeEntity, RemoteEntity):
     _attr_supported_features = RemoteEntityFeature.ACTIVITY
 
     @property
-    def activity_list(self) -> list[str] | None:
+    def activity_list(self) -> list[str] | None:  # type: ignore
         """Returns the list of sources"""
         return list(self._device.sources.values())
 
     @property
-    def current_activity(self) -> str | None:
+    def current_activity(self) -> str | None:  # type: ignore
         """Return the source as the current activity."""
         return self._device.source
 
     @property
-    def is_on(self) -> bool:
+    def is_on(self) -> bool:  # type: ignore
         """Return true if device is on."""
         return self._device.connected()
 
