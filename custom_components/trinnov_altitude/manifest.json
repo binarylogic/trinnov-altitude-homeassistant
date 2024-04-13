@@ -7,6 +7,6 @@
   "iot_class": "local_push",
   "issue_tracker": "https://github.com/binarylogic/trinnov-altitude-homeassistant/issues",
   "loggers": ["trinnov_altitude"],
-  "requirements": ["trinnov_altitude>=1.2.1"],
-  "version": "1.1.1"
+  "requirements": ["trinnov_altitude>=1.2.2"],
+  "version": "1.1.2"
 }
