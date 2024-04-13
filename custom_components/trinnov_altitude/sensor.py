@@ -60,14 +60,20 @@ SENSOR_TYPES: tuple[TrinnovAltitudeSensorEntityDescription, ...] = (
         value_fn=lambda device: device.mute,
     ),
     TrinnovAltitudeSensorEntityDescription(
+        key="preset",
+        translation_key="preset",
+        value_fn=lambda device: device.preset,
+    ),
+    TrinnovAltitudeSensorEntityDescription(
         key="source",
         translation_key="source",
         value_fn=lambda device: device.source,
     ),
     TrinnovAltitudeSensorEntityDescription(
-        key="preset",
-        translation_key="preset",
-        value_fn=lambda device: device.preset,
+        key="source",
+        translation_key="source_format",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda device: device.source_format,
     ),
     TrinnovAltitudeSensorEntityDescription(
         key="upmixer",
