@@ -1,7 +1,8 @@
 # Trinnov Altitude Home Assistant Integration
 
 A [Home Assistant](https://www.home-assistant.io) integration for the
-[Trinnov Altitude AVR](https://www.trinnov.com/en/products/altitude32/).
+[Trinnov Altitude AVR](https://www.trinnov.com/en/products/altitude32/). Uses
+the [`trinnov-altitude` library](https://github.com/binarylogic/py-trinnov-altitude) under the hood.
 
 ## Prerequisites
 
