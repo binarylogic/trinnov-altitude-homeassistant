@@ -17,7 +17,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up a config entry for Trinnov Altitude."""
 
     host = entry.data[CONF_HOST].strip()
-    mac = entry.data[CONF_MAC].strip()
+
+    # Optional attributes may not be present
+    mac = entry.data.get(CONF_MAC)
+    if mac:
+        mac = mac.strip()
+    else:
+        mac = None
+
     device = TrinnovAltitude(host=host, mac=mac, client_id=CLIENT_ID)
 
     # Force set the id from the config glow since the device is not guaranteed
