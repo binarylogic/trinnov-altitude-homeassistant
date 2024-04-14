@@ -104,7 +104,66 @@ data:
     - source_set 1
 ```
 
-### Automations
+### Sensors
+
+The Kaleidescape sensor platform will create multiple [Sensor](https://www.home-assistant.io/integrations/sensor/) entities for the device. The follow sensors are provided:
+
+#### AUDIOSYNC
+
+How the Altitude is syncing video with audio given upstream equipment.
+
+- `Slave`
+- `Master`
+
+#### BYPASS
+
+Bypass the Trinnov optimizer.
+
+- `True`
+- `False`
+
+#### DECODER
+
+Bypass the Trinnov optimizer.
+
+- `True`
+- `False`
+
+### DIM
+
+Volume dim status.
+
+- `True`
+- `False`
+
+### MUTE
+
+Volume mute status.
+
+- `True`
+- `False`
+
+### PRESET
+
+Current Trinnov preset loaded.
+
+### SOURCE
+
+Current source loaded, will the be source name, not the index.
+
+### SOURCE_FORMAT
+
+Current source format.
+
+### UPMIXER
+
+Current upmixer being used, if any.
+
+### VOLUME
+
+Current volume level in dB, from `-120.0db` to `20.0db`
+
+## Automations
 
 An example automation that turns on the Trinnov Altitude, sets the source,
 preset, and volume when a Kaleidescape players turns on.
