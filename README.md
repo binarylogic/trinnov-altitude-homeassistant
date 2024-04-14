@@ -129,37 +129,37 @@ Bypass the Trinnov optimizer.
 - `True`
 - `False`
 
-### DIM
+#### DIM
 
 Volume dim status.
 
 - `True`
 - `False`
 
-### MUTE
+#### MUTE
 
 Volume mute status.
 
 - `True`
 - `False`
 
-### PRESET
+#### PRESET
 
 Current Trinnov preset loaded.
 
-### SOURCE
+#### SOURCE
 
 Current source loaded, will the be source name, not the index.
 
-### SOURCE_FORMAT
+#### SOURCE_FORMAT
 
 Current source format.
 
-### UPMIXER
+#### UPMIXER
 
 Current upmixer being used, if any.
 
-### VOLUME
+#### VOLUME
 
 Current volume level in dB, from `-120.0db` to `20.0db`
 
