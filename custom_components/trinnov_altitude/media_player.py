@@ -82,7 +82,7 @@ class TrinnovAltitudeMediaPlayer(TrinnovAltitudeEntity, MediaPlayerEntity):
     @property
     def available(self) -> bool:  # type: ignore
         """Return if device is available."""
-        return self._device.power_on_available() || self._device.connected()
+        return self._device.power_on_available() or self._device.connected()
 
     @property
     def input_source(self) -> str | None:  # type: ignore
