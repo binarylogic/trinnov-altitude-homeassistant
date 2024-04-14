@@ -90,6 +90,9 @@ class TrinnovAltitudeRemote(TrinnovAltitudeEntity, RemoteEntity):
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the device on."""
+        if self._device.connected():
+            return
+
         try:
             self._device.power_on()
         except NoMacAddressError as exc:
