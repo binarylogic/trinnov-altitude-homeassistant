@@ -41,12 +41,18 @@ class TrinnovAltitudeConfigFlow(ConfigFlow, domain=DOMAIN):
         errors = {}
         device = None
         if user_input is not None:
+            # Required attribute will always be present
             host = user_input[CONF_HOST].strip()
-            mac = user_input[CONF_MAC].strip()
+
+            # Optional attributes may not be present
+            mac = user_input.get(CONF_MAC)
+            if mac:
+                mac = mac.strip()
+            else:
+                mac = None
 
             try:
-                typed_mac = None if not mac else mac
-                device = TrinnovAltitude(host=host, mac=typed_mac, client_id=CLIENT_ID)
+                device = TrinnovAltitude(host=host, mac=mac, client_id=CLIENT_ID)
                 await device.connect()
                 device.start_listening()
                 await device.wait_for_initial_sync()
