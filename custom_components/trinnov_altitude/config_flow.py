@@ -8,7 +8,6 @@ from typing import Any
 from trinnov_altitude.exceptions import (
     ConnectionFailedError,
     ConnectionTimeoutError,
-    InvalidMacAddressOUIError,
     MalformedMacAddressError,
 )
 import voluptuous as vol
@@ -57,8 +56,6 @@ class TrinnovAltitudeConfigFlow(ConfigFlow, domain=DOMAIN):
                 device.start_listening()
                 await device.wait_for_initial_sync()
             except MalformedMacAddressError:
-                errors[CONF_MAC] = "invalid_mac"
-            except InvalidMacAddressOUIError:
                 errors[CONF_MAC] = "invalid_mac"
             except ConnectionFailedError:
                 errors[CONF_HOST] = "invalid_host"
