@@ -28,7 +28,7 @@ class TrinnovAltitudeSensorEntityDescription(SensorEntityDescription):
     value_fn: Callable[[TrinnovAltitude], StateType]
 
 
-SENSOR_TYPES: tuple[TrinnovAltitudeSensorEntityDescription, ...] = (
+SENSORS: tuple[TrinnovAltitudeSensorEntityDescription, ...] = (
     TrinnovAltitudeSensorEntityDescription(
         key="audiosync",
         translation_key="audiosync",
@@ -73,7 +73,7 @@ async def async_setup_entry(
     """Set up the platform from a config entry."""
     device: TrinnovAltitude = hass.data[DOMAIN][entry.entry_id]
     async_add_entities(
-        TrinnovAltitudeSensor(device, description) for description in SENSOR_TYPES
+        TrinnovAltitudeSensor(device, description) for description in SENSORS
     )
 
 

@@ -105,9 +105,17 @@ data:
     - source_set 1
 ```
 
+### Binary Sensors
+
+The integration creates multiple [Binary Sensor](https://www.home-assistant.io/integrations/binary_sensor/) entities for the device.
+
+* `Bypass` is On when the device is bypassing the Trinnov optimizer.
+* `Dim` is On when the volume is dimmed.
+* `Mute` is On when the volume is muted.
+
 ### Sensors
 
-The Kaleidescape sensor platform will create multiple [Sensor](https://www.home-assistant.io/integrations/sensor/) entities for the device. The follow sensors are provided:
+The integration creates multiple [Sensor](https://www.home-assistant.io/integrations/sensor/) entities for the device.
 
 #### AUDIOSYNC
 
@@ -116,30 +124,9 @@ How the Altitude is syncing video with audio given upstream equipment.
 - `Slave`
 - `Master`
 
-#### BYPASS
-
-Bypass the Trinnov optimizer.
-
-- `True`
-- `False`
-
 #### DECODER
 
 Bypass the Trinnov optimizer.
-
-- `True`
-- `False`
-
-#### DIM
-
-Volume dim status.
-
-- `True`
-- `False`
-
-#### MUTE
-
-Volume mute status.
 
 - `True`
 - `False`

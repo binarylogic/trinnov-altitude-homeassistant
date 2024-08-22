@@ -19,21 +19,23 @@
     }
   },
   "entity": {
-    "sensor": {
-      "audiosync": {
-        "name": "Audiosync"
-      },
+    "binary_sensor": {
       "bypass": {
         "name": "Bypass"
-      },
-      "decoder": {
-        "name": "Decoder"
       },
       "dim": {
         "name": "Dim"
       },
       "mute": {
         "name": "Mute"
+      }
+    }
+    "sensor": {
+      "audiosync": {
+        "name": "Audiosync"
+      },
+      "decoder": {
+        "name": "Decoder"
       },
       "source": {
         "name": "Source"

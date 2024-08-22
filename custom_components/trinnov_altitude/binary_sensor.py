@@ -28,7 +28,7 @@ class TrinnovAltitudeBinarySensorEntityDescription(BinarySensorEntityDescription
     value_fn: Callable[[TrinnovAltitude], bool]
 
 
-SENSOR_TYPES: tuple[TrinnovAltitudeBinarySensorEntityDescription, ...] = (
+BINARY_SENSORS: tuple[TrinnovAltitudeBinarySensorEntityDescription, ...] = (
     TrinnovAltitudeBinarySensorEntityDescription(
         key="bypass",
         translation_key="bypass",
@@ -53,7 +53,7 @@ async def async_setup_entry(
     """Set up the platform from a config entry."""
     device: TrinnovAltitude = hass.data[DOMAIN][entry.entry_id]
     async_add_entities(
-        TrinnovAltitudeBinarySensor(device, description) for description in SENSOR_TYPES
+        TrinnovAltitudeBinarySensor(device, description) for description in BINARY_SENSORS
     )
 
 
@@ -67,7 +67,7 @@ class TrinnovAltitudeBinarySensor(TrinnovAltitudeEntity, BinarySensorEntity):
         device: TrinnovAltitude,
         entity_description: TrinnovAltitudeBinarySensorEntityDescription,
     ) -> None:
-        """Initialize sensor."""
+        """Initialize binary sensor."""
         super().__init__(device)
         self.entity_description = entity_description  # type: ignore
         self._attr_unique_id = f"{self._attr_unique_id}-{entity_description.key}"
