@@ -37,27 +37,10 @@ SENSOR_TYPES: tuple[TrinnovAltitudeSensorEntityDescription, ...] = (
         value_fn=lambda device: device.audiosync,
     ),
     TrinnovAltitudeSensorEntityDescription(
-        key="bypass",
-        translation_key="bypass",
-        entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda device: device.bypass,
-    ),
-    TrinnovAltitudeSensorEntityDescription(
         key="decoder",
         translation_key="decoder",
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda device: device.decoder,
-    ),
-    TrinnovAltitudeSensorEntityDescription(
-        key="dim",
-        translation_key="dim",
-        entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda device: device.dim,
-    ),
-    TrinnovAltitudeSensorEntityDescription(
-        key="mute",
-        translation_key="mute",
-        value_fn=lambda device: device.mute,
     ),
     TrinnovAltitudeSensorEntityDescription(
         key="preset",

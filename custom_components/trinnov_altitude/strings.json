@@ -11,29 +11,49 @@
     },
     "step": {
       "user": {
+        "title": "Setup Trinnov Altitude",
+        "description": "Your device needs to be on in order to add the integation. ",
         "data": {
           "host": "[%key:common::config_flow::data::host%]",
           "mac": "MAC address"
+        },
+        "data_description": {
+          "host": "The hostname or IP address of your Trinnov Altitude device. Be sure to configure your IP address to be static.",
+          "mac": "The MAC address of your Trinnov Altitude device. Used for Wake-On-Lan (WAL)."
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure Trinnov Altitude",
+        "description": "Your device needs to be on in order to reconfigure the integation. ",
+        "data": {
+          "host": "[%key:common::config_flow::data::host%]",
+          "mac": "MAC address"
+        },
+        "data_description": {
+          "host": "The hostname or IP address of your Trinnov Altitude device. Be sure to configure your IP address to be static.",
+          "mac": "The MAC address of your Trinnov Altitude device. Used for Wake-On-Lan (WAL)."
         }
       }
     }
   },
   "entity": {
-    "sensor": {
-      "audiosync": {
-        "name": "Audiosync"
-      },
+    "binary_sensor": {
       "bypass": {
         "name": "Bypass"
-      },
-      "decoder": {
-        "name": "Decoder"
       },
       "dim": {
         "name": "Dim"
       },
       "mute": {
         "name": "Mute"
+      }
+    },
+    "sensor": {
+      "audiosync": {
+        "name": "Audiosync"
+      },
+      "decoder": {
+        "name": "Decoder"
       },
       "source": {
         "name": "Source"

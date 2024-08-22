@@ -1,0 +1,47 @@
+{
+  "entity": {
+    "binary_sensor": {
+      "bypass": {
+        "default": "mdi:hdr",
+        "state": {
+          "off": "mdi:hdr-off"
+        }
+      },
+      "dim": {
+        "default": "mdi:hdr",
+        "state": {
+          "off": "mdi:hdr-off"
+        }
+      },
+      "mute": {
+        "default": "mdi:power",
+        "state": {
+          "off": "mdi:power-off"
+        }
+      }
+    },
+    "sensor": {
+      "audiosymc": {
+        "default": "mdi:ethernet"
+      },
+      "decoder": {
+        "default": "mdi:thermometer"
+      },
+      "preset": {
+        "default": "mdi:thermometer"
+      },
+      "source": {
+        "default": "mdi:thermometer"
+      },
+      "source_format": {
+        "default": "mdi:thermometer"
+      },
+      "upmixer": {
+        "default": "mdi:television"
+      },
+      "volume": {
+        "default": "mdi:television"
+      }
+    }
+  }
+}
