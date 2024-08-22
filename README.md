@@ -48,7 +48,7 @@ After installation, add the Trinnov Altitude integration via the Home Assistant 
 
 The Trinnov Altitude remote platform will create a [Remote](https://www.home-assistant.io/integrations/remote/) entity for the device. This entity allows you to send the following commands via the [remote.send_command](https://www.home-assistant.io/integrations/remote/) service.
 
-A typical service call might look like the example below, which sends a command to the device to select the currently highlighted item.
+A typical service call might look like the example below, which sends a command to the device to mute the volume.
 
 ```yaml
 service: remote.send_command
@@ -56,7 +56,7 @@ target:
   entity_id: remote.trinnov_altitude
 data:
   command:
-    - volume_up
+    - mute_on
 ```
 
 #### Single Commands
