@@ -10,7 +10,7 @@ from homeassistant.core import Event, HomeAssistant
 
 from .const import CLIENT_ID, DOMAIN
 
-PLATFORMS: list[str] = [Platform.MEDIA_PLAYER, Platform.REMOTE, Platform.SENSOR]
+PLATFORMS: list[str] = [Platform.BINARY_SENSOR, Platform.MEDIA_PLAYER, Platform.REMOTE, Platform.SENSOR]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
