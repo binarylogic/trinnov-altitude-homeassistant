@@ -8,5 +8,5 @@
   "issue_tracker": "https://github.com/binarylogic/trinnov-altitude-homeassistant/issues",
   "loggers": ["trinnov_altitude"],
   "requirements": ["trinnov_altitude>=1.2.4"],
-  "version": "1.2.3"
+  "version": "1.2.4"
 }
