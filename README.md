@@ -48,6 +48,19 @@ After installation, add the Trinnov Altitude integration via the Home Assistant 
 
 The Trinnov Altitude remote platform will create a [Remote](https://www.home-assistant.io/integrations/remote/) entity for the device. This entity allows you to send the following commands via the [remote.send_command](https://www.home-assistant.io/integrations/remote/) service.
 
+A typical service call might look like the example below, which sends a command to the device to select the currently highlighted item.
+
+```yaml
+service: remote.send_command
+target:
+  entity_id: remote.trinnov_altitude
+data:
+  command:
+    - volume_up
+```
+
+#### Single Commands
+
 - `acoustic_correction_off`
 - `acoustic_correction_on`
 - `acoustic_correction_toggle`
@@ -68,42 +81,23 @@ The Trinnov Altitude remote platform will create a [Remote](https://www.home-ass
 - `mute_toggle`
 - `page_down`
 - `page_up`
-- `preset_set`
 - `quick_optimized_off`
 - `quick_optimized_on`
 - `quick_optimized_toggle`
-- `remapping_mode_set`
-- `source_set`
 - `time_alignment_off`
 - `time_alignment_on`
 - `time_alignment_toggle`
-- `upmixer_set`
 - `volume_down`
-- `volume_ramp`
-- `volume_set`
 - `volume_up`
 
-A typical service call might look like the example below, which sends a command to the device to select the currently highlighted item.
+#### Commands With Paramteres
 
-```yaml
-service: remote.send_command
-target:
-  entity_id: remote.trinnov_altitude
-data:
-  command:
-    - volume_up
-```
-
-Commands can take arguments, like that of the `source_set` command:
-
-```yaml
-service: remote.send_command
-target:
-  entity_id: remote.trinnov_altitude
-data:
-  command:
-    - source_set 1
-```
+- `preset_set (int)`
+- `remapping_mode_set (string)`
+- `source_set (int)`
+- `volume_set (decimal)`
+- `volume_ramp (decimal)`
+- `upmixer_set (string)`
 
 ### Binary Sensors
 

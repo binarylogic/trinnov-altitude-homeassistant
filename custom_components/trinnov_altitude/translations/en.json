@@ -29,7 +29,7 @@
       "mute": {
         "name": "Mute"
       }
-    }
+    },
     "sensor": {
       "audiosync": {
         "name": "Audiosync"
