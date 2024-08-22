@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from homeassistant.components.binary_sensor import BinarySensorEntity, BinarySensorEntityDescription
-from homeassistant.const import PERCENTAGE, EntityCategory
 
 from .const import DOMAIN
 from .entity import TrinnovAltitudeEntity
@@ -33,13 +32,11 @@ SENSOR_TYPES: tuple[TrinnovAltitudeBinarySensorEntityDescription, ...] = (
     TrinnovAltitudeBinarySensorEntityDescription(
         key="bypass",
         translation_key="bypass",
-        entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda device: device.bypass or False,
     ),
     TrinnovAltitudeBinarySensorEntityDescription(
         key="dim",
         translation_key="dim",
-        entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda device: device.dim or False,
     ),
     TrinnovAltitudeBinarySensorEntityDescription(

@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
-from homeassistant.const import PERCENTAGE, EntityCategory
 
 from .const import DOMAIN
 from .entity import TrinnovAltitudeEntity
@@ -33,13 +32,11 @@ SENSOR_TYPES: tuple[TrinnovAltitudeSensorEntityDescription, ...] = (
     TrinnovAltitudeSensorEntityDescription(
         key="audiosync",
         translation_key="audiosync",
-        entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda device: device.audiosync,
     ),
     TrinnovAltitudeSensorEntityDescription(
         key="decoder",
         translation_key="decoder",
-        entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda device: device.decoder,
     ),
     TrinnovAltitudeSensorEntityDescription(
@@ -55,13 +52,11 @@ SENSOR_TYPES: tuple[TrinnovAltitudeSensorEntityDescription, ...] = (
     TrinnovAltitudeSensorEntityDescription(
         key="source_format",
         translation_key="source_format",
-        entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda device: device.source_format,
     ),
     TrinnovAltitudeSensorEntityDescription(
         key="upmixer",
         translation_key="upmixer",
-        entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda device: device.upmixer,
     ),
     TrinnovAltitudeSensorEntityDescription(
