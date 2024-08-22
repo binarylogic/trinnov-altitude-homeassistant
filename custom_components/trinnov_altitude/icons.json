@@ -2,45 +2,45 @@
   "entity": {
     "binary_sensor": {
       "bypass": {
-        "default": "mdi:hdr",
+        "default": "mdi:cog",
         "state": {
-          "off": "mdi:hdr-off"
+          "off": "mdi:cog-off"
         }
       },
       "dim": {
-        "default": "mdi:hdr",
+        "default": "mdi:volume-low",
         "state": {
-          "off": "mdi:hdr-off"
+          "off": "mdi:volume-high"
         }
       },
       "mute": {
-        "default": "mdi:power",
+        "default": "mdi:volume-mute",
         "state": {
-          "off": "mdi:power-off"
+          "off": "mdi:volume-high"
         }
       }
     },
     "sensor": {
       "audiosymc": {
-        "default": "mdi:ethernet"
+        "default": "mdi:sync"
       },
       "decoder": {
-        "default": "mdi:thermometer"
+        "default": "mdi:dolby"
       },
       "preset": {
-        "default": "mdi:thermometer"
+        "default": "mdi:star"
       },
       "source": {
-        "default": "mdi:thermometer"
+        "default": "mdi:video-input-hdmi"
       },
       "source_format": {
-        "default": "mdi:thermometer"
+        "default": "mdi:dolby"
       },
       "upmixer": {
-        "default": "mdi:television"
+        "default": "mdi:dolby"
       },
       "volume": {
-        "default": "mdi:television"
+        "default": "mdi:volume-equal"
       }
     }
   }
