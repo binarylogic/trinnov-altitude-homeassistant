@@ -64,6 +64,7 @@ VALID_COMMANDS = {
     "volume_ramp",
     "volume_set",
     "volume_up",
+    "volume_adjust",
 }
 
 
