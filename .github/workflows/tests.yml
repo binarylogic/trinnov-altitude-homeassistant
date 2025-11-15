@@ -20,7 +20,7 @@ jobs:
         run: uv python install 3.12
 
       - name: Install dependencies
-        run: uv pip install -r requirements_test.txt
+        run: uv pip install --system -r requirements_test.txt
 
       - name: Run ruff check
         run: make lint
@@ -46,7 +46,7 @@ jobs:
         run: uv python install ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: uv pip install -r requirements_test.txt
+        run: uv pip install --system -r requirements_test.txt
 
       - name: Run tests with coverage
         run: make test-cov
