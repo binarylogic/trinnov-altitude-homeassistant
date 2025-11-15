@@ -22,7 +22,10 @@ async def async_setup_entry(
 ) -> None:
     """Set up the platform from a config entry."""
     device: TrinnovAltitude = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities([TrinnovAltitudeSourceSelect(device)])
+    async_add_entities([
+        TrinnovAltitudeSourceSelect(device),
+        TrinnovAltitudePresetSelect(device),
+    ])
 
 
 class TrinnovAltitudeSourceSelect(TrinnovAltitudeEntity, SelectEntity):
@@ -48,3 +51,36 @@ class TrinnovAltitudeSourceSelect(TrinnovAltitudeEntity, SelectEntity):
     async def async_select_option(self, option: str) -> None:
         """Change the selected source."""
         await self._device.source_set_by_name(option)
+
+
+class TrinnovAltitudePresetSelect(TrinnovAltitudeEntity, SelectEntity):
+    """Representation of a Trinnov Altitude preset select entity."""
+
+    _attr_translation_key = "preset"
+
+    def __init__(self, device: TrinnovAltitude) -> None:
+        """Initialize select entity."""
+        super().__init__(device)
+        self._attr_unique_id = f"{self._attr_unique_id}-preset-select"
+
+    @property
+    def current_option(self) -> str | None:
+        """Return the current preset."""
+        return self._device.preset
+
+    @property
+    def options(self) -> list[str]:
+        """Return the list of available presets."""
+        return list(self._device.presets.values())
+
+    async def async_select_option(self, option: str) -> None:
+        """Change the selected preset."""
+        # Find the preset ID from the name
+        preset_id = None
+        for pid, name in self._device.presets.items():
+            if name == option:
+                preset_id = pid
+                break
+
+        if preset_id is not None:
+            await self._device.preset_set(preset_id)

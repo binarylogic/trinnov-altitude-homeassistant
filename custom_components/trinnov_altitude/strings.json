@@ -50,6 +50,9 @@
       }
     },
     "select": {
+      "preset": {
+        "name": "Preset"
+      },
       "source": {
         "name": "Source"
       }
