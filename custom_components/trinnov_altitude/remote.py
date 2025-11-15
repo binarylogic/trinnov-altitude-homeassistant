@@ -116,17 +116,17 @@ class TrinnovAltitudeRemote(TrinnovAltitudeEntity, RemoteEntity):
 
                 if method_name not in VALID_COMMANDS:
                     raise HomeAssistantError(
-                        f"{cmd} is not a known Trinnov Altitude command"
+                        f"'{method_name}' is not a valid Trinnov Altitude command"
                     )
 
                 await getattr(self._device, method_name)(*typed_args)
             except NotConnectedError as exc:
                 raise HomeAssistantError(
-                    f"Trinnov Altitude must be powered on before sending the {cmd} command"
+                    "Trinnov Altitude must be powered on before sending commands"
                 ) from exc
             except TypeError as exc:
                 raise HomeAssistantError(
-                    f"Command {cmd} arguments are invalid: {exc}"
+                    f"Invalid arguments for command '{method_name}'. Expected format: {method_name} <arg1> <arg2> ..."
                 ) from exc
 
     def _cast_to_primitive_type(self, arg: str) -> bool | int | float | str:
