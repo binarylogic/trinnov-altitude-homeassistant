@@ -12,11 +12,7 @@ from trinnov_altitude.exceptions import (
 )
 import voluptuous as vol
 
-from homeassistant.config_entries import (
-    CONN_CLASS_LOCAL_PUSH,
-    ConfigFlow,
-    ConfigFlowResult,
-)
+from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_HOST, CONF_MAC
 
 from . import TrinnovAltitude
@@ -30,7 +26,6 @@ class TrinnovAltitudeConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Trinnov Altitude."""
 
     VERSION = 1
-    CONNECTION_CLASS = CONN_CLASS_LOCAL_PUSH
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -61,8 +56,8 @@ class TrinnovAltitudeConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors[CONF_HOST] = "invalid_host"
             except ConnectionTimeoutError:
                 errors["base"] = "cannot_connect"
-            except Exception as e:  # pylint: disable=broad-except
-                _LOGGER.exception(f"Unexpected exception: {e}")
+            except Exception:  # pylint: disable=broad-except
+                _LOGGER.exception("Unexpected exception during Trinnov Altitude setup")
                 errors["base"] = "unknown"
             else:
                 await self.async_set_unique_id(device.id, raise_on_progress=False)
