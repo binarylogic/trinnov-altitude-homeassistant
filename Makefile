@@ -6,17 +6,17 @@ help: ## Show this help message
 	@echo 'Available targets:'
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-install: ## Install test dependencies
-	pip install -r requirements_test.txt
+install: ## Install test dependencies with uv
+	uv pip install -r requirements_test.txt
 
 test: ## Run tests
-	pytest
+	uv run pytest
 
 test-cov: ## Run tests with coverage report
-	pytest --cov-report=term-missing --cov-report=html
+	uv run pytest --cov-report=term-missing --cov-report=html
 
 test-fast: ## Run tests without coverage
-	pytest --no-cov
+	uv run pytest --no-cov
 
 lint: ## Run ruff linter
 	ruff check custom_components tests
@@ -30,3 +30,4 @@ clean: ## Clean up generated files
 	rm -rf .coverage
 	rm -rf **/__pycache__
 	rm -rf **/*.pyc
+	rm -rf .ruff_cache
