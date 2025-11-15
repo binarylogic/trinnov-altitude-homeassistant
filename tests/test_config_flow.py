@@ -6,6 +6,7 @@ from homeassistant import config_entries
 from homeassistant.const import CONF_HOST, CONF_MAC
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 from trinnov_altitude.exceptions import (
     ConnectionFailedError,
     ConnectionTimeoutError,
@@ -212,17 +213,11 @@ async def test_form_already_configured(hass: HomeAssistant):
     mock_device.disconnect = AsyncMock()
 
     # Create existing entry
-    existing_entry = config_entries.ConfigEntry(
-        version=1,
-        minor_version=1,
+    existing_entry = MockConfigEntry(
         domain=DOMAIN,
         title="Trinnov Altitude (ABC123)",
         data={CONF_HOST: "192.168.1.100"},
-        source=config_entries.SOURCE_USER,
-        entry_id="existing",
         unique_id="ABC123",
-        discovery_keys={},
-        options={},
     )
     existing_entry.add_to_hass(hass)
 

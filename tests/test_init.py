@@ -1,31 +1,10 @@
 """Test the Trinnov Altitude integration initialization."""
 
 import pytest
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_HOST, CONF_MAC
+from homeassistant.const import CONF_HOST
 from homeassistant.core import HomeAssistant
 
 from custom_components.trinnov_altitude.const import CLIENT_ID, DOMAIN
-
-
-@pytest.fixture
-def mock_config_entry():
-    """Create a mock config entry."""
-    return ConfigEntry(
-        version=1,
-        minor_version=1,
-        domain=DOMAIN,
-        title="Trinnov Altitude (ABC123)",
-        data={
-            CONF_HOST: "192.168.1.100",
-            CONF_MAC: "00:11:22:33:44:55",
-        },
-        source="user",
-        entry_id="test_entry_id",
-        unique_id="ABC123",
-        discovery_keys={},
-        options={},
-    )
 
 
 async def test_async_setup_entry(

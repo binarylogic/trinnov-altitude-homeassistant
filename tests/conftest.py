@@ -3,6 +3,10 @@
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from homeassistant.const import CONF_HOST, CONF_MAC
+from pytest_homeassistant_custom_component.common import MockConfigEntry
+
+from custom_components.trinnov_altitude.const import CLIENT_ID, DOMAIN
 
 
 @pytest.fixture(autouse=True)
@@ -95,6 +99,21 @@ def mock_trinnov_device_offline():
     device.sources = {}
     device.presets = {}
     return device
+
+
+@pytest.fixture
+def mock_config_entry():
+    """Create a mock config entry."""
+    return MockConfigEntry(
+        domain=DOMAIN,
+        title="Trinnov Altitude (ABC123)",
+        data={
+            CONF_HOST: "192.168.1.100",
+            CONF_MAC: "00:11:22:33:44:55",
+            CLIENT_ID: "test_client",
+        },
+        unique_id="ABC123",
+    )
 
 
 @pytest.fixture
