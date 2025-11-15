@@ -12,7 +12,7 @@
     "step": {
       "user": {
         "title": "Setup Trinnov Altitude",
-        "description": "Your device needs to be on in order to add the integation. ",
+        "description": "Your device needs to be on in order to add the integration.",
         "data": {
           "host": "[%key:common::config_flow::data::host%]",
           "mac": "MAC address"
