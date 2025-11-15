@@ -3,7 +3,7 @@
   "name": "Trinnov Altitude",
   "codeowners": ["@binarylogic"],
   "config_flow": true,
-  "documentation": "https://www.home-assistant.io/integrations/trinnov_altitude",
+  "documentation": "https://github.com/binarylogic/trinnov-altitude-homeassistant",
   "iot_class": "local_push",
   "issue_tracker": "https://github.com/binarylogic/trinnov-altitude-homeassistant/issues",
   "loggers": ["trinnov_altitude"],
