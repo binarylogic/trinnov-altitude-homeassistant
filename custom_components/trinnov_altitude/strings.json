@@ -36,6 +36,11 @@
         "name": "Mute"
       }
     },
+    "number": {
+      "volume": {
+        "name": "Volume"
+      }
+    },
     "sensor": {
       "audiosync": {
         "name": "Audiosync"
