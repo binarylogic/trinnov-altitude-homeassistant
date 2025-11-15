@@ -65,9 +65,10 @@ async def test_volume_number_updates(
     # Simulate volume change
     mock_device.volume = -30.0
 
-    # Trigger callback
-    callback = mock_device.register_callback.call_args[0][0]
-    callback("volume_changed", None)
+    # Trigger all callbacks (multiple entities register callbacks)
+    for call in mock_device.register_callback.call_args_list:
+        callback = call[0][0]
+        callback("volume_changed", None)
     await hass.async_block_till_done()
 
     # Verify entity updated

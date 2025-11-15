@@ -1,6 +1,6 @@
 """Test the Trinnov Altitude remote platform."""
 
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from homeassistant.components.remote import (
@@ -27,7 +27,7 @@ async def test_remote(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
     state = hass.states.get("remote.trinnov_altitude_abc123")
     assert state
     assert state.state == "on"  # connected() returns True
-    assert state.attributes.get(ATTR_ACTIVITY) == "Kaleidescape"
+    assert state.attributes.get("current_activity") == "Kaleidescape"
     assert state.attributes.get("activity_list") == [
         "Kaleidescape",
         "Apple TV",
@@ -37,12 +37,14 @@ async def test_remote(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
 
 async def test_remote_turn_on(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
     """Test turning on remote (power on device)."""
+    mock_device = mock_setup_entry.return_value
+    # Set device as disconnected so power_on will be called
+    mock_device.connected = MagicMock(return_value=False)
+
     mock_config_entry.add_to_hass(hass)
 
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done()
-
-    mock_device = mock_setup_entry.return_value
 
     await hass.services.async_call(
         "remote",
@@ -61,6 +63,8 @@ async def test_remote_turn_on_no_mac(
 ):
     """Test turning on remote without MAC address raises error."""
     mock_device = mock_setup_entry.return_value
+    # Set device as disconnected so power_on will be called
+    mock_device.connected = MagicMock(return_value=False)
     mock_device.power_on.side_effect = NoMacAddressError
 
     mock_config_entry.add_to_hass(hass)

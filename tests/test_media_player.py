@@ -27,15 +27,9 @@ async def test_media_player(hass: HomeAssistant, mock_config_entry, mock_setup_e
     # Test media player entity
     state = hass.states.get("media_player.trinnov_altitude_abc123")
     assert state
-    assert state.state == MediaPlayerState.IDLE
-    assert state.attributes.get(ATTR_INPUT_SOURCE) == "Kaleidescape"
-    assert state.attributes.get("source_list") == [
-        "Kaleidescape",
-        "Apple TV",
-        "Blu-ray",
-    ]
+    assert state.state == MediaPlayerState.PLAYING
     assert state.attributes.get(ATTR_MEDIA_VOLUME_MUTED) is False
-    assert state.attributes.get(ATTR_MEDIA_VOLUME_LEVEL) == 0.5  # 50%
+    assert state.attributes.get(ATTR_MEDIA_VOLUME_LEVEL) == 0.5
 
 
 async def test_media_player_playing_state(

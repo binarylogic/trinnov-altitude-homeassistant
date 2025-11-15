@@ -96,8 +96,12 @@ def mock_trinnov_device_offline():
     device.volume = None
     device.source = None
     device.preset = None
+    device.source_format = None
     device.sources = {}
     device.presets = {}
+    # Async methods need to be AsyncMock
+    device.stop_listening = AsyncMock()
+    device.disconnect = AsyncMock()
     return device
 
 

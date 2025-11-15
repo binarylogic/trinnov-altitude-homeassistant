@@ -101,9 +101,10 @@ async def test_select_updates(hass: HomeAssistant, mock_config_entry, mock_setup
     # Simulate source change
     mock_device.source = "Blu-ray"
 
-    # Trigger callback
-    callback = mock_device.register_callback.call_args[0][0]
-    callback("source_changed", None)
+    # Trigger all callbacks (multiple entities register callbacks)
+    for call in mock_device.register_callback.call_args_list:
+        callback = call[0][0]
+        callback("source_changed", None)
     await hass.async_block_till_done()
 
     # Verify entity updated

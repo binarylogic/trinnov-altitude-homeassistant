@@ -59,9 +59,10 @@ async def test_sensor_updates(hass: HomeAssistant, mock_config_entry, mock_setup
     mock_device.source = "Apple TV"
     mock_device.volume = -35.5
 
-    # Trigger callback
-    callback = mock_device.register_callback.call_args[0][0]
-    callback("state_changed", None)
+    # Trigger all callbacks (multiple entities register callbacks)
+    for call in mock_device.register_callback.call_args_list:
+        callback = call[0][0]
+        callback("state_changed", None)
     await hass.async_block_till_done()
 
     # Verify sensor updated
