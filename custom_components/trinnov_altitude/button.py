@@ -32,11 +32,13 @@ BUTTONS: tuple[TrinnovAltitudeButtonEntityDescription, ...] = (
     TrinnovAltitudeButtonEntityDescription(
         key="mute_toggle",
         translation_key="mute_toggle",
+        name="Mute Toggle",
         press_fn=lambda device: device.mute_toggle(),
     ),
     TrinnovAltitudeButtonEntityDescription(
         key="dim_toggle",
         translation_key="dim_toggle",
+        name="Dim Toggle",
         press_fn=lambda device: device.dim_toggle(),
     ),
 )

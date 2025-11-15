@@ -41,6 +41,7 @@ class TrinnovAltitudeVolumeNumber(TrinnovAltitudeEntity, NumberEntity):
     _attr_mode = NumberMode.SLIDER
     _attr_native_unit_of_measurement = UnitOfSoundPressure.DECIBEL
     _attr_translation_key = "volume"
+    _attr_name = "Volume"
 
     def __init__(self, device: TrinnovAltitude) -> None:
         """Initialize number entity."""

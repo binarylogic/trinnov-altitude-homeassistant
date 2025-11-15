@@ -3,6 +3,7 @@
 import pytest
 from homeassistant.const import CONF_HOST
 from homeassistant.core import HomeAssistant
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.trinnov_altitude.const import CLIENT_ID, DOMAIN
 
@@ -34,19 +35,13 @@ async def test_async_setup_entry(
 
 async def test_async_setup_entry_without_mac(hass: HomeAssistant, mock_setup_entry):
     """Test setting up the integration without MAC address."""
-    config_entry = ConfigEntry(
-        version=1,
-        minor_version=1,
+    config_entry = MockConfigEntry(
         domain=DOMAIN,
         title="Trinnov Altitude (ABC123)",
         data={
             CONF_HOST: "192.168.1.100",
         },
-        source="user",
-        entry_id="test_entry_id",
         unique_id="ABC123",
-        discovery_keys={},
-        options={},
     )
     config_entry.add_to_hass(hass)
 

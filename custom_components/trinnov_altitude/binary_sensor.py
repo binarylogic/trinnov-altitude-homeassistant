@@ -34,16 +34,19 @@ BINARY_SENSORS: tuple[TrinnovAltitudeBinarySensorEntityDescription, ...] = (
     TrinnovAltitudeBinarySensorEntityDescription(
         key="bypass",
         translation_key="bypass",
+        name="Bypass",
         value_fn=lambda device: device.bypass or False,
     ),
     TrinnovAltitudeBinarySensorEntityDescription(
         key="dim",
         translation_key="dim",
+        name="Dim",
         value_fn=lambda device: device.dim or False,
     ),
     TrinnovAltitudeBinarySensorEntityDescription(
         key="mute",
         translation_key="mute",
+        name="Mute",
         value_fn=lambda device: device.mute or False,
     ),
 )

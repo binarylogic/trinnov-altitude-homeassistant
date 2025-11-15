@@ -34,6 +34,7 @@ class TrinnovAltitudeSourceSelect(TrinnovAltitudeEntity, SelectEntity):
     """Representation of a Trinnov Altitude source select entity."""
 
     _attr_translation_key = "source"
+    _attr_name = "Source"
 
     def __init__(self, device: TrinnovAltitude) -> None:
         """Initialize select entity."""
@@ -59,6 +60,7 @@ class TrinnovAltitudePresetSelect(TrinnovAltitudeEntity, SelectEntity):
     """Representation of a Trinnov Altitude preset select entity."""
 
     _attr_translation_key = "preset"
+    _attr_name = "Preset"
 
     def __init__(self, device: TrinnovAltitude) -> None:
         """Initialize select entity."""

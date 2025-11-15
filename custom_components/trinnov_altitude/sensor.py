@@ -32,36 +32,43 @@ SENSORS: tuple[TrinnovAltitudeSensorEntityDescription, ...] = (
     TrinnovAltitudeSensorEntityDescription(
         key="audiosync",
         translation_key="audiosync",
+        name="Audiosync",
         value_fn=lambda device: device.audiosync,
     ),
     TrinnovAltitudeSensorEntityDescription(
         key="decoder",
         translation_key="decoder",
+        name="Decoder",
         value_fn=lambda device: device.decoder,
     ),
     TrinnovAltitudeSensorEntityDescription(
         key="preset",
         translation_key="preset",
+        name="Preset",
         value_fn=lambda device: device.preset,
     ),
     TrinnovAltitudeSensorEntityDescription(
         key="source",
         translation_key="source",
+        name="Source",
         value_fn=lambda device: device.source,
     ),
     TrinnovAltitudeSensorEntityDescription(
         key="source_format",
         translation_key="source_format",
+        name="Source Format",
         value_fn=lambda device: device.source_format,
     ),
     TrinnovAltitudeSensorEntityDescription(
         key="upmixer",
         translation_key="upmixer",
+        name="Upmixer",
         value_fn=lambda device: device.upmixer,
     ),
     TrinnovAltitudeSensorEntityDescription(
         key="volume",
         translation_key="volume",
+        name="Volume",
         value_fn=lambda device: device.volume,
     ),
 )
