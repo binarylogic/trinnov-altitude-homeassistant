@@ -2,8 +2,6 @@
 
 from homeassistant.core import HomeAssistant
 
-from .test_init import mock_config_entry
-
 
 async def test_binary_sensors(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
     """Test binary sensor entities are created with correct state."""
@@ -28,7 +26,9 @@ async def test_binary_sensors(hass: HomeAssistant, mock_config_entry, mock_setup
     assert state.state == "off"  # mute is False
 
 
-async def test_binary_sensor_on_state(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_binary_sensor_on_state(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test binary sensors show 'on' when True."""
     mock_device = mock_setup_entry.return_value
     mock_device.bypass = True
@@ -51,7 +51,9 @@ async def test_binary_sensor_on_state(hass: HomeAssistant, mock_config_entry, mo
     assert state.state == "on"
 
 
-async def test_binary_sensor_updates(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_binary_sensor_updates(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test binary sensor entities update when device state changes."""
     mock_config_entry.add_to_hass(hass)
 
@@ -77,7 +79,9 @@ async def test_binary_sensor_updates(hass: HomeAssistant, mock_config_entry, moc
     assert state.state == "on"
 
 
-async def test_binary_sensor_none_values(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_binary_sensor_none_values(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test binary sensors handle None values correctly (should treat as False)."""
     mock_device = mock_setup_entry.return_value
     mock_device.bypass = None

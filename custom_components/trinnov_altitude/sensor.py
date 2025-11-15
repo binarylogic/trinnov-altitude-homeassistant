@@ -13,12 +13,12 @@ from .entity import TrinnovAltitudeEntity
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from trinnov_altitude.trinnov_altitude import TrinnovAltitude
-
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
     from homeassistant.helpers.typing import StateType
+
+    from trinnov_altitude.trinnov_altitude import TrinnovAltitude
 
 
 @dataclass(frozen=True, kw_only=True)

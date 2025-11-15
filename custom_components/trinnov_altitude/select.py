@@ -10,11 +10,11 @@ from .const import DOMAIN
 from .entity import TrinnovAltitudeEntity
 
 if TYPE_CHECKING:
-    from trinnov_altitude.trinnov_altitude import TrinnovAltitude
-
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
+
+    from trinnov_altitude.trinnov_altitude import TrinnovAltitude
 
 
 async def async_setup_entry(
@@ -22,10 +22,12 @@ async def async_setup_entry(
 ) -> None:
     """Set up the platform from a config entry."""
     device: TrinnovAltitude = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities([
-        TrinnovAltitudeSourceSelect(device),
-        TrinnovAltitudePresetSelect(device),
-    ])
+    async_add_entities(
+        [
+            TrinnovAltitudeSourceSelect(device),
+            TrinnovAltitudePresetSelect(device),
+        ]
+    )
 
 
 class TrinnovAltitudeSourceSelect(TrinnovAltitudeEntity, SelectEntity):

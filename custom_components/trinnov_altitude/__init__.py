@@ -2,15 +2,23 @@
 
 from __future__ import annotations
 
-from trinnov_altitude.trinnov_altitude import TrinnovAltitude
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_MAC, EVENT_HOMEASSISTANT_STOP, Platform
 from homeassistant.core import Event, HomeAssistant
 
+from trinnov_altitude.trinnov_altitude import TrinnovAltitude
+
 from .const import CLIENT_ID, DOMAIN
 
-PLATFORMS: list[str] = [Platform.BINARY_SENSOR, Platform.BUTTON, Platform.MEDIA_PLAYER, Platform.NUMBER, Platform.REMOTE, Platform.SELECT, Platform.SENSOR]
+PLATFORMS: list[str] = [
+    Platform.BINARY_SENSOR,
+    Platform.BUTTON,
+    Platform.MEDIA_PLAYER,
+    Platform.NUMBER,
+    Platform.REMOTE,
+    Platform.SELECT,
+    Platform.SENSOR,
+]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

@@ -16,8 +16,6 @@ from homeassistant.components.media_player import (
 from homeassistant.const import ATTR_ENTITY_ID
 from homeassistant.core import HomeAssistant
 
-from .test_init import mock_config_entry
-
 
 async def test_media_player(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
     """Test media player entity is created with correct state."""
@@ -31,12 +29,18 @@ async def test_media_player(hass: HomeAssistant, mock_config_entry, mock_setup_e
     assert state
     assert state.state == MediaPlayerState.IDLE
     assert state.attributes.get(ATTR_INPUT_SOURCE) == "Kaleidescape"
-    assert state.attributes.get("source_list") == ["Kaleidescape", "Apple TV", "Blu-ray"]
+    assert state.attributes.get("source_list") == [
+        "Kaleidescape",
+        "Apple TV",
+        "Blu-ray",
+    ]
     assert state.attributes.get(ATTR_MEDIA_VOLUME_MUTED) is False
     assert state.attributes.get(ATTR_MEDIA_VOLUME_LEVEL) == 0.5  # 50%
 
 
-async def test_media_player_playing_state(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_media_player_playing_state(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test media player shows playing state when source format is present."""
     mock_device = mock_setup_entry.return_value
     mock_device.source_format = "Dolby TrueHD 7.1"
@@ -50,7 +54,12 @@ async def test_media_player_playing_state(hass: HomeAssistant, mock_config_entry
     assert state.state == MediaPlayerState.PLAYING
 
 
-async def test_media_player_off_state(hass: HomeAssistant, mock_config_entry, mock_trinnov_device_offline, mock_setup_entry):
+async def test_media_player_off_state(
+    hass: HomeAssistant,
+    mock_config_entry,
+    mock_trinnov_device_offline,
+    mock_setup_entry,
+):
     """Test media player shows off state when device is disconnected."""
     mock_setup_entry.return_value = mock_trinnov_device_offline
 
@@ -63,7 +72,9 @@ async def test_media_player_off_state(hass: HomeAssistant, mock_config_entry, mo
     assert state.state == MediaPlayerState.OFF
 
 
-async def test_media_player_turn_on(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_media_player_turn_on(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test turning on media player."""
     mock_config_entry.add_to_hass(hass)
 
@@ -84,7 +95,9 @@ async def test_media_player_turn_on(hass: HomeAssistant, mock_config_entry, mock
     mock_device.power_on.assert_called_once()
 
 
-async def test_media_player_turn_off(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_media_player_turn_off(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test turning off media player."""
     mock_config_entry.add_to_hass(hass)
 
@@ -105,7 +118,9 @@ async def test_media_player_turn_off(hass: HomeAssistant, mock_config_entry, moc
     mock_device.power_off.assert_called_once()
 
 
-async def test_media_player_volume_up(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_media_player_volume_up(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test volume up."""
     mock_config_entry.add_to_hass(hass)
 
@@ -126,7 +141,9 @@ async def test_media_player_volume_up(hass: HomeAssistant, mock_config_entry, mo
     mock_device.volume_up.assert_called_once()
 
 
-async def test_media_player_volume_down(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_media_player_volume_down(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test volume down."""
     mock_config_entry.add_to_hass(hass)
 
@@ -147,7 +164,9 @@ async def test_media_player_volume_down(hass: HomeAssistant, mock_config_entry, 
     mock_device.volume_down.assert_called_once()
 
 
-async def test_media_player_set_volume(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_media_player_set_volume(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test setting volume level."""
     mock_config_entry.add_to_hass(hass)
 
@@ -171,7 +190,9 @@ async def test_media_player_set_volume(hass: HomeAssistant, mock_config_entry, m
     mock_device.volume_percentage_set.assert_called_once_with(75.0)
 
 
-async def test_media_player_mute(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_media_player_mute(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test muting volume."""
     mock_config_entry.add_to_hass(hass)
 
@@ -208,7 +229,9 @@ async def test_media_player_mute(hass: HomeAssistant, mock_config_entry, mock_se
     mock_device.mute_set.assert_called_once_with(False)
 
 
-async def test_media_player_select_source(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_media_player_select_source(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test selecting source."""
     mock_config_entry.add_to_hass(hass)
 
@@ -230,7 +253,12 @@ async def test_media_player_select_source(hass: HomeAssistant, mock_config_entry
     mock_device.source_set_by_name.assert_called_once_with("Apple TV")
 
 
-async def test_media_player_available_when_offline_with_mac(hass: HomeAssistant, mock_config_entry, mock_trinnov_device_offline, mock_setup_entry):
+async def test_media_player_available_when_offline_with_mac(
+    hass: HomeAssistant,
+    mock_config_entry,
+    mock_trinnov_device_offline,
+    mock_setup_entry,
+):
     """Test media player is available when offline if MAC address is configured."""
     mock_device = mock_trinnov_device_offline
     mock_device.power_on_available = lambda: True

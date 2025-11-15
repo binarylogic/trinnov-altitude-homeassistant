@@ -4,8 +4,6 @@ from homeassistant.components.number import ATTR_VALUE, SERVICE_SET_VALUE
 from homeassistant.const import ATTR_ENTITY_ID
 from homeassistant.core import HomeAssistant
 
-from .test_init import mock_config_entry
-
 
 async def test_volume_number(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
     """Test volume number entity is created with correct state."""
@@ -23,7 +21,9 @@ async def test_volume_number(hass: HomeAssistant, mock_config_entry, mock_setup_
     assert state.attributes.get("step") == 0.5
 
 
-async def test_volume_number_set_value(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_volume_number_set_value(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test setting volume via number entity."""
     mock_config_entry.add_to_hass(hass)
 
@@ -47,7 +47,9 @@ async def test_volume_number_set_value(hass: HomeAssistant, mock_config_entry, m
     mock_device.volume_set.assert_called_once_with(-35.5)
 
 
-async def test_volume_number_updates(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_volume_number_updates(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test volume number entity updates when device state changes."""
     mock_config_entry.add_to_hass(hass)
 
@@ -73,7 +75,12 @@ async def test_volume_number_updates(hass: HomeAssistant, mock_config_entry, moc
     assert state.state == "-30.0"
 
 
-async def test_volume_number_none_value(hass: HomeAssistant, mock_config_entry, mock_trinnov_device_offline, mock_setup_entry):
+async def test_volume_number_none_value(
+    hass: HomeAssistant,
+    mock_config_entry,
+    mock_trinnov_device_offline,
+    mock_setup_entry,
+):
     """Test volume number handles None value correctly."""
     mock_setup_entry.return_value = mock_trinnov_device_offline
 
@@ -88,7 +95,9 @@ async def test_volume_number_none_value(hass: HomeAssistant, mock_config_entry, 
     assert state.state == "unknown"
 
 
-async def test_volume_number_min_max_bounds(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_volume_number_min_max_bounds(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test volume number respects min/max bounds."""
     mock_config_entry.add_to_hass(hass)
 

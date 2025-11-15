@@ -2,17 +2,15 @@
 
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import pytest
+from homeassistant import config_entries
+from homeassistant.const import CONF_HOST, CONF_MAC
+from homeassistant.core import HomeAssistant
+from homeassistant.data_entry_flow import FlowResultType
 from trinnov_altitude.exceptions import (
     ConnectionFailedError,
     ConnectionTimeoutError,
     MalformedMacAddressError,
 )
-
-from homeassistant import config_entries
-from homeassistant.const import CONF_HOST, CONF_MAC
-from homeassistant.core import HomeAssistant
-from homeassistant.data_entry_flow import FlowResultType
 
 from custom_components.trinnov_altitude.const import DOMAIN
 
@@ -126,7 +124,9 @@ async def test_form_invalid_mac(hass: HomeAssistant):
 async def test_form_invalid_host(hass: HomeAssistant):
     """Test invalid host address."""
     mock_device = MagicMock()
-    mock_device.connect = AsyncMock(side_effect=ConnectionFailedError(Exception("Connection failed")))
+    mock_device.connect = AsyncMock(
+        side_effect=ConnectionFailedError(Exception("Connection failed"))
+    )
     mock_device.stop_listening = AsyncMock()
     mock_device.disconnect = AsyncMock()
 

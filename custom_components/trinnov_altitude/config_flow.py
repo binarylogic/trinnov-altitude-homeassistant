@@ -5,15 +5,15 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+import voluptuous as vol
+from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.const import CONF_HOST, CONF_MAC
+
 from trinnov_altitude.exceptions import (
     ConnectionFailedError,
     ConnectionTimeoutError,
     MalformedMacAddressError,
 )
-import voluptuous as vol
-
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
-from homeassistant.const import CONF_HOST, CONF_MAC
 
 from . import TrinnovAltitude
 from .const import CLIENT_ID, DOMAIN, NAME  # pylint:disable=unused-import

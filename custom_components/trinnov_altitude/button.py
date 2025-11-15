@@ -14,11 +14,11 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Coroutine
     from typing import Any
 
-    from trinnov_altitude.trinnov_altitude import TrinnovAltitude
-
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
+
+    from trinnov_altitude.trinnov_altitude import TrinnovAltitude
 
 
 @dataclass(frozen=True, kw_only=True)

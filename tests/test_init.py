@@ -1,9 +1,6 @@
 """Test the Trinnov Altitude integration initialization."""
 
-from unittest.mock import patch
-
 import pytest
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_MAC
 from homeassistant.core import HomeAssistant
@@ -56,9 +53,7 @@ async def test_async_setup_entry(
     assert mock_config_entry.entry_id in hass.data[DOMAIN]
 
 
-async def test_async_setup_entry_without_mac(
-    hass: HomeAssistant, mock_setup_entry
-):
+async def test_async_setup_entry_without_mac(hass: HomeAssistant, mock_setup_entry):
     """Test setting up the integration without MAC address."""
     config_entry = ConfigEntry(
         version=1,

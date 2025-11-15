@@ -4,8 +4,6 @@ from homeassistant.components.button import SERVICE_PRESS
 from homeassistant.const import ATTR_ENTITY_ID
 from homeassistant.core import HomeAssistant
 
-from .test_init import mock_config_entry
-
 
 async def test_buttons(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
     """Test button entities are created."""
@@ -23,7 +21,9 @@ async def test_buttons(hass: HomeAssistant, mock_config_entry, mock_setup_entry)
     assert state
 
 
-async def test_mute_toggle_button(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_mute_toggle_button(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test mute toggle button press."""
     mock_config_entry.add_to_hass(hass)
 
@@ -46,7 +46,9 @@ async def test_mute_toggle_button(hass: HomeAssistant, mock_config_entry, mock_s
     mock_device.mute_toggle.assert_called_once()
 
 
-async def test_dim_toggle_button(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_dim_toggle_button(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test dim toggle button press."""
     mock_config_entry.add_to_hass(hass)
 
@@ -69,7 +71,9 @@ async def test_dim_toggle_button(hass: HomeAssistant, mock_config_entry, mock_se
     mock_device.dim_toggle.assert_called_once()
 
 
-async def test_button_multiple_presses(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_button_multiple_presses(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test button can be pressed multiple times."""
     mock_config_entry.add_to_hass(hass)
 

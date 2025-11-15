@@ -11,11 +11,11 @@ from .const import DOMAIN
 from .entity import TrinnovAltitudeEntity
 
 if TYPE_CHECKING:
-    from trinnov_altitude.trinnov_altitude import TrinnovAltitude
-
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
+
+    from trinnov_altitude.trinnov_altitude import TrinnovAltitude
 
 
 # Volume range: -120 dB to 0 dB (capped at 0 for safety)

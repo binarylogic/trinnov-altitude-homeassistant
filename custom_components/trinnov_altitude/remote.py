@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from trinnov_altitude.exceptions import NoMacAddressError, NotConnectedError
-
 from homeassistant.components.remote import RemoteEntity, RemoteEntityFeature
 from homeassistant.exceptions import HomeAssistantError
+
+from trinnov_altitude.exceptions import NoMacAddressError, NotConnectedError
 
 from .const import DOMAIN
 from .entity import TrinnovAltitudeEntity

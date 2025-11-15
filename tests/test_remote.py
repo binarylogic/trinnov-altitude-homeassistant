@@ -3,8 +3,6 @@
 from unittest.mock import AsyncMock
 
 import pytest
-from trinnov_altitude.exceptions import NoMacAddressError, NotConnectedError
-
 from homeassistant.components.remote import (
     ATTR_ACTIVITY,
     ATTR_COMMAND,
@@ -15,8 +13,7 @@ from homeassistant.components.remote import (
 from homeassistant.const import ATTR_ENTITY_ID
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
-
-from .test_init import mock_config_entry
+from trinnov_altitude.exceptions import NoMacAddressError, NotConnectedError
 
 
 async def test_remote(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
@@ -31,7 +28,11 @@ async def test_remote(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
     assert state
     assert state.state == "on"  # connected() returns True
     assert state.attributes.get(ATTR_ACTIVITY) == "Kaleidescape"
-    assert state.attributes.get("activity_list") == ["Kaleidescape", "Apple TV", "Blu-ray"]
+    assert state.attributes.get("activity_list") == [
+        "Kaleidescape",
+        "Apple TV",
+        "Blu-ray",
+    ]
 
 
 async def test_remote_turn_on(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
@@ -55,7 +56,9 @@ async def test_remote_turn_on(hass: HomeAssistant, mock_config_entry, mock_setup
     mock_device.power_on.assert_called_once()
 
 
-async def test_remote_turn_on_no_mac(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_remote_turn_on_no_mac(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test turning on remote without MAC address raises error."""
     mock_device = mock_setup_entry.return_value
     mock_device.power_on.side_effect = NoMacAddressError
@@ -76,7 +79,9 @@ async def test_remote_turn_on_no_mac(hass: HomeAssistant, mock_config_entry, moc
         )
 
 
-async def test_remote_turn_off(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_remote_turn_off(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test turning off remote (power off device)."""
     mock_config_entry.add_to_hass(hass)
 
@@ -97,7 +102,9 @@ async def test_remote_turn_off(hass: HomeAssistant, mock_config_entry, mock_setu
     mock_device.power_off.assert_called_once()
 
 
-async def test_remote_send_command_simple(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_remote_send_command_simple(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test sending simple commands."""
     mock_config_entry.add_to_hass(hass)
 
@@ -120,7 +127,9 @@ async def test_remote_send_command_simple(hass: HomeAssistant, mock_config_entry
     mock_device.mute_on.assert_called_once()
 
 
-async def test_remote_send_command_with_args(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_remote_send_command_with_args(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test sending commands with arguments."""
     mock_config_entry.add_to_hass(hass)
 
@@ -143,7 +152,9 @@ async def test_remote_send_command_with_args(hass: HomeAssistant, mock_config_en
     mock_device.volume_set.assert_called_once_with(-35.5)
 
 
-async def test_remote_send_command_with_int_arg(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_remote_send_command_with_int_arg(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test sending commands with integer arguments."""
     mock_config_entry.add_to_hass(hass)
 
@@ -166,7 +177,9 @@ async def test_remote_send_command_with_int_arg(hass: HomeAssistant, mock_config
     mock_device.preset_set.assert_called_once_with(2)
 
 
-async def test_remote_send_command_with_string_arg(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_remote_send_command_with_string_arg(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test sending commands with string arguments."""
     mock_config_entry.add_to_hass(hass)
 
@@ -190,7 +203,9 @@ async def test_remote_send_command_with_string_arg(hass: HomeAssistant, mock_con
     mock_device.upmixer_set.assert_called_once_with("Native")
 
 
-async def test_remote_send_multiple_commands(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_remote_send_multiple_commands(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test sending multiple commands."""
     mock_config_entry.add_to_hass(hass)
 
@@ -215,7 +230,9 @@ async def test_remote_send_multiple_commands(hass: HomeAssistant, mock_config_en
     mock_device.source_set.assert_called_once_with(1)
 
 
-async def test_remote_send_invalid_command(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_remote_send_invalid_command(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test sending invalid command raises error."""
     mock_config_entry.add_to_hass(hass)
 
@@ -234,7 +251,9 @@ async def test_remote_send_invalid_command(hass: HomeAssistant, mock_config_entr
         )
 
 
-async def test_remote_send_command_not_connected(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_remote_send_command_not_connected(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test sending command when device not connected raises error."""
     mock_device = mock_setup_entry.return_value
     mock_device.mute_on = AsyncMock(side_effect=NotConnectedError)
@@ -256,7 +275,9 @@ async def test_remote_send_command_not_connected(hass: HomeAssistant, mock_confi
         )
 
 
-async def test_remote_send_command_invalid_args(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_remote_send_command_invalid_args(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
     """Test sending command with invalid arguments raises error."""
     mock_device = mock_setup_entry.return_value
     mock_device.volume_set = AsyncMock(side_effect=TypeError("Invalid argument"))
@@ -278,7 +299,12 @@ async def test_remote_send_command_invalid_args(hass: HomeAssistant, mock_config
         )
 
 
-async def test_remote_is_off_when_disconnected(hass: HomeAssistant, mock_config_entry, mock_trinnov_device_offline, mock_setup_entry):
+async def test_remote_is_off_when_disconnected(
+    hass: HomeAssistant,
+    mock_config_entry,
+    mock_trinnov_device_offline,
+    mock_setup_entry,
+):
     """Test remote shows off state when device is disconnected."""
     mock_setup_entry.return_value = mock_trinnov_device_offline
 

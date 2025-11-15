@@ -5,7 +5,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from homeassistant.components.binary_sensor import BinarySensorEntity, BinarySensorEntityDescription
+from homeassistant.components.binary_sensor import (
+    BinarySensorEntity,
+    BinarySensorEntityDescription,
+)
 
 from .const import DOMAIN
 from .entity import TrinnovAltitudeEntity
@@ -13,12 +16,11 @@ from .entity import TrinnovAltitudeEntity
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from trinnov_altitude.trinnov_altitude import TrinnovAltitude
-
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
-    from homeassistant.helpers.typing import StateType
+
+    from trinnov_altitude.trinnov_altitude import TrinnovAltitude
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -53,7 +55,8 @@ async def async_setup_entry(
     """Set up the platform from a config entry."""
     device: TrinnovAltitude = hass.data[DOMAIN][entry.entry_id]
     async_add_entities(
-        TrinnovAltitudeBinarySensor(device, description) for description in BINARY_SENSORS
+        TrinnovAltitudeBinarySensor(device, description)
+        for description in BINARY_SENSORS
     )
 
 

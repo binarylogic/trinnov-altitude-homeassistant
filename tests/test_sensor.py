@@ -1,11 +1,6 @@
 """Test the Trinnov Altitude sensor platform."""
 
-from homeassistant.const import ATTR_FRIENDLY_NAME
 from homeassistant.core import HomeAssistant
-
-from custom_components.trinnov_altitude.const import DOMAIN
-
-from .test_init import mock_config_entry
 
 
 async def test_sensors(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
@@ -77,7 +72,12 @@ async def test_sensor_updates(hass: HomeAssistant, mock_config_entry, mock_setup
     assert state.state == "-35.5"
 
 
-async def test_sensor_none_values(hass: HomeAssistant, mock_config_entry, mock_trinnov_device_offline, mock_setup_entry):
+async def test_sensor_none_values(
+    hass: HomeAssistant,
+    mock_config_entry,
+    mock_trinnov_device_offline,
+    mock_setup_entry,
+):
     """Test sensors handle None values correctly."""
     # Override mock to return offline device
     mock_setup_entry.return_value = mock_trinnov_device_offline
