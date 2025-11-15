@@ -36,6 +36,14 @@
         "name": "Mute"
       }
     },
+    "button": {
+      "dim_toggle": {
+        "name": "Toggle Dim"
+      },
+      "mute_toggle": {
+        "name": "Toggle Mute"
+      }
+    },
     "number": {
       "volume": {
         "name": "Volume"
