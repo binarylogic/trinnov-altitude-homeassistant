@@ -19,10 +19,10 @@ test-fast: ## Run tests without coverage
 	uv run pytest --no-cov
 
 lint: ## Run ruff linter
-	ruff check custom_components tests
+	uv run ruff check custom_components tests
 
 format: ## Format code with ruff
-	ruff format custom_components tests
+	uv run ruff format custom_components tests
 
 clean: ## Clean up generated files
 	rm -rf .pytest_cache
