@@ -99,7 +99,7 @@ async def test_form_user_without_mac(hass: HomeAssistant):
 async def test_form_invalid_mac(hass: HomeAssistant):
     """Test invalid MAC address."""
     mock_device = MagicMock()
-    mock_device.connect = AsyncMock(side_effect=MalformedMacAddressError)
+    mock_device.connect = AsyncMock(side_effect=MalformedMacAddressError("invalid"))
     mock_device.stop_listening = AsyncMock()
     mock_device.disconnect = AsyncMock()
 
@@ -126,7 +126,7 @@ async def test_form_invalid_mac(hass: HomeAssistant):
 async def test_form_invalid_host(hass: HomeAssistant):
     """Test invalid host address."""
     mock_device = MagicMock()
-    mock_device.connect = AsyncMock(side_effect=ConnectionFailedError)
+    mock_device.connect = AsyncMock(side_effect=ConnectionFailedError(Exception("Connection failed")))
     mock_device.stop_listening = AsyncMock()
     mock_device.disconnect = AsyncMock()
 
@@ -214,12 +214,15 @@ async def test_form_already_configured(hass: HomeAssistant):
     # Create existing entry
     existing_entry = config_entries.ConfigEntry(
         version=1,
+        minor_version=1,
         domain=DOMAIN,
         title="Trinnov Altitude (ABC123)",
         data={CONF_HOST: "192.168.1.100"},
         source=config_entries.SOURCE_USER,
         entry_id="existing",
         unique_id="ABC123",
+        discovery_keys={},
+        options={},
     )
     existing_entry.add_to_hass(hass)
 

@@ -16,6 +16,7 @@ def mock_config_entry():
     """Create a mock config entry."""
     return ConfigEntry(
         version=1,
+        minor_version=1,
         domain=DOMAIN,
         title="Trinnov Altitude (ABC123)",
         data={
@@ -25,6 +26,8 @@ def mock_config_entry():
         source="user",
         entry_id="test_entry_id",
         unique_id="ABC123",
+        discovery_keys={},
+        options={},
     )
 
 
@@ -59,6 +62,7 @@ async def test_async_setup_entry_without_mac(
     """Test setting up the integration without MAC address."""
     config_entry = ConfigEntry(
         version=1,
+        minor_version=1,
         domain=DOMAIN,
         title="Trinnov Altitude (ABC123)",
         data={
@@ -67,6 +71,8 @@ async def test_async_setup_entry_without_mac(
         source="user",
         entry_id="test_entry_id",
         unique_id="ABC123",
+        discovery_keys={},
+        options={},
     )
     config_entry.add_to_hass(hass)
 
