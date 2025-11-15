@@ -31,3 +31,25 @@ clean: ## Clean up generated files
 	rm -rf **/__pycache__
 	rm -rf **/*.pyc
 	rm -rf .ruff_cache
+	rm -rf trinnov_altitude.zip
+
+release-check: ## Check if ready for release
+	@echo "Running pre-release checks..."
+	@make lint
+	@make test
+	@echo "✓ All checks passed!"
+
+release-zip: ## Create release zip file
+	@echo "Creating release zip..."
+	@cd custom_components && zip -r ../trinnov_altitude.zip trinnov_altitude/
+	@echo "✓ Created trinnov_altitude.zip"
+
+release: release-check release-zip ## Create a new release (runs checks, creates zip)
+	@echo ""
+	@echo "Release package ready!"
+	@echo "Next steps:"
+	@echo "  1. Update version in manifest.json"
+	@echo "  2. git add custom_components/trinnov_altitude/manifest.json"
+	@echo "  3. git commit -m 'Release vX.Y.Z'"
+	@echo "  4. git tag vX.Y.Z"
+	@echo "  5. git push origin master --tags"
