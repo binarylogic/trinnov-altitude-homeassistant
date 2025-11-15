@@ -4,7 +4,6 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from homeassistant.components.remote import (
-    ATTR_ACTIVITY,
     ATTR_COMMAND,
     SERVICE_SEND_COMMAND,
     SERVICE_TURN_OFF,

@@ -19,11 +19,14 @@ jobs:
       - name: Set up Python
         run: uv python install 3.12
 
+      - name: Install dependencies
+        run: uv sync
+
       - name: Run ruff check
         run: make lint
 
       - name: Run ruff format check
-        run: ruff format --check custom_components tests
+        run: make format-check
 
   test:
     name: Test (Python ${{ matrix.python-version }})
@@ -43,7 +46,7 @@ jobs:
         run: uv python install ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: uv pip install -r requirements_test.txt
+        run: uv sync
 
       - name: Run tests with coverage
         run: make test-cov

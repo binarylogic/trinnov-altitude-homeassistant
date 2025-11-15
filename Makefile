@@ -24,6 +24,9 @@ lint: ## Run ruff linter
 format: ## Format code with ruff
 	uv run ruff format custom_components tests
 
+format-check: ## Check code formatting without modifying
+	uv run ruff format --check custom_components tests
+
 clean: ## Clean up generated files
 	rm -rf .pytest_cache
 	rm -rf htmlcov
@@ -36,20 +39,22 @@ clean: ## Clean up generated files
 release-check: ## Check if ready for release
 	@echo "Running pre-release checks..."
 	@make lint
+	@make format-check
 	@make test
 	@echo "✓ All checks passed!"
 
 release-zip: ## Create release zip file
 	@echo "Creating release zip..."
-	@cd custom_components && zip -r ../trinnov_altitude.zip trinnov_altitude/
+	@cd custom_components && zip -r ../trinnov_altitude.zip trinnov_altitude/ -x "**/__pycache__/*" -x "**/*.pyc"
 	@echo "✓ Created trinnov_altitude.zip"
 
 release: release-check release-zip ## Create a new release (runs checks, creates zip)
 	@echo ""
 	@echo "Release package ready!"
 	@echo "Next steps:"
-	@echo "  1. Update version in manifest.json"
-	@echo "  2. git add custom_components/trinnov_altitude/manifest.json"
-	@echo "  3. git commit -m 'Release vX.Y.Z'"
-	@echo "  4. git tag vX.Y.Z"
-	@echo "  5. git push origin master --tags"
+	@echo "  1. git tag v<VERSION>"
+	@echo "  2. git push origin master --tags"
+	@echo ""
+	@echo "The GitHub Actions release workflow will automatically:"
+	@echo "  - Create a GitHub release with changelog"
+	@echo "  - Build and attach trinnov_altitude.zip"

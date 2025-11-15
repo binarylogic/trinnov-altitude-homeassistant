@@ -67,7 +67,7 @@ jobs:
       - name: Create zip for release
         run: |
           cd custom_components
-          zip -r ../trinnov_altitude.zip trinnov_altitude/
+          zip -r ../trinnov_altitude.zip trinnov_altitude/ -x "**/__pycache__/*" -x "**/*.pyc"
 
       - name: Upload zip to release
         uses: softprops/action-gh-release@v2

@@ -1,6 +1,5 @@
 """Test the Trinnov Altitude integration initialization."""
 
-import pytest
 from homeassistant.const import CONF_HOST
 from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
