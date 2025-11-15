@@ -41,6 +41,11 @@
         "name": "Volume"
       }
     },
+    "select": {
+      "source": {
+        "name": "Source"
+      }
+    },
     "sensor": {
       "audiosync": {
         "name": "Audiosync"
