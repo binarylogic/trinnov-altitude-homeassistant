@@ -42,7 +42,37 @@ After installation, add the Trinnov Altitude integration via the Home Assistant 
       Trinnov Altitude via Wake on Lan. The Trinnov Altitude does not have a standby mode that maintains TCP connections. Wake on Lan is the only way
       to power on the Trinnov Altitude over IP.
 
-## Usage
+## Entities
+
+This integration provides multiple entity types for controlling your Trinnov Altitude:
+
+### Controls
+
+#### Volume Slider (Number)
+A dedicated volume slider for precise control from -120 dB to 0 dB (capped at 0 dB for safety).
+- **Entity:** `number.trinnov_altitude_*_volume`
+- **Range:** -120.0 to 0.0 dB
+- **Step:** 0.5 dB
+
+#### Source Selector (Select)
+Dropdown to select the active input source.
+- **Entity:** `select.trinnov_altitude_*_source`
+- **Options:** Your configured sources
+
+#### Preset Selector (Select)
+Dropdown to select audio presets.
+- **Entity:** `select.trinnov_altitude_*_preset`
+- **Options:** Your configured presets
+
+#### Toggle Buttons (Button)
+One-tap controls for common functions:
+- **Mute Toggle:** `button.trinnov_altitude_*_mute_toggle`
+- **Dim Toggle:** `button.trinnov_altitude_*_dim_toggle`
+
+### Media Player
+
+A full-featured media player entity with volume control, source selection, and power management.
+- **Entity:** `media_player.trinnov_altitude_*`
 
 ### Remote
 
@@ -190,6 +220,41 @@ action:
     target:
       entity_id: remote.media_room_trinnov_altitude
 ```
+
+## Development
+
+### Setup
+
+This project uses modern Python tooling:
+
+```bash
+# Install uv (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Install dependencies
+make install
+
+# Run tests
+make test
+
+# Run tests with coverage
+make test-cov
+
+# Lint code
+make lint
+
+# Format code
+make format
+```
+
+### Testing
+
+The integration includes comprehensive tests with 95% coverage requirement:
+- Unit tests for all platforms
+- Integration tests for config flow
+- Mock devices for testing without hardware
+
+Tests run automatically on push/PR via GitHub Actions.
 
 ## Support
 
