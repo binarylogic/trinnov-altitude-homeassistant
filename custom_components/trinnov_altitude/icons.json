@@ -21,7 +21,7 @@
       }
     },
     "sensor": {
-      "audiosymc": {
+      "audiosync": {
         "default": "mdi:sync"
       },
       "decoder": {
