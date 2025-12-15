@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v1.5.0...v1.6.0) (2025-12-15)
+
+
+### Features
+
+* **sensor:** add dynamic icons for power_status sensor ([5222344](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/52223446d0200b399abc139f515cf093a3898306))
+
 ## [1.5.0](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v1.4.0...v1.5.0) (2025-12-15)
 
 
