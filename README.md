@@ -125,6 +125,7 @@ data:
 - `preset_set (int)`
 - `remapping_mode_set (string)`
 - `source_set (int)`
+- `source_set_by_name (string)`
 - `volume_set (decimal)`
 - `volume_ramp (decimal)`
 - `upmixer_set (string)`

@@ -57,6 +57,7 @@ VALID_COMMANDS = {
     "quick_optimized_toggle",
     "remapping_mode_set",
     "source_set",
+    "source_set_by_name",
     "time_alignment_off",
     "time_alignment_on",
     "time_alignment_toggle",
