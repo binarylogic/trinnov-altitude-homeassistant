@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from homeassistant.components.remote import RemoteEntity, RemoteEntityFeature
 from homeassistant.exceptions import HomeAssistantError
 
+from trinnov_altitude.const import RemappingMode, UpmixerMode
 from trinnov_altitude.exceptions import NoMacAddressError, NotConnectedError
 
 from .const import DOMAIN
@@ -112,12 +113,14 @@ class TrinnovAltitudeRemote(TrinnovAltitudeEntity, RemoteEntity):
                 cmd_parts = cmd.split()  # Split the cmd string by spaces
                 method_name = cmd_parts[0]  # The first token is the method name
                 args_strings = cmd_parts[1:]  # The rest of the tokens are the arguments
-                typed_args = [self._cast_to_primitive_type(arg) for arg in args_strings]
 
                 if method_name not in VALID_COMMANDS:
                     raise HomeAssistantError(
                         f"'{method_name}' is not a valid Trinnov Altitude command"
                     )
+
+                # Convert string arguments to enum types for commands that require them
+                typed_args = self._convert_args(method_name, args_strings)
 
                 await getattr(self._device, method_name)(*typed_args)
             except NotConnectedError as exc:
@@ -128,6 +131,36 @@ class TrinnovAltitudeRemote(TrinnovAltitudeEntity, RemoteEntity):
                 raise HomeAssistantError(
                     f"Invalid arguments for command '{method_name}'. Expected format: {method_name} <arg1> <arg2> ..."
                 ) from exc
+
+    def _convert_args(self, method_name: str, args: list[str]) -> list[Any]:
+        """Convert string arguments to appropriate types based on command."""
+        if method_name == "upmixer_set" and args:
+            return [self._string_to_upmixer_mode(args[0])]
+        if method_name == "remapping_mode_set" and args:
+            return [self._string_to_remapping_mode(args[0])]
+        return [self._cast_to_primitive_type(arg) for arg in args]
+
+    def _string_to_upmixer_mode(self, value: str) -> UpmixerMode:
+        """Convert a string to UpmixerMode enum (case-insensitive)."""
+        value_lower = value.lower()
+        for mode in UpmixerMode:
+            if mode.value == value_lower:
+                return mode
+        valid_modes = [mode.value for mode in UpmixerMode]
+        raise HomeAssistantError(
+            f"Invalid upmixer mode '{value}'. Valid modes are: {', '.join(valid_modes)}"
+        )
+
+    def _string_to_remapping_mode(self, value: str) -> RemappingMode:
+        """Convert a string to RemappingMode enum (case-insensitive)."""
+        value_lower = value.lower()
+        for mode in RemappingMode:
+            if mode.value.lower() == value_lower:
+                return mode
+        valid_modes = [mode.value for mode in RemappingMode]
+        raise HomeAssistantError(
+            f"Invalid remapping mode '{value}'. Valid modes are: {', '.join(valid_modes)}"
+        )
 
     def _cast_to_primitive_type(self, arg: str) -> bool | int | float | str:
         """Casts command arguments to primitive types that the device expects."""

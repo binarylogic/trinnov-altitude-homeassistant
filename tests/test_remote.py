@@ -12,6 +12,7 @@ from homeassistant.components.remote import (
 from homeassistant.const import ATTR_ENTITY_ID
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
+from trinnov_altitude.const import RemappingMode, UpmixerMode
 from trinnov_altitude.exceptions import NoMacAddressError, NotConnectedError
 
 
@@ -180,10 +181,10 @@ async def test_remote_send_command_with_int_arg(
     mock_device.preset_set.assert_called_once_with(2)
 
 
-async def test_remote_send_command_with_string_arg(
+async def test_remote_send_command_upmixer_set(
     hass: HomeAssistant, mock_config_entry, mock_setup_entry
 ):
-    """Test sending commands with string arguments."""
+    """Test sending upmixer_set command converts string to enum."""
     mock_config_entry.add_to_hass(hass)
 
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
@@ -192,18 +193,112 @@ async def test_remote_send_command_with_string_arg(
     mock_device = mock_setup_entry.return_value
     mock_device.upmixer_set = AsyncMock()
 
-    # Send upmixer_set command with string
+    # Send upmixer_set command with lowercase string
     await hass.services.async_call(
         "remote",
         SERVICE_SEND_COMMAND,
         {
             ATTR_ENTITY_ID: "remote.trinnov_altitude_abc123",
-            ATTR_COMMAND: ["upmixer_set Native"],
+            ATTR_COMMAND: ["upmixer_set native"],
         },
         blocking=True,
     )
 
-    mock_device.upmixer_set.assert_called_once_with("Native")
+    mock_device.upmixer_set.assert_called_once_with(UpmixerMode.MODE_NATIVE)
+
+
+async def test_remote_send_command_upmixer_set_case_insensitive(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test upmixer_set command is case-insensitive."""
+    mock_config_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    mock_device = mock_setup_entry.return_value
+    mock_device.upmixer_set = AsyncMock()
+
+    # Send upmixer_set command with mixed case
+    await hass.services.async_call(
+        "remote",
+        SERVICE_SEND_COMMAND,
+        {
+            ATTR_ENTITY_ID: "remote.trinnov_altitude_abc123",
+            ATTR_COMMAND: ["upmixer_set DOLBY"],
+        },
+        blocking=True,
+    )
+
+    mock_device.upmixer_set.assert_called_once_with(UpmixerMode.MODE_DOLBY)
+
+
+async def test_remote_send_command_upmixer_set_invalid(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test upmixer_set command with invalid mode raises error."""
+    mock_config_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    with pytest.raises(HomeAssistantError, match="Invalid upmixer mode"):
+        await hass.services.async_call(
+            "remote",
+            SERVICE_SEND_COMMAND,
+            {
+                ATTR_ENTITY_ID: "remote.trinnov_altitude_abc123",
+                ATTR_COMMAND: ["upmixer_set invalid_mode"],
+            },
+            blocking=True,
+        )
+
+
+async def test_remote_send_command_remapping_mode_set(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test sending remapping_mode_set command converts string to enum."""
+    mock_config_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    mock_device = mock_setup_entry.return_value
+    mock_device.remapping_mode_set = AsyncMock()
+
+    # Send remapping_mode_set command with mixed case
+    await hass.services.async_call(
+        "remote",
+        SERVICE_SEND_COMMAND,
+        {
+            ATTR_ENTITY_ID: "remote.trinnov_altitude_abc123",
+            ATTR_COMMAND: ["remapping_mode_set 3D"],
+        },
+        blocking=True,
+    )
+
+    mock_device.remapping_mode_set.assert_called_once_with(RemappingMode.MODE_3D)
+
+
+async def test_remote_send_command_remapping_mode_set_invalid(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test remapping_mode_set command with invalid mode raises error."""
+    mock_config_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    with pytest.raises(HomeAssistantError, match="Invalid remapping mode"):
+        await hass.services.async_call(
+            "remote",
+            SERVICE_SEND_COMMAND,
+            {
+                ATTR_ENTITY_ID: "remote.trinnov_altitude_abc123",
+                ATTR_COMMAND: ["remapping_mode_set invalid"],
+            },
+            blocking=True,
+        )
 
 
 async def test_remote_send_multiple_commands(
