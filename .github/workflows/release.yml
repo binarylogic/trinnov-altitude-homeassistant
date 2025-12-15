@@ -38,6 +38,11 @@ jobs:
           echo "$CHANGELOG" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
+      - name: Create zip for release
+        run: |
+          cd custom_components
+          zip -r ../trinnov_altitude.zip trinnov_altitude/ -x "**/__pycache__/*" -x "**/*.pyc"
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -60,16 +65,6 @@ jobs:
             2. Extract to `config/custom_components/`
             3. Restart Home Assistant
 
-          generate_release_notes: true
+          files: trinnov_altitude.zip
           draft: false
           prerelease: false
-
-      - name: Create zip for release
-        run: |
-          cd custom_components
-          zip -r ../trinnov_altitude.zip trinnov_altitude/ -x "**/__pycache__/*" -x "**/*.pyc"
-
-      - name: Upload zip to release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: trinnov_altitude.zip
