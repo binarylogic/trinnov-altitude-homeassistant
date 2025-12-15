@@ -51,6 +51,13 @@ def _get_power_status(device: TrinnovAltitude) -> str:
     return PowerStatus.READY
 
 
+POWER_STATUS_ICONS = {
+    PowerStatus.OFF: "mdi:power-off",
+    PowerStatus.BOOTING: "mdi:power-settings",
+    PowerStatus.READY: "mdi:power-on",
+}
+
+
 SENSORS: tuple[TrinnovAltitudeSensorEntityDescription, ...] = (
     TrinnovAltitudeSensorEntityDescription(
         key="power_status",
@@ -134,3 +141,10 @@ class TrinnovAltitudeSensor(TrinnovAltitudeEntity, SensorEntity):
     def native_value(self) -> StateType:  # type: ignore
         """Return value of sensor."""
         return self.entity_description.value_fn(self._device)
+
+    @property
+    def icon(self) -> str | None:
+        """Return dynamic icon for power_status sensor."""
+        if self.entity_description.key == "power_status":
+            return POWER_STATUS_ICONS.get(self.native_value)  # type: ignore
+        return None
