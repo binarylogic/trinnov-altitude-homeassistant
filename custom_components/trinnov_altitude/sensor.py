@@ -3,12 +3,25 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import StrEnum
 from typing import TYPE_CHECKING
 
-from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntity,
+    SensorEntityDescription,
+)
 
 from .const import DOMAIN
 from .entity import TrinnovAltitudeEntity
+
+
+class PowerStatus(StrEnum):
+    """Power status states."""
+
+    OFF = "off"
+    BOOTING = "booting"
+    READY = "ready"
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -28,7 +41,24 @@ class TrinnovAltitudeSensorEntityDescription(SensorEntityDescription):
     value_fn: Callable[[TrinnovAltitude], StateType]
 
 
+def _get_power_status(device: TrinnovAltitude) -> str:
+    """Determine the power status of the device."""
+    if not device.connected():
+        return PowerStatus.OFF
+    if not device._initial_sync.is_set():
+        return PowerStatus.BOOTING
+    return PowerStatus.READY
+
+
 SENSORS: tuple[TrinnovAltitudeSensorEntityDescription, ...] = (
+    TrinnovAltitudeSensorEntityDescription(
+        key="power_status",
+        translation_key="power_status",
+        name="Power Status",
+        device_class=SensorDeviceClass.ENUM,
+        options=[status.value for status in PowerStatus],
+        value_fn=_get_power_status,
+    ),
     TrinnovAltitudeSensorEntityDescription(
         key="audiosync",
         translation_key="audiosync",

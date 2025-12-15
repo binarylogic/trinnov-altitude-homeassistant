@@ -1,6 +1,95 @@
 """Test the Trinnov Altitude sensor platform."""
 
+import asyncio
+
 from homeassistant.core import HomeAssistant
+
+
+async def test_power_status_ready(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test power_status sensor shows 'ready' when connected and synced."""
+    mock_config_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    state = hass.states.get("sensor.trinnov_altitude_abc123_power_status")
+    assert state
+    assert state.state == "ready"
+
+
+async def test_power_status_off(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test power_status sensor shows 'off' when not connected."""
+    mock_device = mock_setup_entry.return_value
+    mock_device.connected = lambda: False
+
+    mock_config_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    state = hass.states.get("sensor.trinnov_altitude_abc123_power_status")
+    assert state
+    assert state.state == "off"
+
+
+async def test_power_status_booting(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test power_status sensor shows 'booting' when connected but not synced."""
+    mock_device = mock_setup_entry.return_value
+    mock_device.connected = lambda: True
+    mock_device._initial_sync = asyncio.Event()  # Not set = not synced
+
+    mock_config_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    state = hass.states.get("sensor.trinnov_altitude_abc123_power_status")
+    assert state
+    assert state.state == "booting"
+
+
+async def test_power_status_transitions(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test power_status sensor transitions through states correctly."""
+    mock_device = mock_setup_entry.return_value
+    mock_device.connected = lambda: False
+    mock_device._initial_sync = asyncio.Event()
+
+    mock_config_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    # Initially off
+    state = hass.states.get("sensor.trinnov_altitude_abc123_power_status")
+    assert state.state == "off"
+
+    # Simulate connection (but not synced yet)
+    mock_device.connected = lambda: True
+    for call in mock_device.register_callback.call_args_list:
+        callback = call[0][0]
+        callback("state_changed", None)
+    await hass.async_block_till_done()
+
+    state = hass.states.get("sensor.trinnov_altitude_abc123_power_status")
+    assert state.state == "booting"
+
+    # Simulate sync complete
+    mock_device._initial_sync.set()
+    for call in mock_device.register_callback.call_args_list:
+        callback = call[0][0]
+        callback("state_changed", None)
+    await hass.async_block_till_done()
+
+    state = hass.states.get("sensor.trinnov_altitude_abc123_power_status")
+    assert state.state == "ready"
 
 
 async def test_sensors(hass: HomeAssistant, mock_config_entry, mock_setup_entry):

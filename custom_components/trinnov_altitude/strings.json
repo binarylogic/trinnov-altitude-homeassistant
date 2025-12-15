@@ -59,6 +59,14 @@
       }
     },
     "sensor": {
+      "power_status": {
+        "name": "Power Status",
+        "state": {
+          "off": "Off",
+          "booting": "Booting",
+          "ready": "Ready"
+        }
+      },
       "audiosync": {
         "name": "Audiosync"
       },
