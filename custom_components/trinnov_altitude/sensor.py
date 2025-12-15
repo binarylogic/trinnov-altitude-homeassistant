@@ -23,6 +23,7 @@ class PowerStatus(StrEnum):
     BOOTING = "booting"
     READY = "ready"
 
+
 if TYPE_CHECKING:
     from collections.abc import Callable
 
