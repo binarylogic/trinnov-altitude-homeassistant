@@ -120,13 +120,14 @@ data:
 - `volume_down`
 - `volume_up`
 
-#### Commands With Paramteres
+#### Commands With Parameters
 
 - `preset_set (int)`
 - `remapping_mode_set (string)`
 - `source_set (int)`
 - `source_set_by_name (string)`
 - `volume_set (decimal)`
+- `volume_percentage_set (decimal)` - Set volume as 0-100%
 - `volume_ramp (decimal)`
 - `upmixer_set (string)`
 

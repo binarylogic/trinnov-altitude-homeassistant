@@ -62,11 +62,12 @@ VALID_COMMANDS = {
     "time_alignment_on",
     "time_alignment_toggle",
     "upmixer_set",
+    "volume_adjust",
     "volume_down",
+    "volume_percentage_set",
     "volume_ramp",
     "volume_set",
     "volume_up",
-    "volume_adjust",
 }
 
 
