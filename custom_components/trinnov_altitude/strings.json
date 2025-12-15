@@ -25,23 +25,21 @@
     }
   },
   "entity": {
-    "binary_sensor": {
-      "bypass": {
-        "name": "Bypass"
-      },
-      "dim": {
-        "name": "Dim"
-      },
-      "mute": {
-        "name": "Mute"
-      }
-    },
     "button": {
-      "dim_toggle": {
-        "name": "Toggle Dim"
+      "acoustic_correction_toggle": {
+        "name": "Toggle Acoustic Correction"
       },
-      "mute_toggle": {
-        "name": "Toggle Mute"
+      "front_display_toggle": {
+        "name": "Toggle Front Display"
+      },
+      "level_alignment_toggle": {
+        "name": "Toggle Level Alignment"
+      },
+      "quick_optimized_toggle": {
+        "name": "Toggle Quick Optimized"
+      },
+      "time_alignment_toggle": {
+        "name": "Toggle Time Alignment"
       }
     },
     "number": {
@@ -55,6 +53,9 @@
       },
       "source": {
         "name": "Source"
+      },
+      "upmixer": {
+        "name": "Upmixer"
       }
     },
     "sensor": {
@@ -78,6 +79,17 @@
       },
       "volume": {
         "name": "Volume"
+      }
+    },
+    "switch": {
+      "bypass": {
+        "name": "Bypass"
+      },
+      "dim": {
+        "name": "Dim"
+      },
+      "mute": {
+        "name": "Mute"
       }
     }
   }

@@ -161,3 +161,17 @@ async def test_preset_select_built_in(
 
     # Verify device method was called with ID 0
     mock_device.preset_set.assert_called_once_with(0)
+
+
+async def test_upmixer_select(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+    """Test upmixer select entity is created with correct state."""
+    mock_config_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    state = hass.states.get("select.trinnov_altitude_abc123_upmixer")
+    assert state
+    assert state.state == "native"
+    assert "native" in state.attributes.get("options")
+    assert "dolby" in state.attributes.get("options")

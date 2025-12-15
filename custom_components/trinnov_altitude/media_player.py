@@ -98,11 +98,11 @@ class TrinnovAltitudeMediaPlayer(TrinnovAltitudeEntity, MediaPlayerEntity):
     @property
     def state(self) -> MediaPlayerState:  # type: ignore
         """State of device."""
+        if not self._device.connected() or not self._device._initial_sync.is_set():
+            return MediaPlayerState.OFF
         if self._device.source_format:
             return MediaPlayerState.PLAYING
-        if self._device.connected():
-            return MediaPlayerState.IDLE
-        return MediaPlayerState.OFF
+        return MediaPlayerState.IDLE
 
     @property
     def volume_level(self) -> float | None:  # type: ignore

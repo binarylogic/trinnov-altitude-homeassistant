@@ -11,13 +11,13 @@ from trinnov_altitude.trinnov_altitude import TrinnovAltitude
 from .const import CLIENT_ID, DOMAIN
 
 PLATFORMS: list[str] = [
-    Platform.BINARY_SENSOR,
     Platform.BUTTON,
     Platform.MEDIA_PLAYER,
     Platform.NUMBER,
     Platform.REMOTE,
     Platform.SELECT,
     Platform.SENSOR,
+    Platform.SWITCH,
 ]
 
 

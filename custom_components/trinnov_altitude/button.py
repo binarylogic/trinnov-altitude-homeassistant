@@ -30,16 +30,34 @@ class TrinnovAltitudeButtonEntityDescription(ButtonEntityDescription):
 
 BUTTONS: tuple[TrinnovAltitudeButtonEntityDescription, ...] = (
     TrinnovAltitudeButtonEntityDescription(
-        key="mute_toggle",
-        translation_key="mute_toggle",
-        name="Mute Toggle",
-        press_fn=lambda device: device.mute_toggle(),
+        key="acoustic_correction_toggle",
+        translation_key="acoustic_correction_toggle",
+        name="Acoustic Correction Toggle",
+        press_fn=lambda device: device.acoustic_correction_toggle(),
     ),
     TrinnovAltitudeButtonEntityDescription(
-        key="dim_toggle",
-        translation_key="dim_toggle",
-        name="Dim Toggle",
-        press_fn=lambda device: device.dim_toggle(),
+        key="front_display_toggle",
+        translation_key="front_display_toggle",
+        name="Front Display Toggle",
+        press_fn=lambda device: device.front_display_toggle(),
+    ),
+    TrinnovAltitudeButtonEntityDescription(
+        key="level_alignment_toggle",
+        translation_key="level_alignment_toggle",
+        name="Level Alignment Toggle",
+        press_fn=lambda device: device.level_alignment_toggle(),
+    ),
+    TrinnovAltitudeButtonEntityDescription(
+        key="quick_optimized_toggle",
+        translation_key="quick_optimized_toggle",
+        name="Quick Optimized Toggle",
+        press_fn=lambda device: device.quick_optimized_toggle(),
+    ),
+    TrinnovAltitudeButtonEntityDescription(
+        key="time_alignment_toggle",
+        translation_key="time_alignment_toggle",
+        name="Time Alignment Toggle",
+        press_fn=lambda device: device.time_alignment_toggle(),
     ),
 )
 

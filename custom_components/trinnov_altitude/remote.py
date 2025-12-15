@@ -89,8 +89,8 @@ class TrinnovAltitudeRemote(TrinnovAltitudeEntity, RemoteEntity):
 
     @property
     def is_on(self) -> bool:  # type: ignore
-        """Return true if device is on."""
-        return self._device.connected()
+        """Return true if device is on and ready."""
+        return self._device.connected() and self._device._initial_sync.is_set()
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the device on."""

@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING
 
 from homeassistant.components.select import SelectEntity
 
+from trinnov_altitude.const import UpmixerMode
+
 from .const import DOMAIN
 from .entity import TrinnovAltitudeEntity
 
@@ -26,6 +28,7 @@ async def async_setup_entry(
         [
             TrinnovAltitudeSourceSelect(device),
             TrinnovAltitudePresetSelect(device),
+            TrinnovAltitudeUpmixerSelect(device),
         ]
     )
 
@@ -88,3 +91,39 @@ class TrinnovAltitudePresetSelect(TrinnovAltitudeEntity, SelectEntity):
 
         if preset_id is not None:
             await self._device.preset_set(preset_id)
+
+
+class TrinnovAltitudeUpmixerSelect(TrinnovAltitudeEntity, SelectEntity):
+    """Representation of a Trinnov Altitude upmixer select entity."""
+
+    _attr_translation_key = "upmixer"
+    _attr_name = "Upmixer"
+
+    def __init__(self, device: TrinnovAltitude) -> None:
+        """Initialize select entity."""
+        super().__init__(device)
+        self._attr_unique_id = f"{self._attr_unique_id}-upmixer-select"
+
+    @property
+    def current_option(self) -> str | None:
+        """Return the current upmixer."""
+        if self._device.upmixer is None:
+            return None
+        # Normalize to lowercase to match enum values
+        upmixer_lower = self._device.upmixer.lower().replace(" ", "_")
+        for mode in UpmixerMode:
+            if mode.value == upmixer_lower:
+                return mode.value
+        return None
+
+    @property
+    def options(self) -> list[str]:
+        """Return the list of available upmixer modes."""
+        return [mode.value for mode in UpmixerMode]
+
+    async def async_select_option(self, option: str) -> None:
+        """Change the selected upmixer."""
+        for mode in UpmixerMode:
+            if mode.value == option:
+                await self._device.upmixer_set(mode)
+                return

@@ -1,23 +1,31 @@
 {
   "entity": {
-    "binary_sensor": {
-      "bypass": {
-        "default": "mdi:cog",
-        "state": {
-          "off": "mdi:cog-off"
-        }
+    "button": {
+      "acoustic_correction_toggle": {
+        "default": "mdi:waveform"
       },
-      "dim": {
-        "default": "mdi:volume-low",
-        "state": {
-          "off": "mdi:volume-high"
-        }
+      "front_display_toggle": {
+        "default": "mdi:monitor"
       },
-      "mute": {
-        "default": "mdi:volume-mute",
-        "state": {
-          "off": "mdi:volume-high"
-        }
+      "level_alignment_toggle": {
+        "default": "mdi:tune-vertical"
+      },
+      "quick_optimized_toggle": {
+        "default": "mdi:speedometer"
+      },
+      "time_alignment_toggle": {
+        "default": "mdi:timer-sync"
+      }
+    },
+    "select": {
+      "preset": {
+        "default": "mdi:star"
+      },
+      "source": {
+        "default": "mdi:video-input-hdmi"
+      },
+      "upmixer": {
+        "default": "mdi:dolby"
       }
     },
     "sensor": {
@@ -41,6 +49,26 @@
       },
       "volume": {
         "default": "mdi:volume-equal"
+      }
+    },
+    "switch": {
+      "bypass": {
+        "default": "mdi:cog",
+        "state": {
+          "off": "mdi:cog-off"
+        }
+      },
+      "dim": {
+        "default": "mdi:volume-low",
+        "state": {
+          "off": "mdi:volume-high"
+        }
+      },
+      "mute": {
+        "default": "mdi:volume-mute",
+        "state": {
+          "off": "mdi:volume-high"
+        }
       }
     }
   }

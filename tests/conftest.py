@@ -1,5 +1,6 @@
 """Fixtures for Trinnov Altitude integration tests."""
 
+import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -51,6 +52,8 @@ def mock_trinnov_device():
     device.start_listening = MagicMock()
     device.stop_listening = AsyncMock()
     device.wait_for_initial_sync = AsyncMock()
+    device._initial_sync = asyncio.Event()
+    device._initial_sync.set()  # Device is synced and ready
 
     # Commands
     device.power_on = MagicMock()
@@ -69,7 +72,22 @@ def mock_trinnov_device():
     device.mute_off = AsyncMock()
     device.mute_toggle = AsyncMock()
 
+    device.dim_on = AsyncMock()
+    device.dim_off = AsyncMock()
     device.dim_toggle = AsyncMock()
+
+    device.bypass_on = AsyncMock()
+    device.bypass_off = AsyncMock()
+    device.bypass_toggle = AsyncMock()
+
+    device.acoustic_correction_toggle = AsyncMock()
+    device.front_display_toggle = AsyncMock()
+    device.level_alignment_toggle = AsyncMock()
+    device.quick_optimized_toggle = AsyncMock()
+    device.time_alignment_toggle = AsyncMock()
+
+    device.upmixer_set = AsyncMock()
+    device.remapping_mode_set = AsyncMock()
 
     device.source_set = AsyncMock()
     device.source_set_by_name = AsyncMock()
