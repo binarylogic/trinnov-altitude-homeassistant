@@ -1,0 +1,35 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:15"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+    allow:
+      - dependency-type: "direct"
+    groups:
+      dev-dependencies:
+        applies-to: version-updates
+        patterns:
+          - "ruff"
+          - "ty"
+          - "pytest*"
+          - "hatchling"
