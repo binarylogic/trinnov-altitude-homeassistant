@@ -21,6 +21,7 @@ if TYPE_CHECKING:
 
 class TrinnovAltitudeCoordinator(DataUpdateCoordinator[AltitudeState]):
     """Push coordinator for Trinnov Altitude state."""
+
     _BOOTSTRAP_RETRY_INTERVAL_SECONDS = 5.0
 
     def __init__(
@@ -66,7 +67,11 @@ class TrinnovAltitudeCoordinator(DataUpdateCoordinator[AltitudeState]):
 
     async def async_shutdown(self) -> None:
         """Stop client and deregister callback."""
-        if not self._running and not self._callback_registered and not self._adapter_callback_registered:
+        if (
+            not self._running
+            and not self._callback_registered
+            and not self._adapter_callback_registered
+        ):
             return
 
         if self._bootstrap_retry_task is not None:
@@ -107,7 +112,10 @@ class TrinnovAltitudeCoordinator(DataUpdateCoordinator[AltitudeState]):
 
     def _schedule_bootstrap_retry(self, sync_timeout: float | None) -> None:
         """Start background bootstrap retries if one is not already running."""
-        if self._bootstrap_retry_task is not None and not self._bootstrap_retry_task.done():
+        if (
+            self._bootstrap_retry_task is not None
+            and not self._bootstrap_retry_task.done()
+        ):
             return
         self._bootstrap_retry_task = self.hass.async_create_task(
             self._async_retry_bootstrap_until_synced(sync_timeout)

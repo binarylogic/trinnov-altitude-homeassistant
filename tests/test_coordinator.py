@@ -181,7 +181,9 @@ async def test_coordinator_retry_bootstrap_until_synced_success(
     client.start = AsyncMock(side_effect=start_side_effect)
     client.wait_synced = AsyncMock()
 
-    with patch("custom_components.trinnov_altitude.coordinator.asyncio.sleep", new=AsyncMock()):
+    with patch(
+        "custom_components.trinnov_altitude.coordinator.asyncio.sleep", new=AsyncMock()
+    ):
         await coordinator._async_retry_bootstrap_until_synced(sync_timeout=5.0)
 
     assert attempts["count"] == 2
