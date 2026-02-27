@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.0.0](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v1.6.2...v2.0.0) (2026-02-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* migrate HA integration to adapter-driven updates and strict command API
+
+### Features
+
+* migrate HA integration to adapter-driven updates and strict command API ([bcbbe31](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/bcbbe31d522320b5cb7bfbb01d5190930383696a))
+
+
+### Bug Fixes
+
+* deregister adapter callback using registered handle ([8889f33](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/8889f3322de19903aa9ec65a40691e79bc2c2bd3))
+
 ## [1.6.2](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v1.6.1...v1.6.2) (2026-02-27)
 
 
