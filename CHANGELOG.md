@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v1.6.0...v1.6.1) (2026-02-27)
+
+
+### Bug Fixes
+
+* align integration manifest version with latest release ([ccffb4e](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/ccffb4e37af82cee8cb7b5ff7af44f643fb41406))
+
 ## [1.6.0](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v1.5.0...v1.6.0) (2026-02-27)
 
 
