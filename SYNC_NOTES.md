@@ -15,10 +15,11 @@ Upstream Home Assistant repositories are release targets:
 
 ## Current Snapshots
 
-- Source repo commit: `bb5661b`
+- Source repo commit: `709beed`
 - Library repo commit: `d49aa9b`
 - Library release consumed by integrations: `trinnov-altitude==3.1.0`
-- Core sync branch head: `a9c00bfc31` (`binarylogic/homeassistant-core:trinnov-altitude-integration`)
+- Core sync branch head: `83af16a21b2` (`binarylogic/homeassistant-core:trinnov-altitude-integration`)
+- Docs sync branch head: `da12369fe` (`binarylogic/home-assistant.io:trinnov-altitude-docs`)
 
 ## Sync Policy
 
@@ -45,9 +46,13 @@ Present in source repo:
 - domain services and service descriptions
 
 Present in current core PR branch:
-- `remote` only + config flow/setup base
+- `media_player`, `number`, `remote`, `select`, `sensor`, `switch`
+- client-backed state model
+- no custom domain services
 
-This is temporary scope drift and should be reduced through follow-up upstream work.
+Remaining intentional scope delta:
+- `button` platform (source only)
+- custom domain services (source only)
 
 ## Repeatable Sync Procedure
 
