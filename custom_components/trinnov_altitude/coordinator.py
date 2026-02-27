@@ -14,7 +14,10 @@ from trinnov_altitude.exceptions import ConnectionFailedError, ConnectionTimeout
 from trinnov_altitude.state import AltitudeState
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from trinnov_altitude.client import TrinnovAltitudeClient
+    from trinnov_altitude.protocol import Message
 
     from .commands import TrinnovAltitudeCommands
 
@@ -37,6 +40,9 @@ class TrinnovAltitudeCoordinator(DataUpdateCoordinator[AltitudeState]):
         self._state_adapter = AltitudeStateAdapter()
         self._callback_registered = False
         self._adapter_callback_registered = False
+        self._adapter_callback_handle: Callable[[str, Message | None], None] | None = (
+            None
+        )
         self._running = False
         self._bootstrap_retry_task: asyncio.Task[None] | None = None
 
@@ -46,7 +52,7 @@ class TrinnovAltitudeCoordinator(DataUpdateCoordinator[AltitudeState]):
             self.client.register_callback(self._handle_client_event)
             self._callback_registered = True
         if not self._adapter_callback_registered:
-            self.client.register_adapter_callback(
+            self._adapter_callback_handle = self.client.register_adapter_callback(
                 self._state_adapter, self._handle_adapter_update
             )
             self._adapter_callback_registered = True
@@ -81,9 +87,13 @@ class TrinnovAltitudeCoordinator(DataUpdateCoordinator[AltitudeState]):
         if self._callback_registered:
             self.client.deregister_callback(self._handle_client_event)
             self._callback_registered = False
-        if self._adapter_callback_registered:
-            self.client.deregister_adapter_callback(self._handle_adapter_update)
+        if (
+            self._adapter_callback_registered
+            and self._adapter_callback_handle is not None
+        ):
+            self.client.deregister_adapter_callback(self._adapter_callback_handle)
             self._adapter_callback_registered = False
+            self._adapter_callback_handle = None
         await self.client.stop()
         self._running = False
 
