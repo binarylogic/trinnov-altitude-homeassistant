@@ -431,6 +431,52 @@ async def test_remote_send_command_unknown_source_by_name(
         )
 
 
+async def test_remote_send_command_source_by_name_quoted(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test source_set_by_name supports quoted names with spaces."""
+    mock_device = mock_setup_entry.return_value
+    mock_device.state.sources = {0: "Apple TV 4K"}
+
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    await hass.services.async_call(
+        "remote",
+        SERVICE_SEND_COMMAND,
+        {
+            ATTR_ENTITY_ID: "remote.trinnov_altitude_abc123",
+            ATTR_COMMAND: ['source_set_by_name "Apple TV 4K"'],
+        },
+        blocking=True,
+    )
+
+    mock_device.command.assert_called_once_with(
+        "profile 0", wait_for_ack=True, ack_timeout=2.0
+    )
+
+
+async def test_remote_send_command_empty_string(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test empty command surfaces as HomeAssistantError."""
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    with pytest.raises(HomeAssistantError, match="cannot be empty"):
+        await hass.services.async_call(
+            "remote",
+            SERVICE_SEND_COMMAND,
+            {
+                ATTR_ENTITY_ID: "remote.trinnov_altitude_abc123",
+                ATTR_COMMAND: ["   "],
+            },
+            blocking=True,
+        )
+
+
 async def test_remote_is_off_when_disconnected(
     hass: HomeAssistant,
     mock_config_entry,

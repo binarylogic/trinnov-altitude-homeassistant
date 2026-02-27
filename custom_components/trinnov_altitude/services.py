@@ -7,6 +7,7 @@ from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 
+from trinnov_altitude.command_bridge import parse_upmixer_mode
 from trinnov_altitude.const import UpmixerMode
 
 from .const import (
@@ -73,15 +74,16 @@ async def _async_set_upmixer(hass: HomeAssistant, call: ServiceCall) -> None:
     entry_id = call.data.get(ATTR_ENTRY_ID)
     upmixer = call.data[ATTR_UPMIXER]
     data = _resolve_entry_data(hass, entry_id)
-    mode = next((m for m in UpmixerMode if m.value == upmixer.lower()), None)
-    if mode is None:
+    try:
+        mode = parse_upmixer_mode(upmixer)
+    except ValueError as exc:
         valid = ", ".join(mode.value for mode in UpmixerMode)
         raise ServiceValidationError(
-            f"Invalid upmixer '{upmixer}'. Valid values: {valid}",
+            str(exc),
             translation_domain=DOMAIN,
             translation_key="invalid_upmixer",
             translation_placeholders={"upmixer": upmixer, "valid": valid},
-        )
+        ) from exc
     await data.commands.invoke("upmixer_set", mode, require_ack=True)
 
 
