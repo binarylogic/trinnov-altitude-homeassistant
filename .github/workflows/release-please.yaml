@@ -26,7 +26,26 @@ jobs:
     if: ${{ needs.release-please.outputs.release_created }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Validate PyPI requirement availability
+        run: |
+          REQ=$(python - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest = json.loads(Path("custom_components/trinnov_altitude/manifest.json").read_text())
+          requirement = next(r for r in manifest["requirements"] if r.startswith("trinnov-altitude"))
+          print(requirement)
+          PY
+          )
+          python -m pip install --upgrade pip
+          python -m pip download --dest /tmp/pypi-check "$REQ"
 
       - name: Create zip for release
         run: |
