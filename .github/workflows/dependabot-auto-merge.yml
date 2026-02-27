@@ -23,18 +23,11 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
-      - name: Approve and enable auto-merge for patch updates
+      - name: Approve and enable auto-merge for patch/minor/security updates
         if: >-
-          steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
-          steps.metadata.outputs.update-type == 'version-update:semver-patch+security' ||
-          steps.metadata.outputs.update-type == 'version-update:semver-minor+security' ||
-          steps.metadata.outputs.update-type == 'version-update:semver-major+security' ||
-          steps.metadata.outputs.update-type == 'version-update:security' ||
-          steps.metadata.outputs.update-type == 'version-update:security:patch' ||
-          steps.metadata.outputs.update-type == 'version-update:security:minor' ||
-          steps.metadata.outputs.update-type == 'version-update:security:major' ||
-          steps.metadata.outputs.update-type == 'version-update:semver-patch-security' ||
-          startsWith(steps.metadata.outputs.update-type, 'version-update:semver-patch')
+          startsWith(steps.metadata.outputs.update-type, 'version-update:semver-patch') ||
+          startsWith(steps.metadata.outputs.update-type, 'version-update:semver-minor') ||
+          contains(steps.metadata.outputs.update-type, 'security')
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
@@ -50,7 +43,7 @@ jobs:
                 repo,
                 pull_number,
                 event: 'APPROVE',
-                body: 'Auto-approved for Dependabot patch/security update. Auto-merge enabled when required checks pass.',
+                body: 'Auto-approved for Dependabot patch/minor/security update. Auto-merge enabled when required checks pass.',
               });
             } catch (error) {
               core.info(`Approval skipped: ${error.message}`);
@@ -65,16 +58,9 @@ jobs:
               { pullRequestId }
             );
 
-      - name: Skip non-patch updates
+      - name: Skip major non-security updates
         if: >-
-          !(steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
-            steps.metadata.outputs.update-type == 'version-update:semver-patch+security' ||
-            steps.metadata.outputs.update-type == 'version-update:semver-minor+security' ||
-            steps.metadata.outputs.update-type == 'version-update:semver-major+security' ||
-            steps.metadata.outputs.update-type == 'version-update:security' ||
-            steps.metadata.outputs.update-type == 'version-update:security:patch' ||
-            steps.metadata.outputs.update-type == 'version-update:security:minor' ||
-            steps.metadata.outputs.update-type == 'version-update:security:major' ||
-            steps.metadata.outputs.update-type == 'version-update:semver-patch-security' ||
-            startsWith(steps.metadata.outputs.update-type, 'version-update:semver-patch'))
+          !(startsWith(steps.metadata.outputs.update-type, 'version-update:semver-patch') ||
+            startsWith(steps.metadata.outputs.update-type, 'version-update:semver-minor') ||
+            contains(steps.metadata.outputs.update-type, 'security'))
         run: echo "Not auto-merging update type '${{ steps.metadata.outputs.update-type }}'."
