@@ -7,10 +7,8 @@ import logging
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_MAC, EVENT_HOMEASSISTANT_STOP, Platform
 from homeassistant.core import Event, HomeAssistant
-from homeassistant.exceptions import ConfigEntryNotReady
 
 from trinnov_altitude.client import TrinnovAltitudeClient
-from trinnov_altitude.exceptions import ConnectionFailedError, ConnectionTimeoutError
 
 from .commands import TrinnovAltitudeCommands
 from .const import CLIENT_ID, DOMAIN
@@ -51,16 +49,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     try:
         await coordinator.async_start()
-    except (ConnectionFailedError, ConnectionTimeoutError) as exc:
-        await coordinator.async_shutdown()
-        raise ConfigEntryNotReady(
-            f"Could not connect to Trinnov Altitude at {host}"
-        ) from exc
-    except TimeoutError as exc:
-        await coordinator.async_shutdown()
-        raise ConfigEntryNotReady(
-            f"Timed out waiting for Trinnov Altitude sync at {host}"
-        ) from exc
     except Exception:
         await coordinator.async_shutdown()
         _LOGGER.exception("Unexpected error while starting Trinnov Altitude client")

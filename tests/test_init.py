@@ -97,15 +97,15 @@ async def test_async_unload_entry(
 async def test_async_setup_entry_wait_synced_timeout(
     hass: HomeAssistant, mock_config_entry, mock_setup_entry
 ):
-    """Test setup raises ConfigEntryNotReady when initial sync times out."""
+    """Test setup still succeeds when initial sync times out."""
     mock_device = mock_setup_entry.return_value
     mock_device.wait_synced = AsyncMock(side_effect=TimeoutError)
     mock_config_entry.add_to_hass(hass)
 
-    assert not await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done()
     mock_device.start.assert_called_once()
-    mock_device.stop.assert_called_once()
+    mock_device.stop.assert_not_called()
 
 
 async def test_async_setup_entry_unexpected_error_shuts_down(
