@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.2](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.1...v2.0.2) (2026-02-27)
+
+
+### Bug Fixes
+
+* trigger patch release ([d6d47f5](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/d6d47f52e686f80490b77c451c4dc70641679b9e))
+
 ## [2.0.1](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.0...v2.0.1) (2026-02-27)
 
 
