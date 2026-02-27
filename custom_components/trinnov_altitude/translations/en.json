@@ -26,7 +26,7 @@
       "message": "Unknown Trinnov Altitude entry_id: {entry_id}"
     },
     "invalid_upmixer": {
-      "message": "Invalid upmixer '{upmixer}'. Valid values: {valid}"
+      "message": "Invalid upmixer {upmixer}. Valid values: {valid}"
     }
   },
   "services": {

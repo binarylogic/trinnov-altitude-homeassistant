@@ -1,0 +1,52 @@
+set_source_by_name:
+  name: Set Source By Name
+  description: Set active source by source name.
+  fields:
+    entry_id:
+      name: Entry ID
+      description: Optional config entry id when multiple Trinnov devices are loaded.
+      required: false
+      selector:
+        text:
+    source:
+      name: Source
+      description: Source name exactly as reported by the device.
+      required: true
+      selector:
+        text:
+
+set_preset:
+  name: Set Preset
+  description: Set active preset by preset id.
+  fields:
+    entry_id:
+      name: Entry ID
+      description: Optional config entry id when multiple Trinnov devices are loaded.
+      required: false
+      selector:
+        text:
+    preset_id:
+      name: Preset ID
+      description: Numeric preset id.
+      required: true
+      selector:
+        number:
+          mode: box
+          step: 1
+
+set_upmixer:
+  name: Set Upmixer
+  description: Set active upmixer mode.
+  fields:
+    entry_id:
+      name: Entry ID
+      description: Optional config entry id when multiple Trinnov devices are loaded.
+      required: false
+      selector:
+        text:
+    upmixer:
+      name: Upmixer
+      description: Upmixer mode (for example: native, dolby, dts).
+      required: true
+      selector:
+        text:
