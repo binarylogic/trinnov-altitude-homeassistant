@@ -72,7 +72,7 @@ SENSORS: tuple[TrinnovAltitudeSensorEntityDescription, ...] = (
         name="Power Status",
         device_class=SensorDeviceClass.ENUM,
         options=[status.value for status in PowerStatus],
-        value_fn=lambda state: state.synced,
+        value_fn=lambda _state: PowerStatus.READY,
     ),
     TrinnovAltitudeSensorEntityDescription(
         key="audiosync",

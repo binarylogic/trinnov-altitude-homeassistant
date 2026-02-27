@@ -85,3 +85,20 @@ async def test_coordinator_ignores_unrelated_events(hass: HomeAssistant) -> None
     await hass.async_block_till_done()
 
     assert coordinator.data.source == original_source
+
+
+async def test_coordinator_updates_on_connection_events(hass: HomeAssistant) -> None:
+    """Connected/disconnected events should also push fresh snapshots."""
+    client = _build_mock_client()
+    coordinator = TrinnovAltitudeCoordinator(
+        hass, client, TrinnovAltitudeCommands(client)
+    )
+    await coordinator.async_start()
+    assert coordinator.data is not None
+
+    callback = client.register_callback.call_args[0][0]
+    client.state.source = "Apple TV"
+    callback("disconnected", None)
+    await hass.async_block_till_done()
+
+    assert coordinator.data.source == "Apple TV"

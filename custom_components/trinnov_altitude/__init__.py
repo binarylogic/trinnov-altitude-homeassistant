@@ -43,7 +43,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     device = TrinnovAltitudeClient(host=host, mac=mac, client_id=CLIENT_ID)
     commands = TrinnovAltitudeCommands(device)
 
-    # Force set the id from the config glow since the device is not guaranteed
+    # Force set the id from the config flow since the device is not guaranteed
     # to be online. This ensures that entities have an id to work with.
     device.state.id = entry.unique_id
 

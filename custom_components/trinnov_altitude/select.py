@@ -87,14 +87,10 @@ class TrinnovAltitudePresetSelect(TrinnovAltitudeEntity, SelectEntity):
     async def async_select_option(self, option: str) -> None:
         """Change the selected preset."""
         # Find the preset ID from the name
-        preset_id = None
         for pid, name in self._state.presets.items():
             if name == option:
-                preset_id = pid
-                break
-
-        if preset_id is not None:
-            await self._commands.invoke("preset_set", preset_id, require_ack=True)
+                await self._commands.invoke("preset_set", pid, require_ack=True)
+                return
 
 
 class TrinnovAltitudeUpmixerSelect(TrinnovAltitudeEntity, SelectEntity):

@@ -1,8 +1,10 @@
 """Test the Trinnov Altitude select platform."""
 
+import pytest
 from homeassistant.components.select import ATTR_OPTION, SERVICE_SELECT_OPTION
 from homeassistant.const import ATTR_ENTITY_ID
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ServiceValidationError
 
 
 async def test_source_select(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
@@ -183,3 +185,43 @@ async def test_upmixer_select(hass: HomeAssistant, mock_config_entry, mock_setup
     options = state.attributes.get("options", [])
     assert "native" in options
     assert "dolby" in options
+
+
+async def test_preset_select_option_invalid(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test selecting unknown preset is rejected by select validation."""
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    with pytest.raises(ServiceValidationError):
+        await hass.services.async_call(
+            "select",
+            SERVICE_SELECT_OPTION,
+            {
+                ATTR_ENTITY_ID: "select.trinnov_altitude_abc123_preset",
+                ATTR_OPTION: "Not A Preset",
+            },
+            blocking=True,
+        )
+
+
+async def test_upmixer_select_option_invalid(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test selecting unknown upmixer is rejected by select validation."""
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    with pytest.raises(ServiceValidationError):
+        await hass.services.async_call(
+            "select",
+            SERVICE_SELECT_OPTION,
+            {
+                ATTR_ENTITY_ID: "select.trinnov_altitude_abc123_upmixer",
+                ATTR_OPTION: "not_real",
+            },
+            blocking=True,
+        )
