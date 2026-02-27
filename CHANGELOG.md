@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.6.2](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v1.6.1...v1.6.2) (2026-02-27)
+
+
+### Bug Fixes
+
+* keep integration loaded when device is offline at startup ([cee93cd](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/cee93cd8f57a5213837706c39f36afcf251d4c04))
+* quote service description to satisfy YAML parser ([a9e824b](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/a9e824b3ab0f2638e03a1d2ea35227ed1f296511))
+* satisfy hassfest service metadata and translations ([8a57e88](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/8a57e88125d42e2a3e6c5e429b1a2b6cab2a4dec))
+
 ## [1.6.1](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v1.6.0...v1.6.1) (2026-02-27)
 
 
