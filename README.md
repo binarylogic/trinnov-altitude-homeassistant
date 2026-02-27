@@ -3,20 +3,6 @@
 A [Home Assistant](https://www.home-assistant.io) integration for the
 [Trinnov Altitude](https://www.trinnov.com/en/products/altitude32/) processor. Uses the [`trinnov-altitude`](https://github.com/binarylogic/py-trinnov-altitude) library.
 
-## Screenshots
-
-### Sensors
-
-![Trinnov Altitude sensors](images/sensors.png)
-
-### Controls
-
-![Trinnov Altitude controls](images/controls.png)
-
-### Diagnostics
-
-![Trinnov Altitude diagnostics](images/diagnostic.png)
-
 ## Prerequisites
 
 1. Home Assistant 2024.4.1 or newer
@@ -303,6 +289,20 @@ make format      # Format code
 # Release
 make release     # Run checks and create release zip
 ```
+
+## Screenshots
+
+### Sensors
+
+<img src="images/sensors.png" alt="Trinnov Altitude sensors" width="420">
+
+### Controls
+
+<img src="images/controls.png" alt="Trinnov Altitude controls" width="420">
+
+### Diagnostics
+
+<img src="images/diagnostic.png" alt="Trinnov Altitude diagnostics" width="420">
 
 ## Support
 
