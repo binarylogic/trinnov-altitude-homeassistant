@@ -3,6 +3,14 @@
 A [Home Assistant](https://www.home-assistant.io) integration for the
 [Trinnov Altitude](https://www.trinnov.com/en/products/altitude32/) processor. Uses the [`trinnov-altitude`](https://github.com/binarylogic/py-trinnov-altitude) library.
 
+## Source of Truth and Core Sync
+
+This repository is the canonical implementation for the HACS integration.
+
+When syncing to Home Assistant Core (`trinnov_altitude` domain), we keep an explicit compatibility strategy and document intentional differences.
+
+Sync details: [`SYNC_NOTES.md`](SYNC_NOTES.md)
+
 ## Prerequisites
 
 1. Home Assistant 2024.4.1 or newer
