@@ -16,7 +16,7 @@ async def test_buttons(hass: HomeAssistant, mock_config_entry, mock_setup_entry)
     assert hass.states.get("button.trinnov_altitude_abc123_toggle_acoustic_correction")
     assert hass.states.get("button.trinnov_altitude_abc123_toggle_front_display")
     assert hass.states.get("button.trinnov_altitude_abc123_toggle_level_alignment")
-    assert hass.states.get("button.trinnov_altitude_abc123_toggle_quick_optimized")
+    assert hass.states.get("button.trinnov_altitude_abc123_toggle_optimization")
     assert hass.states.get("button.trinnov_altitude_abc123_toggle_time_alignment")
 
 

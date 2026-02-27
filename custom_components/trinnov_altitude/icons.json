@@ -10,7 +10,7 @@
       "level_alignment_toggle": {
         "default": "mdi:tune-vertical"
       },
-      "quick_optimized_toggle": {
+      "optimization_toggle": {
         "default": "mdi:speedometer"
       },
       "time_alignment_toggle": {

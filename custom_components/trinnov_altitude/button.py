@@ -48,10 +48,10 @@ BUTTONS: tuple[TrinnovAltitudeButtonEntityDescription, ...] = (
         press_fn=lambda entity: entity._commands.invoke("level_alignment_toggle"),
     ),
     TrinnovAltitudeButtonEntityDescription(
-        key="quick_optimized_toggle",
-        translation_key="quick_optimized_toggle",
-        name="Quick Optimized Toggle",
-        press_fn=lambda entity: entity._commands.invoke("quick_optimized_toggle"),
+        key="optimization_toggle",
+        translation_key="optimization_toggle",
+        name="Optimization Toggle",
+        press_fn=lambda entity: entity._commands.invoke("optimization_toggle"),
     ),
     TrinnovAltitudeButtonEntityDescription(
         key="time_alignment_toggle",

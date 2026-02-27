@@ -84,8 +84,8 @@
       "level_alignment_toggle": {
         "name": "Toggle Level Alignment"
       },
-      "quick_optimized_toggle": {
-        "name": "Toggle Quick Optimized"
+      "optimization_toggle": {
+        "name": "Toggle Optimization"
       },
       "time_alignment_toggle": {
         "name": "Toggle Time Alignment"

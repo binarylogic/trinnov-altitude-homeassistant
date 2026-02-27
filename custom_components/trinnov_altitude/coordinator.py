@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
+from trinnov_altitude.adapter import AltitudeStateAdapter
 from trinnov_altitude.exceptions import ConnectionFailedError, ConnectionTimeoutError
 from trinnov_altitude.state import AltitudeState
 
@@ -32,7 +33,9 @@ class TrinnovAltitudeCoordinator(DataUpdateCoordinator[AltitudeState]):
         super().__init__(hass, logger=client.logger, name="trinnov_altitude")
         self.client = client
         self.commands = commands
+        self._state_adapter = AltitudeStateAdapter()
         self._callback_registered = False
+        self._adapter_callback_registered = False
         self._running = False
         self._bootstrap_retry_task: asyncio.Task[None] | None = None
 
@@ -41,6 +44,11 @@ class TrinnovAltitudeCoordinator(DataUpdateCoordinator[AltitudeState]):
         if not self._callback_registered:
             self.client.register_callback(self._handle_client_event)
             self._callback_registered = True
+        if not self._adapter_callback_registered:
+            self.client.register_adapter_callback(
+                self._state_adapter, self._handle_adapter_update
+            )
+            self._adapter_callback_registered = True
 
         self._running = True
         # Publish initial disconnected snapshot so entities can expose turn_on/WOL.
@@ -58,7 +66,7 @@ class TrinnovAltitudeCoordinator(DataUpdateCoordinator[AltitudeState]):
 
     async def async_shutdown(self) -> None:
         """Stop client and deregister callback."""
-        if not self._running and not self._callback_registered:
+        if not self._running and not self._callback_registered and not self._adapter_callback_registered:
             return
 
         if self._bootstrap_retry_task is not None:
@@ -68,6 +76,9 @@ class TrinnovAltitudeCoordinator(DataUpdateCoordinator[AltitudeState]):
         if self._callback_registered:
             self.client.deregister_callback(self._handle_client_event)
             self._callback_registered = False
+        if self._adapter_callback_registered:
+            self.client.deregister_adapter_callback(self._handle_adapter_update)
+            self._adapter_callback_registered = False
         await self.client.stop()
         self._running = False
 
@@ -80,9 +91,15 @@ class TrinnovAltitudeCoordinator(DataUpdateCoordinator[AltitudeState]):
         return deepcopy(self.client.state)
 
     def _handle_client_event(self, event: str, _message: object | None = None) -> None:
-        """Forward library events into coordinator updates."""
-        if event in {"connected", "disconnected", "received_message"}:
+        """Forward connection lifecycle events into coordinator updates."""
+        if event in {"connected", "disconnected"}:
             self.hass.add_job(self._async_push_update)
+
+    def _handle_adapter_update(
+        self, _snapshot: object, _deltas: object, _events: object
+    ) -> None:
+        """Forward adapter updates into coordinator snapshots."""
+        self.hass.add_job(self._async_push_update)
 
     async def _async_push_update(self) -> None:
         """Publish latest client state to entities."""

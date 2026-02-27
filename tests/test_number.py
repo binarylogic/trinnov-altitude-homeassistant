@@ -67,8 +67,8 @@ async def test_volume_number_updates(
     mock_device.state.volume = -30.0
 
     # Trigger coordinator callback
-    callback = mock_device.register_callback.call_args[0][0]
-    callback("received_message", None)
+    callback = mock_device.register_adapter_callback.call_args[0][1]
+    callback(None, [], [])
     await hass.async_block_till_done()
 
     # Verify entity updated

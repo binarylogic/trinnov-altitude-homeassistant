@@ -109,8 +109,8 @@ async def test_select_updates(hass: HomeAssistant, mock_config_entry, mock_setup
     mock_device.state.source = "Blu-ray"
 
     # Trigger coordinator callback
-    callback = mock_device.register_callback.call_args[0][0]
-    callback("received_message", None)
+    callback = mock_device.register_adapter_callback.call_args[0][1]
+    callback(None, [], [])
     await hass.async_block_till_done()
 
     # Verify entity updated

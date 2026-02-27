@@ -73,7 +73,7 @@ async def test_power_status_transitions(
     # Simulate connection (but not synced yet)
     mock_device.connected = True
     callback = mock_device.register_callback.call_args[0][0]
-    callback("received_message", None)
+    callback("connected", None)
     await hass.async_block_till_done()
 
     state = hass.states.get("sensor.trinnov_altitude_abc123_power_status")
@@ -82,8 +82,8 @@ async def test_power_status_transitions(
 
     # Simulate sync complete
     mock_device.state.synced = True
-    callback = mock_device.register_callback.call_args[0][0]
-    callback("received_message", None)
+    callback = mock_device.register_adapter_callback.call_args[0][1]
+    callback(None, [], [])
     await hass.async_block_till_done()
 
     state = hass.states.get("sensor.trinnov_altitude_abc123_power_status")
@@ -165,8 +165,8 @@ async def test_sensor_updates(hass: HomeAssistant, mock_config_entry, mock_setup
     mock_device.state.volume = -35.5
 
     # Trigger coordinator callback
-    callback = mock_device.register_callback.call_args[0][0]
-    callback("received_message", None)
+    callback = mock_device.register_adapter_callback.call_args[0][1]
+    callback(None, [], [])
     await hass.async_block_till_done()
 
     # Verify sensor updated

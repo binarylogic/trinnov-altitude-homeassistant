@@ -81,7 +81,7 @@ def mock_trinnov_device():
     device.acoustic_correction_toggle = AsyncMock()
     device.front_display_toggle = AsyncMock()
     device.level_alignment_toggle = AsyncMock()
-    device.quick_optimized_toggle = AsyncMock()
+    device.optimization_toggle = AsyncMock()
     device.time_alignment_toggle = AsyncMock()
 
     device.upmixer_set = AsyncMock()
@@ -98,6 +98,8 @@ def mock_trinnov_device():
     # Callbacks
     device.register_callback = MagicMock()
     device.deregister_callback = MagicMock()
+    device.register_adapter_callback = MagicMock()
+    device.deregister_adapter_callback = MagicMock()
 
     return device
 
@@ -135,6 +137,10 @@ def mock_trinnov_device_offline():
     device.command = AsyncMock()
     device.power_on_available = MagicMock(return_value=True)
     device.volume_percentage = None
+    device.register_callback = MagicMock()
+    device.deregister_callback = MagicMock()
+    device.register_adapter_callback = MagicMock()
+    device.deregister_adapter_callback = MagicMock()
     return device
 
 

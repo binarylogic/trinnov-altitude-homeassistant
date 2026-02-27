@@ -2,6 +2,8 @@
 
 from unittest.mock import AsyncMock, MagicMock
 
+from trinnov_altitude.const import RemappingMode
+
 from custom_components.trinnov_altitude.commands import TrinnovAltitudeCommands
 
 
@@ -58,4 +60,18 @@ async def test_invoke_with_ack_for_source_set_by_name() -> None:
 
     client.command.assert_called_once_with(
         "profile 1", wait_for_ack=True, ack_timeout=2.0
+    )
+
+
+async def test_invoke_with_ack_for_remapping_mode_set() -> None:
+    """Remapping mode should serialize enum value for ACK flow."""
+    client = _mock_client()
+    commands = TrinnovAltitudeCommands(client)
+
+    await commands.invoke(
+        "remapping_mode_set", RemappingMode.MODE_MANUAL, require_ack=True
+    )
+
+    client.command.assert_called_once_with(
+        "remapping_mode manual", wait_for_ack=True, ack_timeout=2.0
     )
