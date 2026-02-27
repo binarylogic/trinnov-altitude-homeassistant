@@ -46,7 +46,7 @@ set_upmixer:
         text:
     upmixer:
       name: Upmixer
-      description: Upmixer mode (for example: native, dolby, dts).
+      description: "Upmixer mode (for example: native, dolby, dts)."
       required: true
       selector:
         text:
