@@ -16,6 +16,7 @@ from .commands import TrinnovAltitudeCommands
 from .const import CLIENT_ID, DOMAIN
 from .coordinator import TrinnovAltitudeCoordinator
 from .models import TrinnovAltitudeIntegrationData
+from .services import async_setup_services, async_unload_services
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -68,6 +69,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = TrinnovAltitudeIntegrationData(
         client=device, coordinator=coordinator, commands=commands
     )
+    async_setup_services(hass)
 
     # Ensure the client is stopped when Home Assistant is stopped.
     async def unload(event: Event) -> None:
@@ -86,5 +88,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if unload_ok:
         data: TrinnovAltitudeIntegrationData = hass.data[DOMAIN].pop(entry.entry_id)
         await data.coordinator.async_shutdown()
+        if not hass.data[DOMAIN]:
+            async_unload_services(hass)
+            hass.data.pop(DOMAIN, None)
 
     return unload_ok

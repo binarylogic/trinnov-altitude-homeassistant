@@ -6,7 +6,13 @@ from homeassistant.const import CONF_HOST
 from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.trinnov_altitude.const import CLIENT_ID, DOMAIN
+from custom_components.trinnov_altitude.const import (
+    CLIENT_ID,
+    DOMAIN,
+    SERVICE_SET_PRESET,
+    SERVICE_SET_SOURCE_BY_NAME,
+    SERVICE_SET_UPMIXER,
+)
 
 
 async def test_async_setup_entry(
@@ -34,6 +40,9 @@ async def test_async_setup_entry(
     # Verify platforms were set up
     assert DOMAIN in hass.data
     assert mock_config_entry.entry_id in hass.data[DOMAIN]
+    assert hass.services.has_service(DOMAIN, SERVICE_SET_SOURCE_BY_NAME)
+    assert hass.services.has_service(DOMAIN, SERVICE_SET_PRESET)
+    assert hass.services.has_service(DOMAIN, SERVICE_SET_UPMIXER)
 
 
 async def test_async_setup_entry_without_mac(hass: HomeAssistant, mock_setup_entry):
@@ -79,7 +88,10 @@ async def test_async_unload_entry(
     mock_device.stop.assert_called_once()
 
     # Verify entry removed from hass.data
-    assert mock_config_entry.entry_id not in hass.data[DOMAIN]
+    assert DOMAIN not in hass.data
+    assert not hass.services.has_service(DOMAIN, SERVICE_SET_SOURCE_BY_NAME)
+    assert not hass.services.has_service(DOMAIN, SERVICE_SET_PRESET)
+    assert not hass.services.has_service(DOMAIN, SERVICE_SET_UPMIXER)
 
 
 async def test_async_setup_entry_wait_synced_timeout(

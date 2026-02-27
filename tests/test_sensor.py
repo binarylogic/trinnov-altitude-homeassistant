@@ -133,6 +133,23 @@ async def test_sensors(hass: HomeAssistant, mock_config_entry, mock_setup_entry)
     assert state
     assert state.state == "-40.0"
 
+    # Diagnostic sensors
+    state = hass.states.get("sensor.trinnov_altitude_abc123_connection_status")
+    assert state
+    assert state.state == "connected"
+
+    state = hass.states.get("sensor.trinnov_altitude_abc123_sync_status")
+    assert state
+    assert state.state == "synced"
+
+    state = hass.states.get("sensor.trinnov_altitude_abc123_version")
+    assert state
+    assert state.state == "4.2.9"
+
+    state = hass.states.get("sensor.trinnov_altitude_abc123_device_id")
+    assert state
+    assert state.state == "ABC123"
+
 
 async def test_sensor_updates(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
     """Test sensor entities update when device state changes."""

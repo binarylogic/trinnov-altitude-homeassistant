@@ -18,6 +18,61 @@
       }
     }
   },
+  "exceptions": {
+    "entry_id_required": {
+      "message": "Multiple Trinnov Altitude entries are loaded. Provide an entry_id."
+    },
+    "invalid_entry_id": {
+      "message": "Unknown Trinnov Altitude entry_id: {entry_id}"
+    },
+    "invalid_upmixer": {
+      "message": "Invalid upmixer '{upmixer}'. Valid values: {valid}"
+    }
+  },
+  "services": {
+    "set_source_by_name": {
+      "name": "Set Source By Name",
+      "description": "Set active source by source name.",
+      "fields": {
+        "entry_id": {
+          "name": "Entry ID",
+          "description": "Optional config entry id when multiple Trinnov devices are loaded."
+        },
+        "source": {
+          "name": "Source",
+          "description": "Source name exactly as reported by the device."
+        }
+      }
+    },
+    "set_preset": {
+      "name": "Set Preset",
+      "description": "Set active preset by preset id.",
+      "fields": {
+        "entry_id": {
+          "name": "Entry ID",
+          "description": "Optional config entry id when multiple Trinnov devices are loaded."
+        },
+        "preset_id": {
+          "name": "Preset ID",
+          "description": "Numeric preset id."
+        }
+      }
+    },
+    "set_upmixer": {
+      "name": "Set Upmixer",
+      "description": "Set active upmixer mode.",
+      "fields": {
+        "entry_id": {
+          "name": "Entry ID",
+          "description": "Optional config entry id when multiple Trinnov devices are loaded."
+        },
+        "upmixer": {
+          "name": "Upmixer",
+          "description": "Upmixer mode (for example: native, dolby, dts)."
+        }
+      }
+    }
+  },
   "entity": {
     "button": {
       "acoustic_correction_toggle": {
@@ -51,8 +106,18 @@
       "audiosync": {
         "name": "Audiosync"
       },
+      "connection_status": {
+        "name": "Connection Status",
+        "state": {
+          "connected": "Connected",
+          "disconnected": "Disconnected"
+        }
+      },
       "decoder": {
         "name": "Decoder"
+      },
+      "device_id": {
+        "name": "Device ID"
       },
       "source": {
         "name": "Source"
@@ -65,6 +130,16 @@
       },
       "upmixer": {
         "name": "Upmixer"
+      },
+      "sync_status": {
+        "name": "Sync Status",
+        "state": {
+          "synced": "Synced",
+          "syncing": "Syncing"
+        }
+      },
+      "version": {
+        "name": "Version"
       },
       "volume": {
         "name": "Volume"
