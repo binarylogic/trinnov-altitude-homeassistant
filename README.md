@@ -3,6 +3,20 @@
 A [Home Assistant](https://www.home-assistant.io) integration for the
 [Trinnov Altitude](https://www.trinnov.com/en/products/altitude32/) processor. Uses the [`trinnov-altitude`](https://github.com/binarylogic/py-trinnov-altitude) library.
 
+## Screenshots
+
+### Sensors
+
+![Trinnov Altitude sensors](images/sensors.png)
+
+### Controls
+
+![Trinnov Altitude controls](images/controls.png)
+
+### Diagnostics
+
+![Trinnov Altitude diagnostics](images/diagnostic.png)
+
 ## Prerequisites
 
 1. Home Assistant 2024.4.1 or newer
@@ -15,10 +29,18 @@ A [Home Assistant](https://www.home-assistant.io) integration for the
 
 ### Via HACS (Recommended)
 
-1. Open HACS in Home Assistant
-2. Search for "Trinnov Altitude"
-3. Click "Download"
-4. Restart Home Assistant
+1. Open HACS in Home Assistant.
+2. Go to `Integrations`.
+3. Click the top-right menu (three dots) and select `Custom repositories`.
+4. Paste this repository URL:
+   - `https://github.com/binarylogic/trinnov-altitude-homeassistant`
+5. Set category to `Integration`.
+6. Click `Add`.
+7. Search for `Trinnov Altitude` in HACS Integrations.
+8. Open it and click `Download`.
+9. Restart Home Assistant.
+10. Go to Settings > Devices & Services > `Add Integration`.
+11. Search for `Trinnov Altitude` and complete setup.
 
 ### Manual
 
@@ -33,6 +55,92 @@ A [Home Assistant](https://www.home-assistant.io) integration for the
 3. Search for "Trinnov Altitude"
 4. Enter your device's IP address
 5. Optionally enter the MAC address (required for Wake-on-LAN power on)
+
+## Quick Start (5 Minutes)
+
+If you just want to get working fast:
+
+1. Add the integration with your Trinnov IP.
+2. Also add the Trinnov MAC address during setup (recommended, enables power on from Home Assistant).
+3. Open your Trinnov device in Home Assistant and add these entities to a dashboard:
+   - `media_player.trinnov_altitude_*`
+   - `remote.trinnov_altitude_*`
+   - `number.*_volume`
+   - `select.*_source`
+   - `select.*_preset`
+4. Verify diagnostics:
+   - `sensor.*_power_status` should become `ready`
+   - `sensor.*_connection_status` should become `connected`
+   - `sensor.*_sync_status` should become `synced`
+
+## How You Actually Use It
+
+Common day-to-day patterns in Home Assistant:
+
+1. Use `media_player` for source, volume, mute, and power in one card.
+2. Use `select.*_source` and `select.*_preset` in automations for deterministic setup.
+3. Use `remote.send_command` for advanced commands like upmixer/remapping changes.
+4. Gate automations on readiness:
+   - `remote.*` state `on` means connected and synced.
+   - Wait for this before sending follow-up commands after power-on.
+
+Example: safe startup sequence
+
+```yaml
+automation:
+  - alias: "Watch Movie"
+    trigger:
+      - platform: state
+        entity_id: input_boolean.watch_movie
+        to: "on"
+    action:
+      - service: remote.turn_on
+        target:
+          entity_id: remote.trinnov_altitude_*
+      - wait_for_trigger:
+          - platform: state
+            entity_id: remote.trinnov_altitude_*
+            to: "on"
+        timeout: "00:00:30"
+      - service: remote.send_command
+        target:
+          entity_id: remote.trinnov_altitude_*
+        data:
+          command:
+            - source_set_by_name Kaleidescape
+            - preset_set 1
+            - volume_set -40.0
+
+```
+
+## Wake-on-LAN (Recommended)
+
+Wake-on-LAN lets Home Assistant power on the Trinnov when it is off.
+
+Requirements:
+
+1. Enter a valid MAC address in integration setup.
+2. Keep the Trinnov on a network path where Home Assistant can deliver WoL packets.
+3. Use `remote.turn_on` or `media_player.turn_on` to send power-on.
+
+Important behavior:
+
+1. If MAC is missing, power-on will fail.
+2. Right after power-on, the device may be reachable but not fully synced yet.
+3. Always wait for `remote.trinnov_altitude_*` to become `on` before sending additional commands.
+
+## Troubleshooting
+
+If it does not behave as expected:
+
+1. Setup says "Failed to connect":
+   - Confirm Trinnov is powered and reachable by IP from Home Assistant host.
+2. Setup says "MAC address is invalid":
+   - Re-enter MAC in standard form (for example `00:11:22:33:44:55`).
+3. `remote.send_command` fails when off:
+   - Power on first (`remote.turn_on`) and wait for `remote.*` state `on`.
+4. Commands run but state looks stale:
+   - Check `sensor.*_connection_status` and `sensor.*_sync_status` first.
 
 ## Entities
 
@@ -71,7 +179,7 @@ Toggle buttons for features without state feedback:
 | `button.*_toggle_acoustic_correction` | Toggle acoustic correction |
 | `button.*_toggle_front_display` | Toggle front display |
 | `button.*_toggle_level_alignment` | Toggle level alignment |
-| `button.*_toggle_quick_optimized` | Toggle quick optimized |
+| `button.*_toggle_optimization` | Toggle optimization |
 | `button.*_toggle_time_alignment` | Toggle time alignment |
 
 ### Sensors
@@ -114,7 +222,7 @@ data:
 - `front_display_on/off/toggle`
 - `level_alignment_on/off/toggle`
 - `mute_on/off/toggle`
-- `quick_optimized_on/off/toggle`
+- `optimization_on/off/toggle`
 - `time_alignment_on/off/toggle`
 
 **Navigation:**
@@ -147,7 +255,7 @@ data:
 
 ### Power On and Configure
 
-The remote entity's state reflects connection status - `on` when connected, `off` when disconnected. Use this to wait for the device to be ready after Wake-on-LAN:
+The remote entity's state reflects readiness - `on` when connected and synced, `off` when disconnected or still syncing. Use this to wait for the device to be ready after Wake-on-LAN:
 
 ```yaml
 automation:
