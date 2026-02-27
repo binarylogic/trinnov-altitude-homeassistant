@@ -1,4 +1,4 @@
-"""Config flow for Hello World integration."""
+"""Config flow for Trinnov Altitude integration."""
 
 from __future__ import annotations
 
