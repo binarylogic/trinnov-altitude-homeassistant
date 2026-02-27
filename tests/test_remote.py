@@ -24,7 +24,7 @@ async def test_remote(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
     await hass.async_block_till_done()
 
     # Test remote entity
-    state = hass.states.get("remote.trinnov_altitude_abc123")
+    state = hass.states.get("remote.trinnov_altitude_192_168_1_100")
     assert state
     assert state.state == "on"  # connected property is True
     assert state.attributes.get("current_activity") == "Kaleidescape"
@@ -50,7 +50,7 @@ async def test_remote_turn_on(hass: HomeAssistant, mock_config_entry, mock_setup
         "remote",
         SERVICE_TURN_ON,
         {
-            ATTR_ENTITY_ID: "remote.trinnov_altitude_abc123",
+            ATTR_ENTITY_ID: "remote.trinnov_altitude_192_168_1_100",
         },
         blocking=True,
     )
@@ -77,7 +77,7 @@ async def test_remote_turn_on_no_mac(
             "remote",
             SERVICE_TURN_ON,
             {
-                ATTR_ENTITY_ID: "remote.trinnov_altitude_abc123",
+                ATTR_ENTITY_ID: "remote.trinnov_altitude_192_168_1_100",
             },
             blocking=True,
         )
@@ -98,7 +98,7 @@ async def test_remote_turn_off(
         "remote",
         SERVICE_TURN_OFF,
         {
-            ATTR_ENTITY_ID: "remote.trinnov_altitude_abc123",
+            ATTR_ENTITY_ID: "remote.trinnov_altitude_192_168_1_100",
         },
         blocking=True,
     )
@@ -124,7 +124,7 @@ async def test_remote_send_command_simple(
         "remote",
         SERVICE_SEND_COMMAND,
         {
-            ATTR_ENTITY_ID: "remote.trinnov_altitude_abc123",
+            ATTR_ENTITY_ID: "remote.trinnov_altitude_192_168_1_100",
             ATTR_COMMAND: ["mute_on"],
         },
         blocking=True,
@@ -149,7 +149,7 @@ async def test_remote_send_command_with_args(
         "remote",
         SERVICE_SEND_COMMAND,
         {
-            ATTR_ENTITY_ID: "remote.trinnov_altitude_abc123",
+            ATTR_ENTITY_ID: "remote.trinnov_altitude_192_168_1_100",
             ATTR_COMMAND: ["volume_set -35.5"],
         },
         blocking=True,
@@ -174,7 +174,7 @@ async def test_remote_send_command_with_int_arg(
         "remote",
         SERVICE_SEND_COMMAND,
         {
-            ATTR_ENTITY_ID: "remote.trinnov_altitude_abc123",
+            ATTR_ENTITY_ID: "remote.trinnov_altitude_192_168_1_100",
             ATTR_COMMAND: ["preset_set 2"],
         },
         blocking=True,
@@ -202,7 +202,7 @@ async def test_remote_send_command_upmixer_set(
         "remote",
         SERVICE_SEND_COMMAND,
         {
-            ATTR_ENTITY_ID: "remote.trinnov_altitude_abc123",
+            ATTR_ENTITY_ID: "remote.trinnov_altitude_192_168_1_100",
             ATTR_COMMAND: ["upmixer_set native"],
         },
         blocking=True,
@@ -230,7 +230,7 @@ async def test_remote_send_command_upmixer_set_case_insensitive(
         "remote",
         SERVICE_SEND_COMMAND,
         {
-            ATTR_ENTITY_ID: "remote.trinnov_altitude_abc123",
+            ATTR_ENTITY_ID: "remote.trinnov_altitude_192_168_1_100",
             ATTR_COMMAND: ["upmixer_set DOLBY"],
         },
         blocking=True,
@@ -255,7 +255,7 @@ async def test_remote_send_command_upmixer_set_invalid(
             "remote",
             SERVICE_SEND_COMMAND,
             {
-                ATTR_ENTITY_ID: "remote.trinnov_altitude_abc123",
+                ATTR_ENTITY_ID: "remote.trinnov_altitude_192_168_1_100",
                 ATTR_COMMAND: ["upmixer_set invalid_mode"],
             },
             blocking=True,
@@ -279,7 +279,7 @@ async def test_remote_send_command_remapping_mode_set(
         "remote",
         SERVICE_SEND_COMMAND,
         {
-            ATTR_ENTITY_ID: "remote.trinnov_altitude_abc123",
+            ATTR_ENTITY_ID: "remote.trinnov_altitude_192_168_1_100",
             ATTR_COMMAND: ["remapping_mode_set 3D"],
         },
         blocking=True,
@@ -302,7 +302,7 @@ async def test_remote_send_command_remapping_mode_set_invalid(
             "remote",
             SERVICE_SEND_COMMAND,
             {
-                ATTR_ENTITY_ID: "remote.trinnov_altitude_abc123",
+                ATTR_ENTITY_ID: "remote.trinnov_altitude_192_168_1_100",
                 ATTR_COMMAND: ["remapping_mode_set invalid"],
             },
             blocking=True,
@@ -325,7 +325,7 @@ async def test_remote_send_multiple_commands(
         "remote",
         SERVICE_SEND_COMMAND,
         {
-            ATTR_ENTITY_ID: "remote.trinnov_altitude_abc123",
+            ATTR_ENTITY_ID: "remote.trinnov_altitude_192_168_1_100",
             ATTR_COMMAND: ["mute_on", "volume_set -40.0", "source_set 1"],
         },
         blocking=True,
@@ -352,7 +352,7 @@ async def test_remote_send_invalid_command(
             "remote",
             SERVICE_SEND_COMMAND,
             {
-                ATTR_ENTITY_ID: "remote.trinnov_altitude_abc123",
+                ATTR_ENTITY_ID: "remote.trinnov_altitude_192_168_1_100",
                 ATTR_COMMAND: ["invalid_command"],
             },
             blocking=True,
@@ -376,7 +376,7 @@ async def test_remote_send_command_not_connected(
             "remote",
             SERVICE_SEND_COMMAND,
             {
-                ATTR_ENTITY_ID: "remote.trinnov_altitude_abc123",
+                ATTR_ENTITY_ID: "remote.trinnov_altitude_192_168_1_100",
                 ATTR_COMMAND: ["mute_on"],
             },
             blocking=True,
@@ -400,7 +400,7 @@ async def test_remote_send_command_invalid_args(
             "remote",
             SERVICE_SEND_COMMAND,
             {
-                ATTR_ENTITY_ID: "remote.trinnov_altitude_abc123",
+                ATTR_ENTITY_ID: "remote.trinnov_altitude_192_168_1_100",
                 ATTR_COMMAND: ["volume_set invalid"],
             },
             blocking=True,
@@ -424,7 +424,7 @@ async def test_remote_send_command_unknown_source_by_name(
             "remote",
             SERVICE_SEND_COMMAND,
             {
-                ATTR_ENTITY_ID: "remote.trinnov_altitude_abc123",
+                ATTR_ENTITY_ID: "remote.trinnov_altitude_192_168_1_100",
                 ATTR_COMMAND: ["source_set_by_name Apple TV"],
             },
             blocking=True,
@@ -446,7 +446,7 @@ async def test_remote_send_command_source_by_name_quoted(
         "remote",
         SERVICE_SEND_COMMAND,
         {
-            ATTR_ENTITY_ID: "remote.trinnov_altitude_abc123",
+            ATTR_ENTITY_ID: "remote.trinnov_altitude_192_168_1_100",
             ATTR_COMMAND: ['source_set_by_name "Apple TV 4K"'],
         },
         blocking=True,
@@ -470,7 +470,7 @@ async def test_remote_send_command_empty_string(
             "remote",
             SERVICE_SEND_COMMAND,
             {
-                ATTR_ENTITY_ID: "remote.trinnov_altitude_abc123",
+                ATTR_ENTITY_ID: "remote.trinnov_altitude_192_168_1_100",
                 ATTR_COMMAND: ["   "],
             },
             blocking=True,
@@ -491,6 +491,6 @@ async def test_remote_is_off_when_disconnected(
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done()
 
-    state = hass.states.get("remote.trinnov_altitude_abc123")
+    state = hass.states.get("remote.trinnov_altitude_192_168_1_100")
     assert state
     assert state.state == "off"

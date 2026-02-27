@@ -13,7 +13,7 @@ async def test_volume_number(hass: HomeAssistant, mock_config_entry, mock_setup_
     await hass.async_block_till_done()
 
     # Test volume number entity
-    state = hass.states.get("number.trinnov_altitude_abc123_volume")
+    state = hass.states.get("number.trinnov_altitude_192_168_1_100_volume")
     assert state
     assert state.state == "-40.0"
     assert state.attributes.get("min") == -120.0
@@ -37,7 +37,7 @@ async def test_volume_number_set_value(
         "number",
         SERVICE_SET_VALUE,
         {
-            ATTR_ENTITY_ID: "number.trinnov_altitude_abc123_volume",
+            ATTR_ENTITY_ID: "number.trinnov_altitude_192_168_1_100_volume",
             ATTR_VALUE: -35.5,
         },
         blocking=True,
@@ -59,7 +59,7 @@ async def test_volume_number_updates(
     mock_device = mock_setup_entry.return_value
 
     # Verify initial state
-    state = hass.states.get("number.trinnov_altitude_abc123_volume")
+    state = hass.states.get("number.trinnov_altitude_192_168_1_100_volume")
     assert state
     assert state.state == "-40.0"
 
@@ -72,7 +72,7 @@ async def test_volume_number_updates(
     await hass.async_block_till_done()
 
     # Verify entity updated
-    state = hass.states.get("number.trinnov_altitude_abc123_volume")
+    state = hass.states.get("number.trinnov_altitude_192_168_1_100_volume")
     assert state
     assert state.state == "-30.0"
 
@@ -92,7 +92,7 @@ async def test_volume_number_none_value(
     await hass.async_block_till_done()
 
     # Volume is None when device is offline
-    state = hass.states.get("number.trinnov_altitude_abc123_volume")
+    state = hass.states.get("number.trinnov_altitude_192_168_1_100_volume")
     assert state
     assert state.state == "unknown"
 
@@ -113,7 +113,7 @@ async def test_volume_number_min_max_bounds(
         "number",
         SERVICE_SET_VALUE,
         {
-            ATTR_ENTITY_ID: "number.trinnov_altitude_abc123_volume",
+            ATTR_ENTITY_ID: "number.trinnov_altitude_192_168_1_100_volume",
             ATTR_VALUE: -120.0,
         },
         blocking=True,
@@ -127,7 +127,7 @@ async def test_volume_number_min_max_bounds(
         "number",
         SERVICE_SET_VALUE,
         {
-            ATTR_ENTITY_ID: "number.trinnov_altitude_abc123_volume",
+            ATTR_ENTITY_ID: "number.trinnov_altitude_192_168_1_100_volume",
             ATTR_VALUE: 0.0,
         },
         blocking=True,

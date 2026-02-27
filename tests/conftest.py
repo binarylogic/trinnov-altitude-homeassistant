@@ -149,7 +149,7 @@ def mock_config_entry():
     """Create a mock config entry."""
     return MockConfigEntry(
         domain=DOMAIN,
-        title="Trinnov Altitude (ABC123)",
+        title="Trinnov Altitude (192.168.1.100)",
         data={
             CONF_HOST: "192.168.1.100",
             CONF_MAC: "00:11:22:33:44:55",

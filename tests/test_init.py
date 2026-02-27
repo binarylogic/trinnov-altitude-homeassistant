@@ -49,7 +49,7 @@ async def test_async_setup_entry_without_mac(hass: HomeAssistant, mock_setup_ent
     """Test setting up the integration without MAC address."""
     config_entry = MockConfigEntry(
         domain=DOMAIN,
-        title="Trinnov Altitude (ABC123)",
+        title="Trinnov Altitude (192.168.1.100)",
         data={
             CONF_HOST: "192.168.1.100",
         },

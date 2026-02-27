@@ -12,7 +12,7 @@ async def test_power_status_ready(
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done()
 
-    state = hass.states.get("sensor.trinnov_altitude_abc123_power_status")
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_power_status")
     assert state
     assert state.state == "ready"
 
@@ -29,7 +29,7 @@ async def test_power_status_off(
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done()
 
-    state = hass.states.get("sensor.trinnov_altitude_abc123_power_status")
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_power_status")
     assert state
     assert state.state == "off"
 
@@ -47,7 +47,7 @@ async def test_power_status_booting(
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done()
 
-    state = hass.states.get("sensor.trinnov_altitude_abc123_power_status")
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_power_status")
     assert state
     assert state.state == "booting"
 
@@ -66,7 +66,7 @@ async def test_power_status_transitions(
     await hass.async_block_till_done()
 
     # Initially off
-    state = hass.states.get("sensor.trinnov_altitude_abc123_power_status")
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_power_status")
     assert state
     assert state.state == "off"
 
@@ -76,7 +76,7 @@ async def test_power_status_transitions(
     callback("connected", None)
     await hass.async_block_till_done()
 
-    state = hass.states.get("sensor.trinnov_altitude_abc123_power_status")
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_power_status")
     assert state
     assert state.state == "booting"
 
@@ -86,7 +86,7 @@ async def test_power_status_transitions(
     callback(None, [], [])
     await hass.async_block_till_done()
 
-    state = hass.states.get("sensor.trinnov_altitude_abc123_power_status")
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_power_status")
     assert state
     assert state.state == "ready"
 
@@ -99,54 +99,54 @@ async def test_sensors(hass: HomeAssistant, mock_config_entry, mock_setup_entry)
     await hass.async_block_till_done()
 
     # Test audiosync sensor
-    state = hass.states.get("sensor.trinnov_altitude_abc123_audiosync")
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_audiosync")
     assert state
     assert state.state == "Master"
 
     # Test decoder sensor
-    state = hass.states.get("sensor.trinnov_altitude_abc123_decoder")
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_decoder")
     assert state
     assert state.state == "Dolby Atmos"
 
     # Test preset sensor
-    state = hass.states.get("sensor.trinnov_altitude_abc123_preset")
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_preset")
     assert state
     assert state.state == "Movies"
 
     # Test source sensor
-    state = hass.states.get("sensor.trinnov_altitude_abc123_source")
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_source")
     assert state
     assert state.state == "Kaleidescape"
 
     # Test source_format sensor
-    state = hass.states.get("sensor.trinnov_altitude_abc123_source_format")
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_source_format")
     assert state
     assert state.state == "Dolby TrueHD 7.1"
 
     # Test upmixer sensor
-    state = hass.states.get("sensor.trinnov_altitude_abc123_upmixer")
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_upmixer")
     assert state
     assert state.state == "Native"
 
     # Test volume sensor
-    state = hass.states.get("sensor.trinnov_altitude_abc123_volume")
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_volume")
     assert state
     assert state.state == "-40.0"
 
     # Diagnostic sensors
-    state = hass.states.get("sensor.trinnov_altitude_abc123_connection_status")
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_connection_status")
     assert state
     assert state.state == "connected"
 
-    state = hass.states.get("sensor.trinnov_altitude_abc123_sync_status")
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_sync_status")
     assert state
     assert state.state == "synced"
 
-    state = hass.states.get("sensor.trinnov_altitude_abc123_version")
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_version")
     assert state
     assert state.state == "4.2.9"
 
-    state = hass.states.get("sensor.trinnov_altitude_abc123_device_id")
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_device_id")
     assert state
     assert state.state == "ABC123"
 
@@ -170,11 +170,11 @@ async def test_sensor_updates(hass: HomeAssistant, mock_config_entry, mock_setup
     await hass.async_block_till_done()
 
     # Verify sensor updated
-    state = hass.states.get("sensor.trinnov_altitude_abc123_source")
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_source")
     assert state
     assert state.state == "Apple TV"
 
-    state = hass.states.get("sensor.trinnov_altitude_abc123_volume")
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_volume")
     assert state
     assert state.state == "-35.5"
 
@@ -195,10 +195,10 @@ async def test_sensor_none_values(
     await hass.async_block_till_done()
 
     # Sensors with None values should show as 'unknown'
-    state = hass.states.get("sensor.trinnov_altitude_abc123_source")
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_source")
     assert state
     assert state.state == "unknown"
 
-    state = hass.states.get("sensor.trinnov_altitude_abc123_volume")
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_volume")
     assert state
     assert state.state == "unknown"

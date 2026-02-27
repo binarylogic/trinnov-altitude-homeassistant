@@ -13,11 +13,11 @@ async def test_buttons(hass: HomeAssistant, mock_config_entry, mock_setup_entry)
     await hass.async_block_till_done()
 
     # Test toggle buttons exist
-    assert hass.states.get("button.trinnov_altitude_abc123_toggle_acoustic_correction")
-    assert hass.states.get("button.trinnov_altitude_abc123_toggle_front_display")
-    assert hass.states.get("button.trinnov_altitude_abc123_toggle_level_alignment")
-    assert hass.states.get("button.trinnov_altitude_abc123_toggle_optimization")
-    assert hass.states.get("button.trinnov_altitude_abc123_toggle_time_alignment")
+    assert hass.states.get("button.trinnov_altitude_192_168_1_100_toggle_acoustic_correction")
+    assert hass.states.get("button.trinnov_altitude_192_168_1_100_toggle_front_display")
+    assert hass.states.get("button.trinnov_altitude_192_168_1_100_toggle_level_alignment")
+    assert hass.states.get("button.trinnov_altitude_192_168_1_100_toggle_optimization")
+    assert hass.states.get("button.trinnov_altitude_192_168_1_100_toggle_time_alignment")
 
 
 async def test_acoustic_correction_toggle_button(
@@ -34,7 +34,7 @@ async def test_acoustic_correction_toggle_button(
     await hass.services.async_call(
         "button",
         SERVICE_PRESS,
-        {ATTR_ENTITY_ID: "button.trinnov_altitude_abc123_toggle_acoustic_correction"},
+        {ATTR_ENTITY_ID: "button.trinnov_altitude_192_168_1_100_toggle_acoustic_correction"},
         blocking=True,
     )
 

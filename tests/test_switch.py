@@ -13,17 +13,17 @@ async def test_switches(hass: HomeAssistant, mock_config_entry, mock_setup_entry
     await hass.async_block_till_done()
 
     # Test mute switch
-    state = hass.states.get("switch.trinnov_altitude_abc123_mute")
+    state = hass.states.get("switch.trinnov_altitude_192_168_1_100_mute")
     assert state
     assert state.state == STATE_OFF
 
     # Test dim switch
-    state = hass.states.get("switch.trinnov_altitude_abc123_dim")
+    state = hass.states.get("switch.trinnov_altitude_192_168_1_100_dim")
     assert state
     assert state.state == STATE_OFF
 
     # Test bypass switch
-    state = hass.states.get("switch.trinnov_altitude_abc123_bypass")
+    state = hass.states.get("switch.trinnov_altitude_192_168_1_100_bypass")
     assert state
     assert state.state == STATE_OFF
 
@@ -42,7 +42,7 @@ async def test_mute_switch_turn_on(
     await hass.services.async_call(
         "switch",
         SERVICE_TURN_ON,
-        {ATTR_ENTITY_ID: "switch.trinnov_altitude_abc123_mute"},
+        {ATTR_ENTITY_ID: "switch.trinnov_altitude_192_168_1_100_mute"},
         blocking=True,
     )
 
@@ -63,7 +63,7 @@ async def test_mute_switch_turn_off(
     await hass.services.async_call(
         "switch",
         SERVICE_TURN_OFF,
-        {ATTR_ENTITY_ID: "switch.trinnov_altitude_abc123_mute"},
+        {ATTR_ENTITY_ID: "switch.trinnov_altitude_192_168_1_100_mute"},
         blocking=True,
     )
 
@@ -82,6 +82,6 @@ async def test_switch_reflects_device_state(
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done()
 
-    state = hass.states.get("switch.trinnov_altitude_abc123_mute")
+    state = hass.states.get("switch.trinnov_altitude_192_168_1_100_mute")
     assert state
     assert state.state == STATE_ON

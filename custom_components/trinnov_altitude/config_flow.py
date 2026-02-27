@@ -16,7 +16,7 @@ from trinnov_altitude.exceptions import (
     MalformedMacAddressError,
 )
 
-from .const import CLIENT_ID, DOMAIN, NAME  # pylint:disable=unused-import
+from .const import CLIENT_ID, DOMAIN, NAME
 
 _LOGGER = logging.getLogger(__name__)
 DATA_SCHEMA = vol.Schema({vol.Required(CONF_HOST): str, vol.Optional(CONF_MAC): str})
@@ -62,7 +62,7 @@ class TrinnovAltitudeConfigFlow(ConfigFlow, domain=DOMAIN):
                 processed_input = {CONF_HOST: host, CONF_MAC: mac}
                 self._abort_if_unique_id_configured(processed_input)
                 return self.async_create_entry(
-                    title=f"{NAME} ({device.state.id})", data=processed_input
+                    title=f"{NAME} ({host})", data=processed_input
                 )
             finally:
                 if device:

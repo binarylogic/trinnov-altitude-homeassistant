@@ -34,11 +34,10 @@ class TrinnovAltitudeEntity(CoordinatorEntity[TrinnovAltitudeCoordinator]):
 
         device_id = str(self._client.state.id or "unknown")
         self._attr_unique_id = device_id
+        host = self._client.host.strip() if self._client.host else "trinnov"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, device_id)},
-            # Instead of setting the device name to the entity name,
-            # this should be updated to set has_entity_name = True
-            name=f"{NAME} ({device_id})",
+            name=f"{NAME} ({host})",
             model=MODEL,
             manufacturer=MANUFACTURER,
             sw_version=self._client.state.version,

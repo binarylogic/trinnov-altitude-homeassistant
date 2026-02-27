@@ -45,7 +45,7 @@ async def test_form_user_success(hass: HomeAssistant):
         await hass.async_block_till_done()
 
         assert result["type"] == FlowResultType.CREATE_ENTRY
-        assert result["title"] == "Trinnov Altitude (ABC123)"
+        assert result["title"] == "Trinnov Altitude (192.168.1.100)"
         assert result["data"] == {
             CONF_HOST: "192.168.1.100",
             CONF_MAC: "00:11:22:33:44:55",
@@ -203,7 +203,7 @@ async def test_form_already_configured(hass: HomeAssistant):
     # Create existing entry
     existing_entry = MockConfigEntry(
         domain=DOMAIN,
-        title="Trinnov Altitude (ABC123)",
+        title="Trinnov Altitude (192.168.1.100)",
         data={CONF_HOST: "192.168.1.100"},
         unique_id="ABC123",
     )

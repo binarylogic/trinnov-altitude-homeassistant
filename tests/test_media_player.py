@@ -25,7 +25,7 @@ async def test_media_player(hass: HomeAssistant, mock_config_entry, mock_setup_e
     await hass.async_block_till_done()
 
     # Test media player entity
-    state = hass.states.get("media_player.trinnov_altitude_abc123")
+    state = hass.states.get("media_player.trinnov_altitude_192_168_1_100")
     assert state
     assert state.state == MediaPlayerState.PLAYING
     assert state.attributes.get(ATTR_MEDIA_VOLUME_MUTED) is False
@@ -44,7 +44,7 @@ async def test_media_player_playing_state(
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done()
 
-    state = hass.states.get("media_player.trinnov_altitude_abc123")
+    state = hass.states.get("media_player.trinnov_altitude_192_168_1_100")
     assert state
     assert state.state == MediaPlayerState.PLAYING
 
@@ -63,7 +63,7 @@ async def test_media_player_off_state(
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done()
 
-    state = hass.states.get("media_player.trinnov_altitude_abc123")
+    state = hass.states.get("media_player.trinnov_altitude_192_168_1_100")
     assert state
     assert state.state == MediaPlayerState.OFF
 
@@ -83,7 +83,7 @@ async def test_media_player_turn_on(
         "media_player",
         SERVICE_TURN_ON,
         {
-            ATTR_ENTITY_ID: "media_player.trinnov_altitude_abc123",
+            ATTR_ENTITY_ID: "media_player.trinnov_altitude_192_168_1_100",
         },
         blocking=True,
     )
@@ -106,7 +106,7 @@ async def test_media_player_turn_off(
         "media_player",
         SERVICE_TURN_OFF,
         {
-            ATTR_ENTITY_ID: "media_player.trinnov_altitude_abc123",
+            ATTR_ENTITY_ID: "media_player.trinnov_altitude_192_168_1_100",
         },
         blocking=True,
     )
@@ -131,7 +131,7 @@ async def test_media_player_volume_up(
         "media_player",
         SERVICE_VOLUME_UP,
         {
-            ATTR_ENTITY_ID: "media_player.trinnov_altitude_abc123",
+            ATTR_ENTITY_ID: "media_player.trinnov_altitude_192_168_1_100",
         },
         blocking=True,
     )
@@ -154,7 +154,7 @@ async def test_media_player_volume_down(
         "media_player",
         SERVICE_VOLUME_DOWN,
         {
-            ATTR_ENTITY_ID: "media_player.trinnov_altitude_abc123",
+            ATTR_ENTITY_ID: "media_player.trinnov_altitude_192_168_1_100",
         },
         blocking=True,
     )
@@ -178,7 +178,7 @@ async def test_media_player_set_volume(
         "media_player",
         SERVICE_VOLUME_SET,
         {
-            ATTR_ENTITY_ID: "media_player.trinnov_altitude_abc123",
+            ATTR_ENTITY_ID: "media_player.trinnov_altitude_192_168_1_100",
             ATTR_MEDIA_VOLUME_LEVEL: 0.75,
         },
         blocking=True,
@@ -204,7 +204,7 @@ async def test_media_player_mute(
         "media_player",
         SERVICE_VOLUME_MUTE,
         {
-            ATTR_ENTITY_ID: "media_player.trinnov_altitude_abc123",
+            ATTR_ENTITY_ID: "media_player.trinnov_altitude_192_168_1_100",
             ATTR_MEDIA_VOLUME_MUTED: True,
         },
         blocking=True,
@@ -218,7 +218,7 @@ async def test_media_player_mute(
         "media_player",
         SERVICE_VOLUME_MUTE,
         {
-            ATTR_ENTITY_ID: "media_player.trinnov_altitude_abc123",
+            ATTR_ENTITY_ID: "media_player.trinnov_altitude_192_168_1_100",
             ATTR_MEDIA_VOLUME_MUTED: False,
         },
         blocking=True,
@@ -242,7 +242,7 @@ async def test_media_player_select_source(
         "media_player",
         SERVICE_SELECT_SOURCE,
         {
-            ATTR_ENTITY_ID: "media_player.trinnov_altitude_abc123",
+            ATTR_ENTITY_ID: "media_player.trinnov_altitude_192_168_1_100",
             ATTR_INPUT_SOURCE: "Apple TV",
         },
         blocking=True,
@@ -269,7 +269,7 @@ async def test_media_player_available_when_offline_with_mac(
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done()
 
-    state = hass.states.get("media_player.trinnov_altitude_abc123")
+    state = hass.states.get("media_player.trinnov_altitude_192_168_1_100")
     assert state
     # Should be available even when offline because power_on_available returns True
     assert state.state == MediaPlayerState.OFF
