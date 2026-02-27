@@ -1,0 +1,80 @@
+name: dependabot-auto-merge
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    if: >-
+      github.actor == 'dependabot[bot]' &&
+      github.event.pull_request.user.login == 'dependabot[bot]' &&
+      github.event.pull_request.base.ref == 'master' &&
+      !github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@21025c705c08248db411dc16f3619e6b5f9ea21a # v2
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Approve and enable auto-merge for patch updates
+        if: >-
+          steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
+          steps.metadata.outputs.update-type == 'version-update:semver-patch+security' ||
+          steps.metadata.outputs.update-type == 'version-update:semver-minor+security' ||
+          steps.metadata.outputs.update-type == 'version-update:semver-major+security' ||
+          steps.metadata.outputs.update-type == 'version-update:security' ||
+          steps.metadata.outputs.update-type == 'version-update:security:patch' ||
+          steps.metadata.outputs.update-type == 'version-update:security:minor' ||
+          steps.metadata.outputs.update-type == 'version-update:security:major' ||
+          steps.metadata.outputs.update-type == 'version-update:semver-patch-security' ||
+          startsWith(steps.metadata.outputs.update-type, 'version-update:semver-patch')
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const pull_number = context.payload.pull_request.number;
+            const pullRequestId = context.payload.pull_request.node_id;
+
+            try {
+              await github.rest.pulls.createReview({
+                owner,
+                repo,
+                pull_number,
+                event: 'APPROVE',
+                body: 'Auto-approved for Dependabot patch/security update. Auto-merge enabled when required checks pass.',
+              });
+            } catch (error) {
+              core.info(`Approval skipped: ${error.message}`);
+            }
+
+            await github.graphql(
+              `mutation EnableAutoMerge($pullRequestId: ID!) {
+                enablePullRequestAutoMerge(input: {pullRequestId: $pullRequestId, mergeMethod: REBASE}) {
+                  pullRequest { number }
+                }
+              }`,
+              { pullRequestId }
+            );
+
+      - name: Skip non-patch updates
+        if: >-
+          !(steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
+            steps.metadata.outputs.update-type == 'version-update:semver-patch+security' ||
+            steps.metadata.outputs.update-type == 'version-update:semver-minor+security' ||
+            steps.metadata.outputs.update-type == 'version-update:semver-major+security' ||
+            steps.metadata.outputs.update-type == 'version-update:security' ||
+            steps.metadata.outputs.update-type == 'version-update:security:patch' ||
+            steps.metadata.outputs.update-type == 'version-update:security:minor' ||
+            steps.metadata.outputs.update-type == 'version-update:security:major' ||
+            steps.metadata.outputs.update-type == 'version-update:semver-patch-security' ||
+            startsWith(steps.metadata.outputs.update-type, 'version-update:semver-patch'))
+        run: echo "Not auto-merging update type '${{ steps.metadata.outputs.update-type }}'."
