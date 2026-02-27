@@ -16,29 +16,49 @@ jobs:
       release_created: ${{ steps.release.outputs.release_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
-      - uses: googleapis/release-please-action@v4
+      - uses: googleapis/release-please-action@16a9c90856f42705d54a6fda1823352bdc62cf38 # v4
         id: release
         with:
           release-type: simple
 
-  build-release:
+  release-readiness:
     needs: release-please
     if: ${{ needs.release-please.outputs.release_created }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
         with:
           python-version: "3.12"
 
-      - name: Validate PyPI requirement availability
+      - name: Validate release metadata and dependency availability
+        env:
+          TAG_NAME: ${{ needs.release-please.outputs.tag_name }}
         run: |
+          VERSION="${TAG_NAME#v}"
+          MANIFEST_VERSION=$(python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path("custom_components/trinnov_altitude/manifest.json").read_text())
+          print(manifest["version"])
+          PY
+          )
+
+          if [ "$MANIFEST_VERSION" != "$VERSION" ]; then
+            echo "manifest.json version ($MANIFEST_VERSION) does not match release tag ($VERSION)"
+            exit 1
+          fi
+
+          if ! grep -q "## \\[$VERSION\\]" CHANGELOG.md; then
+            echo "CHANGELOG.md missing heading for version $VERSION"
+            exit 1
+          fi
+
           REQ=$(python - <<'PY'
           import json
           from pathlib import Path
-
           manifest = json.loads(Path("custom_components/trinnov_altitude/manifest.json").read_text())
           requirement = next(r for r in manifest["requirements"] if r.startswith("trinnov-altitude"))
           print(requirement)
@@ -47,13 +67,25 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip download --dest /tmp/pypi-check "$REQ"
 
+  build-release:
+    needs: [release-please, release-readiness]
+    if: ${{ needs.release-please.outputs.release_created }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
+        with:
+          python-version: "3.12"
+
       - name: Create zip for release
         run: |
           cd custom_components
           zip -r ../trinnov_altitude.zip trinnov_altitude/ -x "**/__pycache__/*" -x "**/*.pyc"
 
       - name: Upload zip to release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2
         with:
           tag_name: ${{ needs.release-please.outputs.tag_name }}
           files: trinnov_altitude.zip
