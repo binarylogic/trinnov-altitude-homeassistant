@@ -13,6 +13,13 @@ Upstream Home Assistant repositories are release targets:
 - Docs: https://github.com/home-assistant/home-assistant.io/pull/43819
 - Brands (merged): https://github.com/home-assistant/brands/pull/8455
 
+## Current Snapshots
+
+- Source repo commit: `bb5661b`
+- Library repo commit: `d49aa9b`
+- Library release consumed by integrations: `trinnov-altitude==3.1.0`
+- Core sync branch head: `a9c00bfc31` (`binarylogic/homeassistant-core:trinnov-altitude-integration`)
+
 ## Sync Policy
 
 1. Build and merge features in this repo first.
@@ -59,4 +66,3 @@ For each upstream review round:
 - [ ] Backport logic-affecting changes to this repo.
 - [ ] Add commit hash links for upstream commit and backport commit.
 - [ ] Re-run local tests in this repo.
-
