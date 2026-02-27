@@ -55,8 +55,10 @@ async def test_source_select_option(
         blocking=True,
     )
 
-    # Verify device method was called
-    mock_device.source_set_by_name.assert_called_once_with("Apple TV")
+    # Verify source set used command ACK flow
+    mock_device.command.assert_called_once_with(
+        "profile 1", wait_for_ack=True, ack_timeout=2.0
+    )
 
 
 async def test_preset_select_option(
@@ -81,8 +83,10 @@ async def test_preset_select_option(
         blocking=True,
     )
 
-    # Verify device method was called with correct ID
-    mock_device.preset_set.assert_called_once_with(2)
+    # Verify preset set used command ACK flow
+    mock_device.command.assert_called_once_with(
+        "loadp 2", wait_for_ack=True, ack_timeout=2.0
+    )
 
 
 async def test_select_updates(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
@@ -96,19 +100,20 @@ async def test_select_updates(hass: HomeAssistant, mock_config_entry, mock_setup
 
     # Verify initial state
     state = hass.states.get("select.trinnov_altitude_abc123_source")
+    assert state
     assert state.state == "Kaleidescape"
 
     # Simulate source change
-    mock_device.source = "Blu-ray"
+    mock_device.state.source = "Blu-ray"
 
-    # Trigger all callbacks (multiple entities register callbacks)
-    for call in mock_device.register_callback.call_args_list:
-        callback = call[0][0]
-        callback("source_changed", None)
+    # Trigger coordinator callback
+    callback = mock_device.register_callback.call_args[0][0]
+    callback("received_message", None)
     await hass.async_block_till_done()
 
     # Verify entity updated
     state = hass.states.get("select.trinnov_altitude_abc123_source")
+    assert state
     assert state.state == "Blu-ray"
 
 
@@ -159,8 +164,10 @@ async def test_preset_select_built_in(
         blocking=True,
     )
 
-    # Verify device method was called with ID 0
-    mock_device.preset_set.assert_called_once_with(0)
+    # Verify preset set used command ACK flow
+    mock_device.command.assert_called_once_with(
+        "loadp 0", wait_for_ack=True, ack_timeout=2.0
+    )
 
 
 async def test_upmixer_select(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
@@ -173,5 +180,6 @@ async def test_upmixer_select(hass: HomeAssistant, mock_config_entry, mock_setup
     state = hass.states.get("select.trinnov_altitude_abc123_upmixer")
     assert state
     assert state.state == "native"
-    assert "native" in state.attributes.get("options")
-    assert "dolby" in state.attributes.get("options")
+    options = state.attributes.get("options", [])
+    assert "native" in options
+    assert "dolby" in options

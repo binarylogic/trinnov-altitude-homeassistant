@@ -2,13 +2,22 @@
 
 from __future__ import annotations
 
+import logging
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_MAC, EVENT_HOMEASSISTANT_STOP, Platform
 from homeassistant.core import Event, HomeAssistant
+from homeassistant.exceptions import ConfigEntryNotReady
 
-from trinnov_altitude.trinnov_altitude import TrinnovAltitude
+from trinnov_altitude.client import TrinnovAltitudeClient
+from trinnov_altitude.exceptions import ConnectionFailedError, ConnectionTimeoutError
 
+from .commands import TrinnovAltitudeCommands
 from .const import CLIENT_ID, DOMAIN
+from .coordinator import TrinnovAltitudeCoordinator
+from .models import TrinnovAltitudeIntegrationData
+
+_LOGGER = logging.getLogger(__name__)
 
 PLATFORMS: list[str] = [
     Platform.BUTTON,
@@ -28,26 +37,41 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # Optional attributes may not be present
     mac = entry.data.get(CONF_MAC)
-    if mac:
-        mac = mac.strip()
-    else:
-        mac = None
+    mac = mac.strip() if mac else None
 
-    device = TrinnovAltitude(host=host, mac=mac, client_id=CLIENT_ID)
+    device = TrinnovAltitudeClient(host=host, mac=mac, client_id=CLIENT_ID)
+    commands = TrinnovAltitudeCommands(device)
 
     # Force set the id from the config glow since the device is not guaranteed
     # to be online. This ensures that entities have an id to work with.
-    device.id = entry.unique_id
+    device.state.id = entry.unique_id
 
-    # Spawn a task to connect and start listening for events from the device
-    device.start_listening(reconnect=True)
+    coordinator = TrinnovAltitudeCoordinator(hass, device, commands)
 
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = device
+    try:
+        await coordinator.async_start()
+    except (ConnectionFailedError, ConnectionTimeoutError) as exc:
+        await coordinator.async_shutdown()
+        raise ConfigEntryNotReady(
+            f"Could not connect to Trinnov Altitude at {host}"
+        ) from exc
+    except TimeoutError as exc:
+        await coordinator.async_shutdown()
+        raise ConfigEntryNotReady(
+            f"Timed out waiting for Trinnov Altitude sync at {host}"
+        ) from exc
+    except Exception:
+        await coordinator.async_shutdown()
+        _LOGGER.exception("Unexpected error while starting Trinnov Altitude client")
+        raise
 
-    # If the device is connected, ensure that we disconnect when Home Assistant is stopped
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = TrinnovAltitudeIntegrationData(
+        client=device, coordinator=coordinator, commands=commands
+    )
+
+    # Ensure the client is stopped when Home Assistant is stopped.
     async def unload(event: Event) -> None:
-        await device.stop_listening()
-        await device.disconnect()
+        await coordinator.async_shutdown()
 
     entry.async_on_unload(hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, unload))
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
@@ -60,8 +84,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
     if unload_ok:
-        client = hass.data[DOMAIN].pop(entry.entry_id)
-        await client.stop_listening()
-        await client.disconnect()
+        data: TrinnovAltitudeIntegrationData = hass.data[DOMAIN].pop(entry.entry_id)
+        await data.coordinator.async_shutdown()
 
     return unload_ok

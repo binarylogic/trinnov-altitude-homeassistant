@@ -1,6 +1,6 @@
 """Test the Trinnov Altitude remote platform."""
 
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 
 import pytest
 from homeassistant.components.remote import (
@@ -12,7 +12,7 @@ from homeassistant.components.remote import (
 from homeassistant.const import ATTR_ENTITY_ID
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
-from trinnov_altitude.const import RemappingMode, UpmixerMode
+from trinnov_altitude.const import RemappingMode
 from trinnov_altitude.exceptions import NoMacAddressError, NotConnectedError
 
 
@@ -26,7 +26,7 @@ async def test_remote(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
     # Test remote entity
     state = hass.states.get("remote.trinnov_altitude_abc123")
     assert state
-    assert state.state == "on"  # connected() returns True
+    assert state.state == "on"  # connected property is True
     assert state.attributes.get("current_activity") == "Kaleidescape"
     assert state.attributes.get("activity_list") == [
         "Kaleidescape",
@@ -39,7 +39,7 @@ async def test_remote_turn_on(hass: HomeAssistant, mock_config_entry, mock_setup
     """Test turning on remote (power on device)."""
     mock_device = mock_setup_entry.return_value
     # Set device as disconnected so power_on will be called
-    mock_device.connected = MagicMock(return_value=False)
+    mock_device.connected = False
 
     mock_config_entry.add_to_hass(hass)
 
@@ -64,7 +64,7 @@ async def test_remote_turn_on_no_mac(
     """Test turning on remote without MAC address raises error."""
     mock_device = mock_setup_entry.return_value
     # Set device as disconnected so power_on will be called
-    mock_device.connected = MagicMock(return_value=False)
+    mock_device.connected = False
     mock_device.power_on.side_effect = NoMacAddressError
 
     mock_config_entry.add_to_hass(hass)
@@ -103,7 +103,9 @@ async def test_remote_turn_off(
         blocking=True,
     )
 
-    mock_device.power_off.assert_called_once()
+    mock_device.command.assert_called_once_with(
+        "power_off_SECURED_FHZMCH48FE", wait_for_ack=True, ack_timeout=2.0
+    )
 
 
 async def test_remote_send_command_simple(
@@ -178,7 +180,9 @@ async def test_remote_send_command_with_int_arg(
         blocking=True,
     )
 
-    mock_device.preset_set.assert_called_once_with(2)
+    mock_device.command.assert_called_once_with(
+        "loadp 2", wait_for_ack=True, ack_timeout=2.0
+    )
 
 
 async def test_remote_send_command_upmixer_set(
@@ -204,7 +208,9 @@ async def test_remote_send_command_upmixer_set(
         blocking=True,
     )
 
-    mock_device.upmixer_set.assert_called_once_with(UpmixerMode.MODE_NATIVE)
+    mock_device.command.assert_called_once_with(
+        "upmixer native", wait_for_ack=True, ack_timeout=2.0
+    )
 
 
 async def test_remote_send_command_upmixer_set_case_insensitive(
@@ -230,7 +236,9 @@ async def test_remote_send_command_upmixer_set_case_insensitive(
         blocking=True,
     )
 
-    mock_device.upmixer_set.assert_called_once_with(UpmixerMode.MODE_DOLBY)
+    mock_device.command.assert_called_once_with(
+        "upmixer dolby", wait_for_ack=True, ack_timeout=2.0
+    )
 
 
 async def test_remote_send_command_upmixer_set_invalid(
@@ -325,7 +333,9 @@ async def test_remote_send_multiple_commands(
 
     mock_device.mute_on.assert_called_once()
     mock_device.volume_set.assert_called_once_with(-40.0)
-    mock_device.source_set.assert_called_once_with(1)
+    mock_device.command.assert_called_once_with(
+        "profile 1", wait_for_ack=True, ack_timeout=2.0
+    )
 
 
 async def test_remote_send_invalid_command(
@@ -397,6 +407,30 @@ async def test_remote_send_command_invalid_args(
         )
 
 
+async def test_remote_send_command_unknown_source_by_name(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test source_set_by_name unknown source surfaces as HA error."""
+    mock_device = mock_setup_entry.return_value
+    mock_device.state.sources = {0: "Kaleidescape"}
+
+    mock_config_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    with pytest.raises(HomeAssistantError, match="Unknown source name"):
+        await hass.services.async_call(
+            "remote",
+            SERVICE_SEND_COMMAND,
+            {
+                ATTR_ENTITY_ID: "remote.trinnov_altitude_abc123",
+                ATTR_COMMAND: ["source_set_by_name Apple TV"],
+            },
+            blocking=True,
+        )
+
+
 async def test_remote_is_off_when_disconnected(
     hass: HomeAssistant,
     mock_config_entry,
@@ -412,4 +446,5 @@ async def test_remote_is_off_when_disconnected(
     await hass.async_block_till_done()
 
     state = hass.states.get("remote.trinnov_altitude_abc123")
+    assert state
     assert state.state == "off"

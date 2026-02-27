@@ -13,7 +13,19 @@ from homeassistant.components.sensor import (
 )
 
 from .const import DOMAIN
+from .coordinator import TrinnovAltitudeCoordinator
 from .entity import TrinnovAltitudeEntity
+from .models import TrinnovAltitudeIntegrationData
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from homeassistant.config_entries import ConfigEntry
+    from homeassistant.core import HomeAssistant
+    from homeassistant.helpers.entity_platform import AddEntitiesCallback
+    from homeassistant.helpers.typing import StateType
+
+    from trinnov_altitude.state import AltitudeState
 
 
 class PowerStatus(StrEnum):
@@ -24,31 +36,11 @@ class PowerStatus(StrEnum):
     READY = "ready"
 
 
-if TYPE_CHECKING:
-    from collections.abc import Callable
-
-    from homeassistant.config_entries import ConfigEntry
-    from homeassistant.core import HomeAssistant
-    from homeassistant.helpers.entity_platform import AddEntitiesCallback
-    from homeassistant.helpers.typing import StateType
-
-    from trinnov_altitude.trinnov_altitude import TrinnovAltitude
-
-
 @dataclass(frozen=True, kw_only=True)
 class TrinnovAltitudeSensorEntityDescription(SensorEntityDescription):
     """Describes Trinnov Altitude sensor entity."""
 
-    value_fn: Callable[[TrinnovAltitude], StateType]
-
-
-def _get_power_status(device: TrinnovAltitude) -> str:
-    """Determine the power status of the device."""
-    if not device.connected():
-        return PowerStatus.OFF
-    if not device._initial_sync.is_set():
-        return PowerStatus.BOOTING
-    return PowerStatus.READY
+    value_fn: Callable[[AltitudeState], StateType]
 
 
 POWER_STATUS_ICONS = {
@@ -65,49 +57,49 @@ SENSORS: tuple[TrinnovAltitudeSensorEntityDescription, ...] = (
         name="Power Status",
         device_class=SensorDeviceClass.ENUM,
         options=[status.value for status in PowerStatus],
-        value_fn=_get_power_status,
+        value_fn=lambda state: state.synced,
     ),
     TrinnovAltitudeSensorEntityDescription(
         key="audiosync",
         translation_key="audiosync",
         name="Audiosync",
-        value_fn=lambda device: device.audiosync,
+        value_fn=lambda state: state.audiosync,
     ),
     TrinnovAltitudeSensorEntityDescription(
         key="decoder",
         translation_key="decoder",
         name="Decoder",
-        value_fn=lambda device: device.decoder,
+        value_fn=lambda state: state.decoder,
     ),
     TrinnovAltitudeSensorEntityDescription(
         key="preset",
         translation_key="preset",
         name="Preset",
-        value_fn=lambda device: device.preset,
+        value_fn=lambda state: state.preset,
     ),
     TrinnovAltitudeSensorEntityDescription(
         key="source",
         translation_key="source",
         name="Source",
-        value_fn=lambda device: device.source,
+        value_fn=lambda state: state.source,
     ),
     TrinnovAltitudeSensorEntityDescription(
         key="source_format",
         translation_key="source_format",
         name="Source Format",
-        value_fn=lambda device: device.source_format,
+        value_fn=lambda state: state.source_format,
     ),
     TrinnovAltitudeSensorEntityDescription(
         key="upmixer",
         translation_key="upmixer",
         name="Upmixer",
-        value_fn=lambda device: device.upmixer,
+        value_fn=lambda state: state.upmixer,
     ),
     TrinnovAltitudeSensorEntityDescription(
         key="volume",
         translation_key="volume",
         name="Volume",
-        value_fn=lambda device: device.volume,
+        value_fn=lambda state: state.volume,
     ),
 )
 
@@ -116,9 +108,9 @@ async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
     """Set up the platform from a config entry."""
-    device: TrinnovAltitude = hass.data[DOMAIN][entry.entry_id]
+    data: TrinnovAltitudeIntegrationData = hass.data[DOMAIN][entry.entry_id]
     async_add_entities(
-        TrinnovAltitudeSensor(device, description) for description in SENSORS
+        TrinnovAltitudeSensor(data.coordinator, description) for description in SENSORS
     )
 
 
@@ -129,22 +121,28 @@ class TrinnovAltitudeSensor(TrinnovAltitudeEntity, SensorEntity):
 
     def __init__(
         self,
-        device: TrinnovAltitude,
+        coordinator: TrinnovAltitudeCoordinator,
         entity_description: TrinnovAltitudeSensorEntityDescription,
     ) -> None:
         """Initialize sensor."""
-        super().__init__(device)
-        self.entity_description = entity_description  # type: ignore
+        super().__init__(coordinator)
+        self.entity_description = entity_description
         self._attr_unique_id = f"{self._attr_unique_id}-{entity_description.key}"
 
     @property
-    def native_value(self) -> StateType:  # type: ignore
+    def native_value(self) -> StateType:
         """Return value of sensor."""
-        return self.entity_description.value_fn(self._device)
+        if self.entity_description.key == "power_status":
+            if not self._client.connected:
+                return PowerStatus.OFF
+            if not self._state.synced:
+                return PowerStatus.BOOTING
+            return PowerStatus.READY
+        return self.entity_description.value_fn(self._state)
 
     @property
     def icon(self) -> str | None:
         """Return dynamic icon for power_status sensor."""
         if self.entity_description.key == "power_status":
-            return POWER_STATUS_ICONS.get(self.native_value)  # type: ignore
+            return POWER_STATUS_ICONS.get(self.native_value)
         return None

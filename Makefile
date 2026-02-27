@@ -1,4 +1,10 @@
-.PHONY: help install test test-cov lint format clean
+.PHONY: help install test test-cov test-fast lint format format-check typecheck clean check
+
+VENV_PYTHON := .venv/bin/python
+RUFF := .venv/bin/ruff
+PYTEST := .venv/bin/pytest
+TY := .venv/bin/ty
+TRINNOV_LIB_PATH ?= ../py-trinnov-altitude
 
 help: ## Show this help message
 	@echo 'Usage: make [target]'
@@ -7,25 +13,35 @@ help: ## Show this help message
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 install: ## Install test dependencies with uv
-	uv pip install -r requirements_test.txt
+	UV_CACHE_DIR=.uv-cache uv venv --clear .venv
+	UV_CACHE_DIR=.uv-cache uv pip install -p $(VENV_PYTHON) -r requirements_test.txt
+	@if [ -d "$(TRINNOV_LIB_PATH)" ]; then \
+		UV_CACHE_DIR=.uv-cache uv pip install -p $(VENV_PYTHON) -e $(TRINNOV_LIB_PATH); \
+	else \
+		UV_CACHE_DIR=.uv-cache uv pip install -p $(VENV_PYTHON) "trinnov-altitude @ git+https://github.com/binarylogic/py-trinnov-altitude.git"; \
+	fi
+	UV_CACHE_DIR=.uv-cache uv pip install -p $(VENV_PYTHON) ty
 
 test: ## Run tests
-	uv run pytest
+	$(PYTEST)
 
 test-cov: ## Run tests with coverage report
-	uv run pytest --cov-report=term-missing --cov-report=html
+	$(PYTEST) --cov-report=term-missing --cov-report=html
 
 test-fast: ## Run tests without coverage
-	uv run pytest --no-cov
+	$(PYTEST) --no-cov
 
 lint: ## Run ruff linter
-	uv run ruff check custom_components tests
+	$(RUFF) check custom_components tests
 
 format: ## Format code with ruff
-	uv run ruff format custom_components tests
+	$(RUFF) format custom_components tests
 
 format-check: ## Check code formatting without modifying
-	uv run ruff format --check custom_components tests
+	$(RUFF) format --check custom_components tests
+
+typecheck: ## Run ty type checks
+	$(TY) check custom_components tests
 
 clean: ## Clean up generated files
 	rm -rf .pytest_cache
@@ -40,5 +56,6 @@ check: ## Run all checks (lint, format, test)
 	@echo "Running checks..."
 	@make lint
 	@make format-check
+	@make typecheck
 	@make test
 	@echo "✓ All checks passed!"

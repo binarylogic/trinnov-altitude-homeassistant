@@ -60,19 +60,20 @@ async def test_volume_number_updates(
 
     # Verify initial state
     state = hass.states.get("number.trinnov_altitude_abc123_volume")
+    assert state
     assert state.state == "-40.0"
 
     # Simulate volume change
-    mock_device.volume = -30.0
+    mock_device.state.volume = -30.0
 
-    # Trigger all callbacks (multiple entities register callbacks)
-    for call in mock_device.register_callback.call_args_list:
-        callback = call[0][0]
-        callback("volume_changed", None)
+    # Trigger coordinator callback
+    callback = mock_device.register_callback.call_args[0][0]
+    callback("received_message", None)
     await hass.async_block_till_done()
 
     # Verify entity updated
     state = hass.states.get("number.trinnov_altitude_abc123_volume")
+    assert state
     assert state.state == "-30.0"
 
 

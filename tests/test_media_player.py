@@ -37,7 +37,7 @@ async def test_media_player_playing_state(
 ):
     """Test media player shows playing state when source format is present."""
     mock_device = mock_setup_entry.return_value
-    mock_device.source_format = "Dolby TrueHD 7.1"
+    mock_device.state.source_format = "Dolby TrueHD 7.1"
 
     mock_config_entry.add_to_hass(hass)
 
@@ -45,6 +45,7 @@ async def test_media_player_playing_state(
     await hass.async_block_till_done()
 
     state = hass.states.get("media_player.trinnov_altitude_abc123")
+    assert state
     assert state.state == MediaPlayerState.PLAYING
 
 
@@ -63,6 +64,7 @@ async def test_media_player_off_state(
     await hass.async_block_till_done()
 
     state = hass.states.get("media_player.trinnov_altitude_abc123")
+    assert state
     assert state.state == MediaPlayerState.OFF
 
 
@@ -109,7 +111,9 @@ async def test_media_player_turn_off(
         blocking=True,
     )
 
-    mock_device.power_off.assert_called_once()
+    mock_device.command.assert_called_once_with(
+        "power_off_SECURED_FHZMCH48FE", wait_for_ack=True, ack_timeout=2.0
+    )
 
 
 async def test_media_player_volume_up(
@@ -244,7 +248,9 @@ async def test_media_player_select_source(
         blocking=True,
     )
 
-    mock_device.source_set_by_name.assert_called_once_with("Apple TV")
+    mock_device.command.assert_called_once_with(
+        "profile 1", wait_for_ack=True, ack_timeout=2.0
+    )
 
 
 async def test_media_player_available_when_offline_with_mac(
@@ -264,5 +270,6 @@ async def test_media_player_available_when_offline_with_mac(
     await hass.async_block_till_done()
 
     state = hass.states.get("media_player.trinnov_altitude_abc123")
+    assert state
     # Should be available even when offline because power_on_available returns True
     assert state.state == MediaPlayerState.OFF

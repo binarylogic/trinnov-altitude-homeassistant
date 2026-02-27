@@ -183,6 +183,9 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 # Setup
 make install
 
+# Or directly with uv
+uv sync --group dev
+
 # Development
 make test        # Run tests
 make test-fast   # Run tests without coverage

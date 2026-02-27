@@ -1,7 +1,5 @@
 """Test the Trinnov Altitude sensor platform."""
 
-import asyncio
-
 from homeassistant.core import HomeAssistant
 
 
@@ -24,7 +22,7 @@ async def test_power_status_off(
 ):
     """Test power_status sensor shows 'off' when not connected."""
     mock_device = mock_setup_entry.return_value
-    mock_device.connected = lambda: False
+    mock_device.connected = False
 
     mock_config_entry.add_to_hass(hass)
 
@@ -41,8 +39,8 @@ async def test_power_status_booting(
 ):
     """Test power_status sensor shows 'booting' when connected but not synced."""
     mock_device = mock_setup_entry.return_value
-    mock_device.connected = lambda: True
-    mock_device._initial_sync = asyncio.Event()  # Not set = not synced
+    mock_device.connected = True
+    mock_device.state.synced = False
 
     mock_config_entry.add_to_hass(hass)
 
@@ -59,8 +57,8 @@ async def test_power_status_transitions(
 ):
     """Test power_status sensor transitions through states correctly."""
     mock_device = mock_setup_entry.return_value
-    mock_device.connected = lambda: False
-    mock_device._initial_sync = asyncio.Event()
+    mock_device.connected = False
+    mock_device.state.synced = False
 
     mock_config_entry.add_to_hass(hass)
 
@@ -69,26 +67,27 @@ async def test_power_status_transitions(
 
     # Initially off
     state = hass.states.get("sensor.trinnov_altitude_abc123_power_status")
+    assert state
     assert state.state == "off"
 
     # Simulate connection (but not synced yet)
-    mock_device.connected = lambda: True
-    for call in mock_device.register_callback.call_args_list:
-        callback = call[0][0]
-        callback("state_changed", None)
+    mock_device.connected = True
+    callback = mock_device.register_callback.call_args[0][0]
+    callback("received_message", None)
     await hass.async_block_till_done()
 
     state = hass.states.get("sensor.trinnov_altitude_abc123_power_status")
+    assert state
     assert state.state == "booting"
 
     # Simulate sync complete
-    mock_device._initial_sync.set()
-    for call in mock_device.register_callback.call_args_list:
-        callback = call[0][0]
-        callback("state_changed", None)
+    mock_device.state.synced = True
+    callback = mock_device.register_callback.call_args[0][0]
+    callback("received_message", None)
     await hass.async_block_till_done()
 
     state = hass.states.get("sensor.trinnov_altitude_abc123_power_status")
+    assert state
     assert state.state == "ready"
 
 
@@ -145,20 +144,21 @@ async def test_sensor_updates(hass: HomeAssistant, mock_config_entry, mock_setup
     mock_device = mock_setup_entry.return_value
 
     # Simulate device state change
-    mock_device.source = "Apple TV"
-    mock_device.volume = -35.5
+    mock_device.state.source = "Apple TV"
+    mock_device.state.volume = -35.5
 
-    # Trigger all callbacks (multiple entities register callbacks)
-    for call in mock_device.register_callback.call_args_list:
-        callback = call[0][0]
-        callback("state_changed", None)
+    # Trigger coordinator callback
+    callback = mock_device.register_callback.call_args[0][0]
+    callback("received_message", None)
     await hass.async_block_till_done()
 
     # Verify sensor updated
     state = hass.states.get("sensor.trinnov_altitude_abc123_source")
+    assert state
     assert state.state == "Apple TV"
 
     state = hass.states.get("sensor.trinnov_altitude_abc123_volume")
+    assert state
     assert state.state == "-35.5"
 
 

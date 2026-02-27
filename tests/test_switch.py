@@ -75,7 +75,7 @@ async def test_switch_reflects_device_state(
 ):
     """Test switch state reflects device state."""
     mock_device = mock_setup_entry.return_value
-    mock_device.mute = True
+    mock_device.state.mute = True
 
     mock_config_entry.add_to_hass(hass)
 
@@ -83,4 +83,5 @@ async def test_switch_reflects_device_state(
     await hass.async_block_till_done()
 
     state = hass.states.get("switch.trinnov_altitude_abc123_mute")
+    assert state
     assert state.state == STATE_ON

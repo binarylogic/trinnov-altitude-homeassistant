@@ -5,59 +5,49 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from homeassistant.core import callback
 from homeassistant.helpers.device_registry import DeviceInfo
-from homeassistant.helpers.entity import Entity
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN, MANUFACTURER, MODEL, NAME
+from .coordinator import TrinnovAltitudeCoordinator
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
-    from typing import Any
+    from trinnov_altitude.client import TrinnovAltitudeClient
+    from trinnov_altitude.state import AltitudeState
 
-    from trinnov_altitude.messages import Message
-    from trinnov_altitude.trinnov_altitude import TrinnovAltitude
+    from .commands import TrinnovAltitudeCommands
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class TrinnovAltitudeEntity(Entity):
+class TrinnovAltitudeEntity(CoordinatorEntity[TrinnovAltitudeCoordinator]):
     """Defines a base Trinnov Altitude entity."""
 
     _attr_has_entity_name = True
     _attr_should_poll = False
 
-    def __init__(self, device: TrinnovAltitude) -> None:
+    def __init__(self, coordinator: TrinnovAltitudeCoordinator) -> None:
         """Initialize entity."""
+        super().__init__(coordinator)
+        self._client: TrinnovAltitudeClient = coordinator.client
+        self._commands: TrinnovAltitudeCommands = coordinator.commands
 
-        self._device = device
-        self._callback: Callable[[Any], None] | None = None
-
-        self._attr_unique_id = device.id
+        device_id = str(self._client.state.id or "unknown")
+        self._attr_unique_id = device_id
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, str(device.id))},
+            identifiers={(DOMAIN, device_id)},
             # Instead of setting the device name to the entity name,
             # this should be updated to set has_entity_name = True
-            name=f"{NAME} ({device.id})",
+            name=f"{NAME} ({device_id})",
             model=MODEL,
             manufacturer=MANUFACTURER,
-            sw_version=f"{device.version}",
-            configuration_url=f"http://{device.host}",
+            sw_version=self._client.state.version,
+            configuration_url=f"http://{self._client.host}",
         )
 
-    async def async_added_to_hass(self) -> None:
-        """Register update listener."""
-
-        @callback
-        def _update(event: str, message: Message | None = None) -> None:
-            """Handle device state changes."""
-            self.async_write_ha_state()
-
-        self._callback = _update
-        self._device.register_callback(self._callback)
-
-    async def async_will_remove_from_hass(self):
-        """Deregister update listener."""
-
-        if self._callback is not None:
-            self._device.deregister_callback(self._callback)  # type: ignore
+    @property
+    def _state(self) -> AltitudeState:
+        """Return latest coordinator-backed state."""
+        if self.coordinator.data is not None:
+            return self.coordinator.data
+        return self._client.state

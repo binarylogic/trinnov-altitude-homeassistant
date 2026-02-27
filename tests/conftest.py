@@ -1,6 +1,7 @@
 """Fixtures for Trinnov Altitude integration tests."""
 
-import asyncio
+import logging
+from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -22,38 +23,34 @@ def mock_trinnov_device():
     device = MagicMock()
 
     # Device properties
-    device.id = "ABC123"
     device.host = "192.168.1.100"
     device.mac = "00:11:22:33:44:55"
-    device.version = "4.2.9"
-    device.connected = MagicMock(return_value=True)
+    device.connected = True
+    device.logger = logging.getLogger("test.trinnov_altitude")
+    device.command_timeout = 2.0
 
-    # Audio state
-    device.volume = -40.0
-    device.mute = False
-    device.dim = False
-    device.bypass = False
-
-    # Sources and presets
-    device.source = "Kaleidescape"
-    device.sources = {0: "Kaleidescape", 1: "Apple TV", 2: "Blu-ray"}
-    device.preset = "Movies"
-    device.presets = {0: "Built-in", 1: "Movies", 2: "Music"}
-
-    # Other state
-    device.audiosync = "Master"
-    device.decoder = "Dolby Atmos"
-    device.source_format = "Dolby TrueHD 7.1"
-    device.upmixer = "Native"
+    device.state = SimpleNamespace(
+        id="ABC123",
+        version="4.2.9",
+        synced=True,
+        volume=-40.0,
+        mute=False,
+        dim=False,
+        bypass=False,
+        source="Kaleidescape",
+        sources={0: "Kaleidescape", 1: "Apple TV", 2: "Blu-ray"},
+        preset="Movies",
+        presets={0: "Built-in", 1: "Movies", 2: "Music"},
+        audiosync="Master",
+        decoder="Dolby Atmos",
+        source_format="Dolby TrueHD 7.1",
+        upmixer="Native",
+    )
 
     # Async methods
-    device.connect = AsyncMock()
-    device.disconnect = AsyncMock()
-    device.start_listening = MagicMock()
-    device.stop_listening = AsyncMock()
-    device.wait_for_initial_sync = AsyncMock()
-    device._initial_sync = asyncio.Event()
-    device._initial_sync.set()  # Device is synced and ready
+    device.start = AsyncMock()
+    device.wait_synced = AsyncMock()
+    device.stop = AsyncMock()
 
     # Commands
     device.power_on = MagicMock()
@@ -65,7 +62,7 @@ def mock_trinnov_device():
     device.volume_down = AsyncMock()
     device.volume_adjust = AsyncMock()
     device.volume_percentage_set = AsyncMock()
-    device.volume_percentage = MagicMock(return_value=50.0)
+    device.volume_percentage = 50.0
 
     device.mute_set = AsyncMock()
     device.mute_on = AsyncMock()
@@ -95,6 +92,7 @@ def mock_trinnov_device():
 
     device.preset_set = AsyncMock()
     device.preset_get = AsyncMock()
+    device.command = AsyncMock()
 
     # Callbacks
     device.register_callback = MagicMock()
@@ -107,19 +105,34 @@ def mock_trinnov_device():
 def mock_trinnov_device_offline():
     """Create a mock Trinnov Altitude device that is offline."""
     device = MagicMock()
-    device.id = "ABC123"
     device.host = "192.168.1.100"
     device.mac = "00:11:22:33:44:55"
-    device.connected = MagicMock(return_value=False)
-    device.volume = None
-    device.source = None
-    device.preset = None
-    device.source_format = None
-    device.sources = {}
-    device.presets = {}
-    # Async methods need to be AsyncMock
-    device.stop_listening = AsyncMock()
-    device.disconnect = AsyncMock()
+    device.connected = False
+    device.logger = logging.getLogger("test.trinnov_altitude")
+    device.command_timeout = 2.0
+    device.state = SimpleNamespace(
+        id="ABC123",
+        version=None,
+        synced=False,
+        volume=None,
+        source=None,
+        preset=None,
+        source_format=None,
+        sources={},
+        presets={},
+        audiosync=None,
+        decoder=None,
+        upmixer=None,
+        mute=None,
+        dim=None,
+        bypass=None,
+    )
+    device.start = AsyncMock()
+    device.wait_synced = AsyncMock()
+    device.stop = AsyncMock()
+    device.command = AsyncMock()
+    device.power_on_available = MagicMock(return_value=True)
+    device.volume_percentage = None
     return device
 
 
@@ -142,7 +155,7 @@ def mock_config_entry():
 def mock_setup_entry(mock_trinnov_device):
     """Mock TrinnovAltitude class for setup."""
     with patch(
-        "custom_components.trinnov_altitude.TrinnovAltitude",
+        "custom_components.trinnov_altitude.TrinnovAltitudeClient",
         return_value=mock_trinnov_device,
     ) as mock_class:
         yield mock_class

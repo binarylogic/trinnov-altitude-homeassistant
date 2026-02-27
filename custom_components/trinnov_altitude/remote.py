@@ -12,6 +12,7 @@ from trinnov_altitude.exceptions import NoMacAddressError, NotConnectedError
 
 from .const import DOMAIN
 from .entity import TrinnovAltitudeEntity
+from .models import TrinnovAltitudeIntegrationData
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -26,7 +27,8 @@ async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
     """Set up the platform from a config entry."""
-    entities = [TrinnovAltitudeRemote(hass.data[DOMAIN][entry.entry_id])]
+    data: TrinnovAltitudeIntegrationData = hass.data[DOMAIN][entry.entry_id]
+    entities = [TrinnovAltitudeRemote(data.coordinator)]
     async_add_entities(entities)
 
 
@@ -70,6 +72,14 @@ VALID_COMMANDS = {
     "volume_up",
 }
 
+ACK_REQUIRED_COMMANDS = {
+    "power_off",
+    "preset_set",
+    "source_set",
+    "source_set_by_name",
+    "upmixer_set",
+}
+
 
 class TrinnovAltitudeRemote(TrinnovAltitudeEntity, RemoteEntity):
     """Representation of a Trinnov Altitude device."""
@@ -78,27 +88,27 @@ class TrinnovAltitudeRemote(TrinnovAltitudeEntity, RemoteEntity):
     _attr_supported_features = RemoteEntityFeature.ACTIVITY
 
     @property
-    def activity_list(self) -> list[str] | None:  # type: ignore
+    def activity_list(self) -> list[str] | None:
         """Returns the list of sources"""
-        return list(self._device.sources.values())
+        return list(self._state.sources.values())
 
     @property
-    def current_activity(self) -> str | None:  # type: ignore
+    def current_activity(self) -> str | None:
         """Return the source as the current activity."""
-        return self._device.source
+        return self._state.source
 
     @property
-    def is_on(self) -> bool:  # type: ignore
+    def is_on(self) -> bool:
         """Return true if device is on and ready."""
-        return self._device.connected() and self._device._initial_sync.is_set()
+        return self._client.connected and self._state.synced
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the device on."""
-        if self._device.connected():
+        if self._client.connected:
             return
 
         try:
-            self._device.power_on()
+            self._client.power_on()
         except NoMacAddressError as exc:
             raise HomeAssistantError(
                 "Trinnov Altitude is not configured with a mac address, which is required to power it on."
@@ -106,7 +116,7 @@ class TrinnovAltitudeRemote(TrinnovAltitudeEntity, RemoteEntity):
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the device off."""
-        await self._device.power_off()
+        await self._commands.invoke("power_off", require_ack=True)
 
     async def async_send_command(self, command: Iterable[str], **kwargs: Any) -> None:
         """Send a command to a device."""
@@ -123,8 +133,11 @@ class TrinnovAltitudeRemote(TrinnovAltitudeEntity, RemoteEntity):
 
                 # Convert string arguments to enum types for commands that require them
                 typed_args = self._convert_args(method_name, args_strings)
-
-                await getattr(self._device, method_name)(*typed_args)
+                await self._commands.invoke(
+                    method_name,
+                    *typed_args,
+                    require_ack=method_name in ACK_REQUIRED_COMMANDS,
+                )
             except NotConnectedError as exc:
                 raise HomeAssistantError(
                     "Trinnov Altitude must be powered on before sending commands"
@@ -133,9 +146,13 @@ class TrinnovAltitudeRemote(TrinnovAltitudeEntity, RemoteEntity):
                 raise HomeAssistantError(
                     f"Invalid arguments for command '{method_name}'. Expected format: {method_name} <arg1> <arg2> ..."
                 ) from exc
+            except ValueError as exc:
+                raise HomeAssistantError(str(exc)) from exc
 
     def _convert_args(self, method_name: str, args: list[str]) -> list[Any]:
         """Convert string arguments to appropriate types based on command."""
+        if method_name == "source_set_by_name" and args:
+            return [" ".join(args)]
         if method_name == "upmixer_set" and args:
             return [self._string_to_upmixer_mode(args[0])]
         if method_name == "remapping_mode_set" and args:

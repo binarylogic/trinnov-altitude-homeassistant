@@ -1,5 +1,7 @@
 """Test the Trinnov Altitude integration initialization."""
 
+from unittest.mock import AsyncMock
+
 from homeassistant.const import CONF_HOST
 from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -23,9 +25,11 @@ async def test_async_setup_entry(
         client_id=CLIENT_ID,
     )
 
-    # Verify device started listening
+    # Verify device startup lifecycle
     mock_device = mock_setup_entry.return_value
-    mock_device.start_listening.assert_called_once_with(reconnect=True)
+    mock_device.start.assert_called_once()
+    mock_device.wait_synced.assert_called_once()
+    mock_device.register_callback.assert_called_once()
 
     # Verify platforms were set up
     assert DOMAIN in hass.data
@@ -71,8 +75,22 @@ async def test_async_unload_entry(
     await hass.async_block_till_done()
 
     # Verify cleanup
-    mock_device.stop_listening.assert_called_once()
-    mock_device.disconnect.assert_called_once()
+    mock_device.deregister_callback.assert_called_once()
+    mock_device.stop.assert_called_once()
 
     # Verify entry removed from hass.data
     assert mock_config_entry.entry_id not in hass.data[DOMAIN]
+
+
+async def test_async_setup_entry_wait_synced_timeout(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test setup raises ConfigEntryNotReady when initial sync times out."""
+    mock_device = mock_setup_entry.return_value
+    mock_device.wait_synced = AsyncMock(side_effect=TimeoutError)
+    mock_config_entry.add_to_hass(hass)
+
+    assert not await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+    mock_device.start.assert_called_once()
+    mock_device.stop.assert_called_once()

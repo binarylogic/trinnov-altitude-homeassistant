@@ -19,15 +19,13 @@ from custom_components.trinnov_altitude.const import DOMAIN
 async def test_form_user_success(hass: HomeAssistant):
     """Test successful user setup."""
     mock_device = MagicMock()
-    mock_device.id = "ABC123"
-    mock_device.connect = AsyncMock()
-    mock_device.start_listening = MagicMock()
-    mock_device.wait_for_initial_sync = AsyncMock()
-    mock_device.stop_listening = AsyncMock()
-    mock_device.disconnect = AsyncMock()
+    mock_device.state.id = "ABC123"
+    mock_device.start = AsyncMock()
+    mock_device.wait_synced = AsyncMock()
+    mock_device.stop = AsyncMock()
 
     with patch(
-        "custom_components.trinnov_altitude.config_flow.TrinnovAltitude",
+        "custom_components.trinnov_altitude.config_flow.TrinnovAltitudeClient",
         return_value=mock_device,
     ):
         result = await hass.config_entries.flow.async_init(
@@ -54,25 +52,21 @@ async def test_form_user_success(hass: HomeAssistant):
         }
 
         # Verify device was connected and synced
-        mock_device.connect.assert_called_once()
-        mock_device.start_listening.assert_called_once()
-        mock_device.wait_for_initial_sync.assert_called_once()
-        mock_device.stop_listening.assert_called_once()
-        mock_device.disconnect.assert_called_once()
+        mock_device.start.assert_called_once()
+        mock_device.wait_synced.assert_called_once()
+        mock_device.stop.assert_called_once()
 
 
 async def test_form_user_without_mac(hass: HomeAssistant):
     """Test user setup without MAC address."""
     mock_device = MagicMock()
-    mock_device.id = "ABC123"
-    mock_device.connect = AsyncMock()
-    mock_device.start_listening = MagicMock()
-    mock_device.wait_for_initial_sync = AsyncMock()
-    mock_device.stop_listening = AsyncMock()
-    mock_device.disconnect = AsyncMock()
+    mock_device.state.id = "ABC123"
+    mock_device.start = AsyncMock()
+    mock_device.wait_synced = AsyncMock()
+    mock_device.stop = AsyncMock()
 
     with patch(
-        "custom_components.trinnov_altitude.config_flow.TrinnovAltitude",
+        "custom_components.trinnov_altitude.config_flow.TrinnovAltitudeClient",
         return_value=mock_device,
     ):
         result = await hass.config_entries.flow.async_init(
@@ -98,12 +92,11 @@ async def test_form_user_without_mac(hass: HomeAssistant):
 async def test_form_invalid_mac(hass: HomeAssistant):
     """Test invalid MAC address."""
     mock_device = MagicMock()
-    mock_device.connect = AsyncMock(side_effect=MalformedMacAddressError("invalid"))
-    mock_device.stop_listening = AsyncMock()
-    mock_device.disconnect = AsyncMock()
+    mock_device.start = AsyncMock(side_effect=MalformedMacAddressError("invalid"))
+    mock_device.stop = AsyncMock()
 
     with patch(
-        "custom_components.trinnov_altitude.config_flow.TrinnovAltitude",
+        "custom_components.trinnov_altitude.config_flow.TrinnovAltitudeClient",
         return_value=mock_device,
     ):
         result = await hass.config_entries.flow.async_init(
@@ -125,14 +118,13 @@ async def test_form_invalid_mac(hass: HomeAssistant):
 async def test_form_invalid_host(hass: HomeAssistant):
     """Test invalid host address."""
     mock_device = MagicMock()
-    mock_device.connect = AsyncMock(
+    mock_device.start = AsyncMock(
         side_effect=ConnectionFailedError(Exception("Connection failed"))
     )
-    mock_device.stop_listening = AsyncMock()
-    mock_device.disconnect = AsyncMock()
+    mock_device.stop = AsyncMock()
 
     with patch(
-        "custom_components.trinnov_altitude.config_flow.TrinnovAltitude",
+        "custom_components.trinnov_altitude.config_flow.TrinnovAltitudeClient",
         return_value=mock_device,
     ):
         result = await hass.config_entries.flow.async_init(
@@ -153,12 +145,11 @@ async def test_form_invalid_host(hass: HomeAssistant):
 async def test_form_cannot_connect(hass: HomeAssistant):
     """Test connection timeout."""
     mock_device = MagicMock()
-    mock_device.connect = AsyncMock(side_effect=ConnectionTimeoutError)
-    mock_device.stop_listening = AsyncMock()
-    mock_device.disconnect = AsyncMock()
+    mock_device.start = AsyncMock(side_effect=ConnectionTimeoutError)
+    mock_device.stop = AsyncMock()
 
     with patch(
-        "custom_components.trinnov_altitude.config_flow.TrinnovAltitude",
+        "custom_components.trinnov_altitude.config_flow.TrinnovAltitudeClient",
         return_value=mock_device,
     ):
         result = await hass.config_entries.flow.async_init(
@@ -179,12 +170,11 @@ async def test_form_cannot_connect(hass: HomeAssistant):
 async def test_form_unknown_error(hass: HomeAssistant):
     """Test unknown error."""
     mock_device = MagicMock()
-    mock_device.connect = AsyncMock(side_effect=Exception("Unknown error"))
-    mock_device.stop_listening = AsyncMock()
-    mock_device.disconnect = AsyncMock()
+    mock_device.start = AsyncMock(side_effect=Exception("Unknown error"))
+    mock_device.stop = AsyncMock()
 
     with patch(
-        "custom_components.trinnov_altitude.config_flow.TrinnovAltitude",
+        "custom_components.trinnov_altitude.config_flow.TrinnovAltitudeClient",
         return_value=mock_device,
     ):
         result = await hass.config_entries.flow.async_init(
@@ -205,12 +195,10 @@ async def test_form_unknown_error(hass: HomeAssistant):
 async def test_form_already_configured(hass: HomeAssistant):
     """Test device already configured."""
     mock_device = MagicMock()
-    mock_device.id = "ABC123"
-    mock_device.connect = AsyncMock()
-    mock_device.start_listening = MagicMock()
-    mock_device.wait_for_initial_sync = AsyncMock()
-    mock_device.stop_listening = AsyncMock()
-    mock_device.disconnect = AsyncMock()
+    mock_device.state.id = "ABC123"
+    mock_device.start = AsyncMock()
+    mock_device.wait_synced = AsyncMock()
+    mock_device.stop = AsyncMock()
 
     # Create existing entry
     existing_entry = MockConfigEntry(
@@ -222,7 +210,7 @@ async def test_form_already_configured(hass: HomeAssistant):
     existing_entry.add_to_hass(hass)
 
     with patch(
-        "custom_components.trinnov_altitude.config_flow.TrinnovAltitude",
+        "custom_components.trinnov_altitude.config_flow.TrinnovAltitudeClient",
         return_value=mock_device,
     ):
         result = await hass.config_entries.flow.async_init(

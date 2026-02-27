@@ -8,15 +8,14 @@ from homeassistant.components.number import NumberEntity, NumberMode
 from homeassistant.const import UnitOfSoundPressure
 
 from .const import DOMAIN
+from .coordinator import TrinnovAltitudeCoordinator
 from .entity import TrinnovAltitudeEntity
+from .models import TrinnovAltitudeIntegrationData
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
-
-    from trinnov_altitude.trinnov_altitude import TrinnovAltitude
-
 
 # Volume range: -120 dB to 0 dB (capped at 0 for safety)
 # Reference level (0 dB) is very loud. Values above 0 dB can damage speakers/hearing.
@@ -28,8 +27,8 @@ async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
     """Set up the platform from a config entry."""
-    device: TrinnovAltitude = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities([TrinnovAltitudeVolumeNumber(device)])
+    data: TrinnovAltitudeIntegrationData = hass.data[DOMAIN][entry.entry_id]
+    async_add_entities([TrinnovAltitudeVolumeNumber(data.coordinator)])
 
 
 class TrinnovAltitudeVolumeNumber(TrinnovAltitudeEntity, NumberEntity):
@@ -43,16 +42,16 @@ class TrinnovAltitudeVolumeNumber(TrinnovAltitudeEntity, NumberEntity):
     _attr_translation_key = "volume"
     _attr_name = "Volume"
 
-    def __init__(self, device: TrinnovAltitude) -> None:
+    def __init__(self, coordinator: TrinnovAltitudeCoordinator) -> None:
         """Initialize number entity."""
-        super().__init__(device)
+        super().__init__(coordinator)
         self._attr_unique_id = f"{self._attr_unique_id}-volume-number"
 
     @property
     def native_value(self) -> float | None:
         """Return the current volume in dB."""
-        return self._device.volume
+        return self._state.volume
 
     async def async_set_native_value(self, value: float) -> None:
         """Set the volume to the specified dB level."""
-        await self._device.volume_set(value)
+        await self._commands.invoke("volume_set", value)

@@ -21,17 +21,17 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v4
 
-      - name: Create virtual environment
-        run: uv venv
-
       - name: Install dependencies
-        run: uv pip install -r requirements_test.txt
+        run: make install
 
       - name: Run ruff check
         run: make lint
 
       - name: Run ruff format check
         run: make format-check
+
+      - name: Run typecheck
+        run: make typecheck
 
   test:
     name: Test (Python ${{ matrix.python-version }})
@@ -52,11 +52,8 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v4
 
-      - name: Create virtual environment
-        run: uv venv
-
       - name: Install dependencies
-        run: uv pip install -r requirements_test.txt
+        run: make install
 
       - name: Run tests with coverage
         run: make test-cov
