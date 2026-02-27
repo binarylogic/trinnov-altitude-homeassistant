@@ -1,5 +1,35 @@
 # Changelog
 
+## [3.0.0](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.3...v3.0.0) (2026-02-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* migrate HA integration to adapter-driven updates and strict command API
+* Binary sensors for mute, dim, bypass removed. Use the new switch entities instead which provide both state and control.
+
+### Features
+
+* migrate HA integration to adapter-driven updates and strict command API ([bcbbe31](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/bcbbe31d522320b5cb7bfbb01d5190930383696a))
+* migrate integration to trinnov-altitude v2 with coordinator+command architecture ([15c1bfe](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/15c1bfe3ffc0778cb1b0a7aa20db0688f4d554c4))
+* **remote:** add source_set_by_name command ([0ff72b0](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/0ff72b04a96934b54503ec6f21ba952d468e05b5)), closes [#17](https://github.com/binarylogic/trinnov-altitude-homeassistant/issues/17)
+* replace binary sensors with switches, add upmixer select ([e119176](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/e1191762f84fe94ac34e5d53ca3e0e079a05dc3f))
+* **sensor:** add dynamic icons for power_status sensor ([5222344](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/52223446d0200b399abc139f515cf093a3898306))
+* **sensor:** add power_status sensor with off/booting/ready states ([76993d6](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/76993d6e7435fb2f7bde57606876e86346ab8075))
+
+
+### Bug Fixes
+
+* align integration manifest version with latest release ([ccffb4e](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/ccffb4e37af82cee8cb7b5ff7af44f643fb41406))
+* **ci:** combine release steps to avoid race condition ([94fc7b3](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/94fc7b361982266c2ed2fb093dee9f0ddc3f0dbf))
+* deregister adapter callback using registered handle ([8889f33](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/8889f3322de19903aa9ec65a40691e79bc2c2bd3))
+* keep integration loaded when device is offline at startup ([cee93cd](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/cee93cd8f57a5213837706c39f36afcf251d4c04))
+* quote service description to satisfy YAML parser ([a9e824b](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/a9e824b3ab0f2638e03a1d2ea35227ed1f296511))
+* **remote:** make upmixer_set and remapping_mode_set case-insensitive ([e7c532e](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/e7c532e74382f89a2c12055c439f69fb140fb9bb)), closes [#18](https://github.com/binarylogic/trinnov-altitude-homeassistant/issues/18)
+* require trinnov-altitude v3 API ([fda0f4c](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/fda0f4c2b95d43903d3af93947b27f3598daac57))
+* satisfy hassfest service metadata and translations ([8a57e88](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/8a57e88125d42e2a3e6c5e429b1a2b6cab2a4dec))
+* trigger patch release ([d6d47f5](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/d6d47f52e686f80490b77c451c4dc70641679b9e))
+
 ## [2.0.3](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.2...v2.0.3) (2026-02-27)
 
 ### Bug Fixes
