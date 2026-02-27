@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.0](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v1.5.0...v1.6.0) (2026-02-27)
+
+
+### Features
+
+* migrate integration to trinnov-altitude v2 with coordinator+command architecture ([15c1bfe](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/15c1bfe3ffc0778cb1b0a7aa20db0688f4d554c4))
+* **sensor:** add dynamic icons for power_status sensor ([5222344](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/52223446d0200b399abc139f515cf093a3898306))
+
 ## [1.5.0](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v1.4.0...v1.5.0) (2025-12-15)
 
 
