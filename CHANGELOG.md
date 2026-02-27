@@ -1,7 +1,13 @@
 # Changelog
 
-## [2.0.2](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.1...v2.0.2) (2026-02-27)
+## [2.0.3](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.2...v2.0.3) (2026-02-27)
 
+### Bug Fixes
+
+* stabilize CI formatting checks and metadata alignment
+* trigger patch release ([d6d47f5](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/d6d47f52e686f80490b77c451c4dc70641679b9e))
+
+## [2.0.2](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.1...v2.0.2) (2026-02-27)
 
 ### Bug Fixes
 
@@ -9,13 +15,11 @@
 
 ## [2.0.1](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.0...v2.0.1) (2026-02-27)
 
-
 ### Bug Fixes
 
 * require trinnov-altitude v3 API ([fda0f4c](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/fda0f4c2b95d43903d3af93947b27f3598daac57))
 
 ## [2.0.0](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v1.6.2...v2.0.0) (2026-02-27)
-
 
 ### ⚠ BREAKING CHANGES
 
@@ -25,13 +29,11 @@
 
 * migrate HA integration to adapter-driven updates and strict command API ([bcbbe31](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/bcbbe31d522320b5cb7bfbb01d5190930383696a))
 
-
 ### Bug Fixes
 
 * deregister adapter callback using registered handle ([8889f33](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/8889f3322de19903aa9ec65a40691e79bc2c2bd3))
 
 ## [1.6.2](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v1.6.1...v1.6.2) (2026-02-27)
-
 
 ### Bug Fixes
 
@@ -41,13 +43,11 @@
 
 ## [1.6.1](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v1.6.0...v1.6.1) (2026-02-27)
 
-
 ### Bug Fixes
 
 * align integration manifest version with latest release ([ccffb4e](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/ccffb4e37af82cee8cb7b5ff7af44f643fb41406))
 
 ## [1.6.0](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v1.5.0...v1.6.0) (2026-02-27)
-
 
 ### Features
 
@@ -56,11 +56,9 @@
 
 ## [1.5.0](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v1.4.0...v1.5.0) (2025-12-15)
 
-
 ### Features
 
 * **sensor:** add power_status sensor with off/booting/ready states ([76993d6](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/76993d6e7435fb2f7bde57606876e86346ab8075))
-
 
 ### Bug Fixes
 
