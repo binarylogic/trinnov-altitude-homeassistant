@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.6](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.5...v2.0.6) (2026-02-28)
+
+
+### Bug Fixes
+
+* require trinnov-altitude 3.1.3 for CI semantic mapping ([601871c](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/601871caa3dea8987099cd8fdf0b0b25950c47de))
+
 ## [2.0.5](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.4...v2.0.5) (2026-02-28)
 
 
