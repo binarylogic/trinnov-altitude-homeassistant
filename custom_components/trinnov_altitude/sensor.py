@@ -17,6 +17,7 @@ from .const import DOMAIN
 from .coordinator import TrinnovAltitudeCoordinator
 from .entity import TrinnovAltitudeEntity
 from .models import TrinnovAltitudeIntegrationData
+from .resolvers import resolve_preset_name, resolve_source_name, resolve_upmixer_value
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -124,13 +125,13 @@ SENSORS: tuple[TrinnovAltitudeSensorEntityDescription, ...] = (
         key="preset",
         translation_key="preset",
         name="Preset",
-        value_fn=lambda state: state.preset,
+        value_fn=resolve_preset_name,
     ),
     TrinnovAltitudeSensorEntityDescription(
         key="source",
         translation_key="source",
         name="Source",
-        value_fn=lambda state: state.source,
+        value_fn=resolve_source_name,
     ),
     TrinnovAltitudeSensorEntityDescription(
         key="source_format",
@@ -142,7 +143,7 @@ SENSORS: tuple[TrinnovAltitudeSensorEntityDescription, ...] = (
         key="upmixer",
         translation_key="upmixer",
         name="Upmixer",
-        value_fn=lambda state: state.upmixer,
+        value_fn=resolve_upmixer_value,
     ),
     TrinnovAltitudeSensorEntityDescription(
         key="volume",

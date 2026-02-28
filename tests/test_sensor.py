@@ -126,7 +126,7 @@ async def test_sensors(hass: HomeAssistant, mock_config_entry, mock_setup_entry)
     # Test upmixer sensor
     state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_upmixer")
     assert state
-    assert state.state == "Native"
+    assert state.state == "native"
 
     # Test volume sensor
     state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_volume")
@@ -202,3 +202,37 @@ async def test_sensor_none_values(
     state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_volume")
     assert state
     assert state.state == "unknown"
+
+
+async def test_sensor_uses_source_index_fallback_when_label_missing(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test source sensor falls back to index when source labels are missing."""
+    mock_device = mock_setup_entry.return_value
+    mock_device.state.source = None
+    mock_device.state.sources = {}
+    mock_device.state.current_source_index = 2
+
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_source")
+    assert state
+    assert state.state == "Source 2"
+
+
+async def test_sensor_preserves_unknown_upmixer_token(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test upmixer sensor keeps unknown upmixer token visible."""
+    mock_device = mock_setup_entry.return_value
+    mock_device.state.upmixer = "Neural X"
+
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_upmixer")
+    assert state
+    assert state.state == "Neural X"

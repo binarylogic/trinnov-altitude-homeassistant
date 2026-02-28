@@ -187,6 +187,56 @@ async def test_upmixer_select(hass: HomeAssistant, mock_config_entry, mock_setup
     assert "dolby" in options
 
 
+async def test_source_select_uses_index_fallback_when_label_missing(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test source select degrades gracefully when source labels are unavailable."""
+    mock_device = mock_setup_entry.return_value
+    mock_device.state.source = None
+    mock_device.state.sources = {}
+    mock_device.state.current_source_index = 4
+
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    state = hass.states.get("select.trinnov_altitude_192_168_1_100_source")
+    assert state
+    assert state.state == "Source 4"
+    assert "Source 4" in state.attributes.get("options", [])
+
+    await hass.services.async_call(
+        "select",
+        SERVICE_SELECT_OPTION,
+        {
+            ATTR_ENTITY_ID: "select.trinnov_altitude_192_168_1_100_source",
+            ATTR_OPTION: "Source 4",
+        },
+        blocking=True,
+    )
+
+    mock_device.command.assert_called_once_with(
+        "profile 4", wait_for_ack=True, ack_timeout=2.0
+    )
+
+
+async def test_upmixer_select_preserves_unknown_current_value(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test upmixer select keeps unknown current tokens visible."""
+    mock_device = mock_setup_entry.return_value
+    mock_device.state.upmixer = "neural x"
+
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    state = hass.states.get("select.trinnov_altitude_192_168_1_100_upmixer")
+    assert state
+    assert state.state == "neural x"
+    assert "neural x" in state.attributes.get("options", [])
+
+
 async def test_preset_select_option_invalid(
     hass: HomeAssistant, mock_config_entry, mock_setup_entry
 ):

@@ -135,6 +135,9 @@ If it does not behave as expected:
    - Power on first (`remote.turn_on`) and wait for `remote.*` state `on`.
 4. Commands run but state looks stale:
    - Check `sensor.*_connection_status` and `sensor.*_sync_status` first.
+5. Source/preset names look generic (`Source 3`, `Preset 2`):
+   - This is a protocol fallback when labels are missing/late.
+   - Control still works by index; friendly names appear once the Trinnov sends label/profile-name catalog messages.
 
 ## Entities
 

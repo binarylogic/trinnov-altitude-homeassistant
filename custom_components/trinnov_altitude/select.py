@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
 from typing import TYPE_CHECKING
 
 from homeassistant.components.select import SelectEntity
@@ -13,6 +14,7 @@ from .const import DOMAIN
 from .coordinator import TrinnovAltitudeCoordinator
 from .entity import TrinnovAltitudeEntity
 from .models import TrinnovAltitudeIntegrationData
+from .resolvers import resolve_preset_name, resolve_source_name, resolve_upmixer_value
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
@@ -48,19 +50,41 @@ class TrinnovAltitudeSourceSelect(TrinnovAltitudeEntity, SelectEntity):
     @property
     def current_option(self) -> str | None:
         """Return the current source."""
-        return self._state.source
+        return resolve_source_name(self._state)
 
     @property
     def options(self) -> list[str]:
         """Return the list of available sources."""
-        return list(self._state.sources.values())
+        sources = self._source_options()
+        return list(sources.keys())
 
     async def async_select_option(self, option: str) -> None:
         """Change the selected source."""
+        source_options = self._source_options()
+        source_id = source_options.get(option)
+        if source_id is None:
+            raise HomeAssistantError(f"Unknown source option: {option}")
         try:
-            await self._commands.invoke("source_set_by_name", option, require_ack=True)
+            await self._commands.invoke("source_set", source_id, require_ack=True)
+            self._client.state.current_source_index = source_id
+            self._client.state.source = option
+            self.coordinator.async_set_updated_data(deepcopy(self._client.state))
         except ValueError as exc:
             raise HomeAssistantError(str(exc)) from exc
+
+    def _source_options(self) -> dict[str, int]:
+        """Build stable source options keyed by display name."""
+        options: dict[str, int] = {}
+        sources = getattr(self._state, "sources", {})
+        if isinstance(sources, dict):
+            for source_id, source_name in sources.items():
+                options[str(source_name)] = int(source_id)
+
+        index = getattr(self._state, "current_source_index", None)
+        if isinstance(index, int) and index >= 0 and index not in options.values():
+            options[f"Source {index}"] = index
+
+        return options
 
 
 class TrinnovAltitudePresetSelect(TrinnovAltitudeEntity, SelectEntity):
@@ -77,20 +101,38 @@ class TrinnovAltitudePresetSelect(TrinnovAltitudeEntity, SelectEntity):
     @property
     def current_option(self) -> str | None:
         """Return the current preset."""
-        return self._state.preset
+        return resolve_preset_name(self._state)
 
     @property
     def options(self) -> list[str]:
         """Return the list of available presets."""
-        return list(self._state.presets.values())
+        presets = self._preset_options()
+        return list(presets.keys())
 
     async def async_select_option(self, option: str) -> None:
         """Change the selected preset."""
-        # Find the preset ID from the name
-        for pid, name in self._state.presets.items():
-            if name == option:
-                await self._commands.invoke("preset_set", pid, require_ack=True)
-                return
+        preset_options = self._preset_options()
+        preset_id = preset_options.get(option)
+        if preset_id is None:
+            raise HomeAssistantError(f"Unknown preset option: {option}")
+        await self._commands.invoke("preset_set", preset_id, require_ack=True)
+        self._client.state.current_preset_index = preset_id
+        self._client.state.preset = option
+        self.coordinator.async_set_updated_data(deepcopy(self._client.state))
+
+    def _preset_options(self) -> dict[str, int]:
+        """Build stable preset options keyed by display name."""
+        options: dict[str, int] = {}
+        presets = getattr(self._state, "presets", {})
+        if isinstance(presets, dict):
+            for preset_id, preset_name in presets.items():
+                options[str(preset_name)] = int(preset_id)
+
+        index = getattr(self._state, "current_preset_index", None)
+        if isinstance(index, int) and index >= 0 and index not in options.values():
+            options[f"Preset {index}"] = index
+
+        return options
 
 
 class TrinnovAltitudeUpmixerSelect(TrinnovAltitudeEntity, SelectEntity):
@@ -107,23 +149,23 @@ class TrinnovAltitudeUpmixerSelect(TrinnovAltitudeEntity, SelectEntity):
     @property
     def current_option(self) -> str | None:
         """Return the current upmixer."""
-        if self._state.upmixer is None:
-            return None
-        # Normalize to lowercase to match enum values
-        upmixer_lower = self._state.upmixer.lower().replace(" ", "_")
-        for mode in UpmixerMode:
-            if mode.value == upmixer_lower:
-                return mode.value
-        return None
+        return resolve_upmixer_value(self._state)
 
     @property
     def options(self) -> list[str]:
         """Return the list of available upmixer modes."""
-        return [mode.value for mode in UpmixerMode]
+        options = [mode.value for mode in UpmixerMode]
+        current = resolve_upmixer_value(self._state)
+        if current and current not in options:
+            options.append(current)
+        return options
 
     async def async_select_option(self, option: str) -> None:
         """Change the selected upmixer."""
         for mode in UpmixerMode:
             if mode.value == option:
                 await self._commands.invoke("upmixer_set", mode, require_ack=True)
+                self._client.state.upmixer = option
+                self.coordinator.async_set_updated_data(deepcopy(self._client.state))
                 return
+        raise HomeAssistantError(f"Unknown upmixer option: {option}")
