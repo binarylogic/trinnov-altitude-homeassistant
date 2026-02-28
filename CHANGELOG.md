@@ -2,6 +2,14 @@
 
 ## [2.0.4](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.3...v2.0.4) (2026-02-28)
 
+
+### Bug Fixes
+
+* cover preset index fallback behavior in entities ([c3be851](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/c3be85198ef57ace962d056122d516140fd43a38))
+* require trinnov-altitude 3.1.1 for Altitude CI startup ([adad43a](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/adad43ae41e1acf0b43d60e69e7f2ddcff15c983))
+
+## [2.0.4](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.3...v2.0.4) (2026-02-28)
+
 ### Bug Fixes
 
 * bump `trinnov-altitude` minimum version to `3.1.1` for Altitude CI startup source/preset compatibility
