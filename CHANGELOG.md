@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.0.5](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.4...v2.0.5) (2026-02-28)
+
+
+### Bug Fixes
+
+* cover preset index fallback behavior in entities ([c3be851](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/c3be85198ef57ace962d056122d516140fd43a38))
+* format resolver helpers for CI ([f4195a1](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/f4195a156d338ee91f513a0cd94ad05e2d75e6ad))
+
 ## [2.0.4](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.3...v2.0.4) (2026-02-28)
 
 
