@@ -222,6 +222,24 @@ async def test_sensor_uses_source_index_fallback_when_label_missing(
     assert state.state == "Source 2"
 
 
+async def test_sensor_uses_preset_index_fallback_when_label_missing(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test preset sensor falls back to index when preset labels are missing."""
+    mock_device = mock_setup_entry.return_value
+    mock_device.state.preset = None
+    mock_device.state.presets = {}
+    mock_device.state.current_preset_index = 1
+
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_preset")
+    assert state
+    assert state.state == "Preset 1"
+
+
 async def test_sensor_preserves_unknown_upmixer_token(
     hass: HomeAssistant, mock_config_entry, mock_setup_entry
 ):

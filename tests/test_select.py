@@ -220,6 +220,39 @@ async def test_source_select_uses_index_fallback_when_label_missing(
     )
 
 
+async def test_preset_select_uses_index_fallback_when_label_missing(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test preset select degrades gracefully when preset labels are unavailable."""
+    mock_device = mock_setup_entry.return_value
+    mock_device.state.preset = None
+    mock_device.state.presets = {}
+    mock_device.state.current_preset_index = 2
+
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    state = hass.states.get("select.trinnov_altitude_192_168_1_100_preset")
+    assert state
+    assert state.state == "Preset 2"
+    assert "Preset 2" in state.attributes.get("options", [])
+
+    await hass.services.async_call(
+        "select",
+        SERVICE_SELECT_OPTION,
+        {
+            ATTR_ENTITY_ID: "select.trinnov_altitude_192_168_1_100_preset",
+            ATTR_OPTION: "Preset 2",
+        },
+        blocking=True,
+    )
+
+    mock_device.command.assert_called_once_with(
+        "loadp 2", wait_for_ack=True, ack_timeout=2.0
+    )
+
+
 async def test_upmixer_select_preserves_unknown_current_value(
     hass: HomeAssistant, mock_config_entry, mock_setup_entry
 ):
