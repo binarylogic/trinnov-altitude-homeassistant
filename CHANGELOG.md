@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.4](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.3...v2.0.4) (2026-02-28)
+
+### Bug Fixes
+
+* bump `trinnov-altitude` minimum version to `3.1.1` for Altitude CI startup source/preset compatibility
+
 ## [2.0.3](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.2...v2.0.3) (2026-02-27)
 
 ### Bug Fixes
