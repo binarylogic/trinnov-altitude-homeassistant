@@ -54,4 +54,3 @@ def resolve_upmixer_value(state: object) -> str | None:
     if normalized in known:
         return normalized
     return str(upmixer).strip()
-
