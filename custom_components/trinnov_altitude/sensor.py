@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -200,5 +200,5 @@ class TrinnovAltitudeSensor(TrinnovAltitudeEntity, SensorEntity):
     def icon(self) -> str | None:
         """Return dynamic icon for power_status sensor."""
         if self.entity_description.key == "power_status":
-            return POWER_STATUS_ICONS.get(self.native_value)
+            return POWER_STATUS_ICONS.get(cast(PowerStatus, self.native_value))
         return None
