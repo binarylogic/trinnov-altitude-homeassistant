@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.0.9](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.8...v2.0.9) (2026-03-09)
+
+
+### Bug Fixes
+
+* require trinnov-altitude 3.2.1 for ci startup bootstrap ([38664d9](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/38664d948ab383bac1713bc6736f23c470350391))
+
+## [2.0.8](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.7...v2.0.8) (2026-03-02)
+
+
+### Miscellaneous Chores
+
+* add local brand assets for HACS validation ([e8012a3](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/e8012a33c5609189b6a22570aebde28c33b67258))
+* bump manifest version to 2.0.8 ([0da96dc](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/0da96dcc5620254299b92d9b23cbca27c5e13dca))
+
 ## [2.0.7](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.6...v2.0.7) (2026-03-01)
 
 
