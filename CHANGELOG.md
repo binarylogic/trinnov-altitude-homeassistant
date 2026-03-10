@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.11](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.10...v2.0.11) (2026-03-10)
+
+
+### Bug Fixes
+
+* run bootstrap retries as background tasks ([01b488c](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/01b488c3bcd4373a3e99090a7905e8b1cfc64bd9))
+
 ## [2.0.10](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.9...v2.0.10) (2026-03-10)
 
 
