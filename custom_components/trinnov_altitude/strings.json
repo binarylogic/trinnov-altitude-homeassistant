@@ -12,14 +12,26 @@
     "step": {
       "user": {
         "title": "Setup Trinnov Altitude",
-        "description": "Your device needs to be on in order to add the integration.",
+        "description": "Your device needs to be on in order to add the integration. The MAC address will be discovered automatically when possible.",
         "data": {
-          "host": "[%key:common::config_flow::data::host%]",
-          "mac": "MAC address"
+          "host": "[%key:common::config_flow::data::host%]"
         },
         "data_description": {
-          "host": "The hostname or IP address of your Trinnov Altitude device. Be sure to configure your IP address to be static.",
+          "host": "The hostname or IP address of your Trinnov Altitude device. Be sure to configure your IP address to be static."
+        }
+      }
+    },
+    "options": {
+      "step": {
+        "init": {
+          "title": "Trinnov Altitude Options",
+          "description": "Override the Wake-on-LAN MAC address when automatic discovery is unavailable.",
+          "data": {
+            "mac": "MAC address"
+          },
+          "data_description": {
           "mac": "The MAC address of your Trinnov Altitude device. Used for Wake-On-Lan (WAL)."
+          }
         }
       }
     }

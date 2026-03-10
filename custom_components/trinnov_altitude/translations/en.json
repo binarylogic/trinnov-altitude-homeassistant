@@ -12,8 +12,18 @@
     "step": {
       "user": {
         "data": {
-          "host": "Host",
-          "mac": "MAC Address"
+          "host": "Host"
+        }
+      }
+    },
+    "options": {
+      "step": {
+        "init": {
+          "title": "Trinnov Altitude Options",
+          "description": "Override the Wake-on-LAN MAC address when automatic discovery is unavailable.",
+          "data": {
+            "mac": "MAC Address"
+          }
         }
       }
     }
