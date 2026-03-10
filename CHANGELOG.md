@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.12...v2.1.0) (2026-03-10)
+
+
+### Features
+
+* auto-discover trinnov mac during setup ([c93fe50](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/c93fe50a1625a401eff2ebb6777c1511234ecb4a))
+
 ## [2.0.12](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.11...v2.0.12) (2026-03-10)
 
 
