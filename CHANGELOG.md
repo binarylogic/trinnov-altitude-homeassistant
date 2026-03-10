@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.10](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.9...v2.0.10) (2026-03-10)
+
+
+### Bug Fixes
+
+* normalize trinnov lifecycle power semantics ([b516b89](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/b516b89dd65ccf3b7497bf8e68474a2730b0345f))
+
 ## [2.0.9](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.8...v2.0.9) (2026-03-09)
 
 
