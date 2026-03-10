@@ -66,7 +66,7 @@
     },
     "set_upmixer": {
       "name": "Set Upmixer",
-      "description": "Set active upmixer mode.",
+      "description": "Set configured upmixer mode.",
       "fields": {
         "entry_id": {
           "name": "Entry ID",
@@ -74,7 +74,7 @@
         },
         "upmixer": {
           "name": "Upmixer",
-          "description": "Upmixer mode (for example: native, dolby, dts)."
+          "description": "Configured upmixer mode (for example: auto, native, dolby, dts)."
         }
       }
     }

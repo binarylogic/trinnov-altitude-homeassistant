@@ -45,7 +45,8 @@ def mock_trinnov_device():
         audiosync="Master",
         decoder="Dolby Atmos",
         source_format="Dolby TrueHD 7.1",
-        upmixer="Native",
+        active_upmixer="none",
+        upmixer="auto",
     )
 
     # Async methods
@@ -126,6 +127,7 @@ def mock_trinnov_device_offline():
         presets={},
         audiosync=None,
         decoder=None,
+        active_upmixer=None,
         upmixer=None,
         mute=None,
         dim=None,

@@ -181,8 +181,9 @@ async def test_upmixer_select(hass: HomeAssistant, mock_config_entry, mock_setup
 
     state = hass.states.get("select.trinnov_altitude_192_168_1_100_upmixer")
     assert state
-    assert state.state == "native"
+    assert state.state == "auto"
     options = state.attributes.get("options", [])
+    assert "auto" in options
     assert "native" in options
     assert "dolby" in options
 
@@ -268,6 +269,25 @@ async def test_upmixer_select_preserves_unknown_current_value(
     assert state
     assert state.state == "neural x"
     assert "neural x" in state.attributes.get("options", [])
+
+
+async def test_upmixer_select_prefers_configured_mode_over_active_upmixer(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test upmixer select uses configured mode instead of active decoder upmixer."""
+    mock_device = mock_setup_entry.return_value
+    mock_device.state.upmixer = "auto"
+    mock_device.state.active_upmixer = "none"
+
+    mock_config_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    state = hass.states.get("select.trinnov_altitude_192_168_1_100_upmixer")
+    assert state
+    assert state.state == "auto"
+    assert "none" not in state.attributes.get("options", [])
 
 
 async def test_preset_select_option_invalid(

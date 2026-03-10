@@ -147,7 +147,7 @@ async def test_sensors(hass: HomeAssistant, mock_config_entry, mock_setup_entry)
     # Test upmixer sensor
     state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_upmixer")
     assert state
-    assert state.state == "native"
+    assert state.state == "auto"
 
     # Test volume sensor
     state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_volume")
@@ -275,3 +275,21 @@ async def test_sensor_preserves_unknown_upmixer_token(
     state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_upmixer")
     assert state
     assert state.state == "Neural X"
+
+
+async def test_sensor_upmixer_falls_back_to_active_value_when_mode_missing(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test upmixer sensor falls back to active upmixer for older library state."""
+    mock_device = mock_setup_entry.return_value
+    mock_device.state.upmixer = None
+    mock_device.state.active_upmixer = "none"
+
+    mock_config_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_upmixer")
+    assert state
+    assert state.state == "none"

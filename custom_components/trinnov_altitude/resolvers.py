@@ -44,8 +44,10 @@ def resolve_preset_name(state: object) -> str | None:
 
 
 def resolve_upmixer_value(state: object) -> str | None:
-    """Return normalized upmixer value, preserving unknown tokens."""
+    """Return normalized configured upmixer value, with active fallback."""
     upmixer = getattr(state, "upmixer", None)
+    if upmixer is None:
+        upmixer = getattr(state, "active_upmixer", None)
     if upmixer is None:
         return None
 
