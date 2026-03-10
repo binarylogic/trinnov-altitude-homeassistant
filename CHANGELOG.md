@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.12](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.11...v2.0.12) (2026-03-10)
+
+
+### Bug Fixes
+
+* use configured upmixer mode from library ([220284d](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/220284d1c8b3a9f4ef1ac25c8bd966148a5c4360))
+
 ## [2.0.11](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.0.10...v2.0.11) (2026-03-10)
 
 
