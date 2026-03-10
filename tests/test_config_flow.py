@@ -10,7 +10,6 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from trinnov_altitude.exceptions import (
     ConnectionFailedError,
     ConnectionTimeoutError,
-    MalformedMacAddressError,
 )
 
 from custom_components.trinnov_altitude.const import DOMAIN
@@ -24,9 +23,15 @@ async def test_form_user_success(hass: HomeAssistant):
     mock_device.wait_synced = AsyncMock()
     mock_device.stop = AsyncMock()
 
-    with patch(
-        "custom_components.trinnov_altitude.config_flow.TrinnovAltitudeClient",
-        return_value=mock_device,
+    with (
+        patch(
+            "custom_components.trinnov_altitude.config_flow.TrinnovAltitudeClient",
+            return_value=mock_device,
+        ),
+        patch(
+            "custom_components.trinnov_altitude.config_flow.async_discover_mac_address",
+            AsyncMock(return_value="00:11:22:33:44:55"),
+        ),
     ):
         result = await hass.config_entries.flow.async_init(
             DOMAIN, context={"source": config_entries.SOURCE_USER}
@@ -38,7 +43,6 @@ async def test_form_user_success(hass: HomeAssistant):
             result["flow_id"],
             {
                 CONF_HOST: "192.168.1.100",
-                CONF_MAC: "00:11:22:33:44:55",
             },
         )
 
@@ -65,9 +69,15 @@ async def test_form_user_without_mac(hass: HomeAssistant):
     mock_device.wait_synced = AsyncMock()
     mock_device.stop = AsyncMock()
 
-    with patch(
-        "custom_components.trinnov_altitude.config_flow.TrinnovAltitudeClient",
-        return_value=mock_device,
+    with (
+        patch(
+            "custom_components.trinnov_altitude.config_flow.TrinnovAltitudeClient",
+            return_value=mock_device,
+        ),
+        patch(
+            "custom_components.trinnov_altitude.config_flow.async_discover_mac_address",
+            AsyncMock(return_value=None),
+        ),
     ):
         result = await hass.config_entries.flow.async_init(
             DOMAIN, context={"source": config_entries.SOURCE_USER}
@@ -87,32 +97,6 @@ async def test_form_user_without_mac(hass: HomeAssistant):
             CONF_HOST: "192.168.1.100",
             CONF_MAC: None,
         }
-
-
-async def test_form_invalid_mac(hass: HomeAssistant):
-    """Test invalid MAC address."""
-    mock_device = MagicMock()
-    mock_device.start = AsyncMock(side_effect=MalformedMacAddressError("invalid"))
-    mock_device.stop = AsyncMock()
-
-    with patch(
-        "custom_components.trinnov_altitude.config_flow.TrinnovAltitudeClient",
-        return_value=mock_device,
-    ):
-        result = await hass.config_entries.flow.async_init(
-            DOMAIN, context={"source": config_entries.SOURCE_USER}
-        )
-
-        result = await hass.config_entries.flow.async_configure(
-            result["flow_id"],
-            {
-                CONF_HOST: "192.168.1.100",
-                CONF_MAC: "invalid",
-            },
-        )
-
-        assert result["type"] == FlowResultType.FORM
-        assert result["errors"] == {CONF_MAC: "invalid_mac"}
 
 
 async def test_form_invalid_host(hass: HomeAssistant):
@@ -209,9 +193,15 @@ async def test_form_already_configured(hass: HomeAssistant):
     )
     existing_entry.add_to_hass(hass)
 
-    with patch(
-        "custom_components.trinnov_altitude.config_flow.TrinnovAltitudeClient",
-        return_value=mock_device,
+    with (
+        patch(
+            "custom_components.trinnov_altitude.config_flow.TrinnovAltitudeClient",
+            return_value=mock_device,
+        ),
+        patch(
+            "custom_components.trinnov_altitude.config_flow.async_discover_mac_address",
+            AsyncMock(return_value="00:11:22:33:44:55"),
+        ),
     ):
         result = await hass.config_entries.flow.async_init(
             DOMAIN, context={"source": config_entries.SOURCE_USER}
@@ -226,3 +216,52 @@ async def test_form_already_configured(hass: HomeAssistant):
 
         assert result["type"] == FlowResultType.ABORT
         assert result["reason"] == "already_configured"
+
+
+async def test_options_flow_updates_mac(hass: HomeAssistant):
+    """Test options flow updates the stored MAC address in entry data."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        title="Trinnov Altitude (192.168.1.100)",
+        data={CONF_HOST: "192.168.1.100", CONF_MAC: None},
+        unique_id="ABC123",
+    )
+    entry.add_to_hass(hass)
+
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    assert result["type"] == FlowResultType.FORM
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        user_input={CONF_MAC: "00:11:22:33:44:55"},
+    )
+
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    assert hass.config_entries.async_get_entry(entry.entry_id).data[CONF_MAC] == "00:11:22:33:44:55"
+
+
+async def test_options_flow_rejects_invalid_mac(hass: HomeAssistant):
+    """Test options flow validates manual MAC overrides."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        title="Trinnov Altitude (192.168.1.100)",
+        data={CONF_HOST: "192.168.1.100", CONF_MAC: None},
+        unique_id="ABC123",
+    )
+    entry.add_to_hass(hass)
+
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        user_input={CONF_MAC: "invalid"},
+    )
+
+    assert result["type"] == FlowResultType.FORM
+    assert result["errors"] == {CONF_MAC: "invalid_mac"}
+
+
+async def test_extract_mac_address_normalizes_mac():
+    """Test command output MAC parsing normalizes separators and case."""
+    from custom_components.trinnov_altitude.config_flow import _extract_mac_address
+
+    assert _extract_mac_address("? (192.168.1.100) at 00-11-22-AA-BB-CC on en0") == "00:11:22:aa:bb:cc"

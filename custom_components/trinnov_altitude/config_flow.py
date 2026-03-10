@@ -2,11 +2,19 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
+import re
+from collections.abc import Sequence
 from typing import Any
 
 import voluptuous as vol
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import (
+    ConfigEntry,
+    ConfigFlow,
+    ConfigFlowResult,
+    OptionsFlow,
+)
 from homeassistant.const import CONF_HOST, CONF_MAC
 
 from trinnov_altitude.client import TrinnovAltitudeClient
@@ -19,13 +27,18 @@ from trinnov_altitude.exceptions import (
 from .const import CLIENT_ID, DOMAIN, NAME
 
 _LOGGER = logging.getLogger(__name__)
-DATA_SCHEMA = vol.Schema({vol.Required(CONF_HOST): str, vol.Optional(CONF_MAC): str})
+DATA_SCHEMA = vol.Schema({vol.Required(CONF_HOST): str})
+_MAC_PATTERN = re.compile(r"(?i)([0-9a-f]{2}(?::[0-9a-f]{2}){5})")
 
 
 class TrinnovAltitudeConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Trinnov Altitude."""
 
     VERSION = 1
+
+    @staticmethod
+    def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
+        return TrinnovAltitudeOptionsFlow(config_entry)
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -38,16 +51,10 @@ class TrinnovAltitudeConfigFlow(ConfigFlow, domain=DOMAIN):
             # Required attribute will always be present
             host = user_input[CONF_HOST].strip()
 
-            # Optional attributes may not be present
-            mac = user_input.get(CONF_MAC)
-            mac = mac.strip() if mac else None
-
             try:
-                device = TrinnovAltitudeClient(host=host, mac=mac, client_id=CLIENT_ID)
+                device = TrinnovAltitudeClient(host=host, client_id=CLIENT_ID)
                 await device.start()
                 await device.wait_synced()
-            except MalformedMacAddressError:
-                errors[CONF_MAC] = "invalid_mac"
             except ConnectionFailedError:
                 errors[CONF_HOST] = "invalid_host"
             except ConnectionTimeoutError:
@@ -59,6 +66,7 @@ class TrinnovAltitudeConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors["base"] = "unknown"
             else:
                 await self.async_set_unique_id(device.state.id, raise_on_progress=False)
+                mac = await async_discover_mac_address(host)
                 processed_input = {CONF_HOST: host, CONF_MAC: mac}
                 self._abort_if_unique_id_configured(processed_input)
                 return self.async_create_entry(
@@ -71,3 +79,91 @@ class TrinnovAltitudeConfigFlow(ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user", data_schema=DATA_SCHEMA, errors=errors
         )
+
+
+class TrinnovAltitudeOptionsFlow(OptionsFlow):
+    """Handle Trinnov Altitude options."""
+
+    def __init__(self, config_entry: ConfigEntry) -> None:
+        self._config_entry = config_entry
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        errors: dict[str, str] = {}
+
+        if user_input is not None:
+            mac = user_input.get(CONF_MAC)
+            mac = mac.strip() if mac else None
+
+            try:
+                if mac is not None:
+                    TrinnovAltitudeClient.validate_mac(mac)
+            except MalformedMacAddressError:
+                errors[CONF_MAC] = "invalid_mac"
+            else:
+                self.hass.config_entries.async_update_entry(
+                    self._config_entry,
+                    data={**self._config_entry.data, CONF_MAC: mac},
+                )
+                return self.async_create_entry(title="", data={})
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(
+                {
+                    vol.Optional(
+                        CONF_MAC,
+                        default=self._config_entry.data.get(CONF_MAC, ""),
+                    ): str
+                }
+            ),
+            errors=errors,
+        )
+
+
+async def async_discover_mac_address(host: str) -> str | None:
+    """Best-effort discovery of a MAC address for a reachable local-network host."""
+    for command in (
+        ("arp", "-an", host),
+        ("ip", "neigh", "show", host),
+    ):
+        output = await _async_run_command(command)
+        if output is None:
+            continue
+        mac = _extract_mac_address(output)
+        if mac is not None:
+            return mac
+    return None
+
+
+async def _async_run_command(command: Sequence[str]) -> str | None:
+    """Run a local network discovery command and return stdout."""
+    try:
+        process = await asyncio.create_subprocess_exec(
+            *command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+    except (FileNotFoundError, OSError):
+        return None
+
+    stdout, _stderr = await process.communicate()
+    if process.returncode != 0:
+        return None
+
+    text = stdout.decode(errors="ignore").strip()
+    return text or None
+
+
+def _extract_mac_address(output: str) -> str | None:
+    """Extract and normalize the first MAC address from command output."""
+    match = _MAC_PATTERN.search(output.replace("-", ":"))
+    if match is None:
+        return None
+    mac = match.group(1).lower()
+    try:
+        TrinnovAltitudeClient.validate_mac(mac)
+    except MalformedMacAddressError:
+        return None
+    return mac
