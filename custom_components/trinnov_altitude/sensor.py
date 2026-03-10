@@ -16,6 +16,7 @@ from homeassistant.const import EntityCategory
 from .const import DOMAIN
 from .coordinator import TrinnovAltitudeCoordinator
 from .entity import TrinnovAltitudeEntity
+from .lifecycle import PowerStatus
 from .models import TrinnovAltitudeIntegrationData
 from .resolvers import resolve_preset_name, resolve_source_name, resolve_upmixer_value
 
@@ -28,14 +29,6 @@ if TYPE_CHECKING:
     from homeassistant.helpers.typing import StateType
 
     from trinnov_altitude.state import AltitudeState
-
-
-class PowerStatus(StrEnum):
-    """Power status states."""
-
-    OFF = "off"
-    BOOTING = "booting"
-    READY = "ready"
 
 
 class ConnectionStatus(StrEnum):
@@ -183,11 +176,7 @@ class TrinnovAltitudeSensor(TrinnovAltitudeEntity, SensorEntity):
     def native_value(self) -> StateType:
         """Return value of sensor."""
         if self.entity_description.key == "power_status":
-            if not self._client.connected:
-                return PowerStatus.OFF
-            if not self._state.synced:
-                return PowerStatus.BOOTING
-            return PowerStatus.READY
+            return self.coordinator.power_status
         if self.entity_description.key == "connection_status":
             return (
                 ConnectionStatus.CONNECTED

@@ -68,6 +68,24 @@ async def test_media_player_off_state(
     assert state.state == MediaPlayerState.OFF
 
 
+async def test_media_player_booting_state(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test media player shows on state while the device is booting."""
+    mock_device = mock_setup_entry.return_value
+    mock_device.connected = True
+    mock_device.state.synced = False
+
+    mock_config_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    state = hass.states.get("media_player.trinnov_altitude_192_168_1_100")
+    assert state
+    assert state.state == MediaPlayerState.ON
+
+
 async def test_media_player_turn_on(
     hass: HomeAssistant, mock_config_entry, mock_setup_entry
 ):
@@ -114,6 +132,14 @@ async def test_media_player_turn_off(
     mock_device.command.assert_called_once_with(
         "power_off_SECURED_FHZMCH48FE", wait_for_ack=True, ack_timeout=2.0
     )
+
+    state = hass.states.get("media_player.trinnov_altitude_192_168_1_100")
+    assert state
+    assert state.state == MediaPlayerState.OFF
+
+    power_status = hass.states.get("sensor.trinnov_altitude_192_168_1_100_power_status")
+    assert power_status
+    assert power_status.state == "off"
 
 
 async def test_media_player_volume_up(

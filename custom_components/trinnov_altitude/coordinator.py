@@ -13,6 +13,8 @@ from trinnov_altitude.adapter import AltitudeStateAdapter
 from trinnov_altitude.exceptions import ConnectionFailedError, ConnectionTimeoutError
 from trinnov_altitude.state import AltitudeState
 
+from .lifecycle import PowerStatus
+
 if TYPE_CHECKING:
     from collections.abc import Callable
 
@@ -45,6 +47,7 @@ class TrinnovAltitudeCoordinator(DataUpdateCoordinator[AltitudeState]):
         )
         self._running = False
         self._bootstrap_retry_task: asyncio.Task[None] | None = None
+        self._power_status_override: PowerStatus | None = None
 
     async def async_start(self, sync_timeout: float | None = 10.0) -> None:
         """Start push updates and attempt initial client bootstrap."""
@@ -105,15 +108,36 @@ class TrinnovAltitudeCoordinator(DataUpdateCoordinator[AltitudeState]):
         """Create a stable snapshot for entity reads."""
         return deepcopy(self.client.state)
 
+    @property
+    def power_status(self) -> PowerStatus:
+        """Return lifecycle state for primary power entities."""
+        if self._power_status_override is not None:
+            return self._power_status_override
+
+        state = self.data if self.data is not None else self.client.state
+        if not self.client.connected:
+            return PowerStatus.OFF
+        if not state.synced:
+            return PowerStatus.BOOTING
+        return PowerStatus.READY
+
+    def set_power_status_override(self, status: PowerStatus | None) -> None:
+        """Force a temporary lifecycle state until transport catches up."""
+        self._power_status_override = status
+        self.async_set_updated_data(self._snapshot_state())
+
     def _handle_client_event(self, event: str, _message: object | None = None) -> None:
         """Forward connection lifecycle events into coordinator updates."""
         if event in {"connected", "disconnected"}:
+            self._power_status_override = None
             self.hass.add_job(self._async_push_update)
 
     def _handle_adapter_update(
         self, _snapshot: object, _deltas: object, _events: object
     ) -> None:
         """Forward adapter updates into coordinator snapshots."""
+        if self.client.connected and self.client.state.synced:
+            self._power_status_override = None
         self.hass.add_job(self._async_push_update)
 
     async def _async_push_update(self) -> None:

@@ -15,6 +15,7 @@ from homeassistant.exceptions import HomeAssistantError
 
 from .const import DOMAIN
 from .entity import TrinnovAltitudeEntity
+from .lifecycle import PowerStatus
 from .models import TrinnovAltitudeIntegrationData
 
 if TYPE_CHECKING:
@@ -67,6 +68,7 @@ class TrinnovAltitudeMediaPlayer(TrinnovAltitudeEntity, MediaPlayerEntity):
     async def async_turn_off(self) -> None:
         """Power off command."""
         await self._commands.invoke("power_off", require_ack=True)
+        self.coordinator.set_power_status_override(PowerStatus.OFF)
 
     async def async_volume_up(self) -> None:
         """Turn volume up for media player."""
@@ -104,8 +106,11 @@ class TrinnovAltitudeMediaPlayer(TrinnovAltitudeEntity, MediaPlayerEntity):
     @property
     def state(self) -> MediaPlayerState:
         """State of device."""
-        if not self._client.connected or not self._state.synced:
+        power_status = self.coordinator.power_status
+        if power_status is PowerStatus.OFF:
             return MediaPlayerState.OFF
+        if power_status is PowerStatus.BOOTING:
+            return MediaPlayerState.ON
         if self._state.source_format:
             return MediaPlayerState.PLAYING
         return MediaPlayerState.IDLE

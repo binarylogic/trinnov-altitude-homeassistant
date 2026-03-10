@@ -91,6 +91,27 @@ async def test_power_status_transitions(
     assert state.state == "ready"
 
 
+async def test_power_status_turn_off_converges_immediately(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test turn_off drives lifecycle state to off before disconnect arrives."""
+    mock_config_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    await hass.services.async_call(
+        "media_player",
+        "turn_off",
+        {"entity_id": "media_player.trinnov_altitude_192_168_1_100"},
+        blocking=True,
+    )
+
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_power_status")
+    assert state
+    assert state.state == "off"
+
+
 async def test_sensors(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
     """Test sensor entities are created with correct state."""
     mock_config_entry.add_to_hass(hass)
