@@ -151,8 +151,9 @@ class TrinnovAltitudeCoordinator(DataUpdateCoordinator[AltitudeState]):
             and not self._bootstrap_retry_task.done()
         ):
             return
-        self._bootstrap_retry_task = self.hass.async_create_task(
-            self._async_retry_bootstrap_until_synced(sync_timeout)
+        self._bootstrap_retry_task = self.hass.async_create_background_task(
+            self._async_retry_bootstrap_until_synced(sync_timeout),
+            "trinnov_altitude bootstrap retry",
         )
 
     async def _async_retry_bootstrap_until_synced(
