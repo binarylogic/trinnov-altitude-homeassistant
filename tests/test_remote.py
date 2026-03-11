@@ -180,9 +180,7 @@ async def test_remote_send_command_with_int_arg(
         blocking=True,
     )
 
-    mock_device.command.assert_called_once_with(
-        "loadp 2", wait_for_ack=True, ack_timeout=2.0
-    )
+    mock_device.preset_set.assert_called_once_with(2)
 
 
 async def test_remote_send_command_upmixer_set(
@@ -208,9 +206,7 @@ async def test_remote_send_command_upmixer_set(
         blocking=True,
     )
 
-    mock_device.command.assert_called_once_with(
-        "upmixer native", wait_for_ack=True, ack_timeout=2.0
-    )
+    mock_device.upmixer_set.assert_called_once()
 
 
 async def test_remote_send_command_upmixer_set_case_insensitive(
@@ -236,9 +232,7 @@ async def test_remote_send_command_upmixer_set_case_insensitive(
         blocking=True,
     )
 
-    mock_device.command.assert_called_once_with(
-        "upmixer dolby", wait_for_ack=True, ack_timeout=2.0
-    )
+    mock_device.upmixer_set.assert_called_once()
 
 
 async def test_remote_send_command_upmixer_set_invalid(
@@ -333,9 +327,7 @@ async def test_remote_send_multiple_commands(
 
     mock_device.mute_on.assert_called_once()
     mock_device.volume_set.assert_called_once_with(-40.0)
-    mock_device.command.assert_called_once_with(
-        "profile 1", wait_for_ack=True, ack_timeout=2.0
-    )
+    mock_device.source_set.assert_called_once_with(1)
 
 
 async def test_remote_send_invalid_command(
@@ -452,9 +444,7 @@ async def test_remote_send_command_source_by_name_quoted(
         blocking=True,
     )
 
-    mock_device.command.assert_called_once_with(
-        "profile 0", wait_for_ack=True, ack_timeout=2.0
-    )
+    mock_device.source_set.assert_called_once_with(0)
 
 
 async def test_remote_send_command_empty_string(

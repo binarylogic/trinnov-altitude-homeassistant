@@ -10,6 +10,13 @@ from trinnov_altitude.client import TrinnovAltitudeClient
 class TrinnovAltitudeCommands:
     """Centralized command execution and optional ACK policy."""
 
+    _CLIENT_CONVERGENCE_METHODS = {
+        "preset_set",
+        "source_set",
+        "source_set_by_name",
+        "upmixer_set",
+    }
+
     def __init__(self, client: TrinnovAltitudeClient) -> None:
         """Initialize command service."""
         self._client = client
@@ -18,6 +25,20 @@ class TrinnovAltitudeCommands:
         self, method_name: str, *args: Any, require_ack: bool = False
     ) -> None:
         """Invoke a client command by method name, with optional ACK wait."""
+        if method_name == "source_set_by_name":
+            if len(args) != 1:
+                raise ValueError("source_set_by_name expects exactly one source name")
+            source_name = str(args[0])
+            for source_id, name in self._client.state.sources.items():
+                if name == source_name:
+                    await self._client.source_set(source_id)
+                    return
+            raise ValueError(f"Unknown source name: {source_name}")
+
+        if method_name in self._CLIENT_CONVERGENCE_METHODS:
+            await getattr(self._client, method_name)(*args)
+            return
+
         if require_ack:
             line = self._build_line(method_name, args)
             if line is not None:
@@ -26,12 +47,6 @@ class TrinnovAltitudeCommands:
                     wait_for_ack=True,
                     ack_timeout=self._client.command_timeout,
                 )
-                if method_name == "preset_set":
-                    await self._client.preset_get()
-                if method_name in {"source_set", "source_set_by_name"}:
-                    await self._client.source_get()
-                if method_name == "upmixer_set":
-                    await self._client.upmixer_get()
                 return
 
         await getattr(self._client, method_name)(*args)

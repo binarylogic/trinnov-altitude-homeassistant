@@ -57,10 +57,7 @@ async def test_source_select_option(
         blocking=True,
     )
 
-    # Verify source set used command ACK flow
-    mock_device.command.assert_called_once_with(
-        "profile 1", wait_for_ack=True, ack_timeout=2.0
-    )
+    mock_device.source_set.assert_called_once_with(1)
 
 
 async def test_source_select_option_invalid(
@@ -92,7 +89,7 @@ async def test_source_select_option_command_error(
     await hass.async_block_till_done()
 
     mock_device = mock_setup_entry.return_value
-    mock_device.command.side_effect = ValueError("boom")
+    mock_device.source_set.side_effect = ValueError("boom")
 
     with pytest.raises(HomeAssistantError, match="boom"):
         await hass.services.async_call(
@@ -128,10 +125,7 @@ async def test_preset_select_option(
         blocking=True,
     )
 
-    # Verify preset set used command ACK flow
-    mock_device.command.assert_called_once_with(
-        "loadp 2", wait_for_ack=True, ack_timeout=2.0
-    )
+    mock_device.preset_set.assert_called_once_with(2)
 
 
 async def test_select_updates(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
@@ -209,10 +203,7 @@ async def test_preset_select_built_in(
         blocking=True,
     )
 
-    # Verify preset set used command ACK flow
-    mock_device.command.assert_called_once_with(
-        "loadp 0", wait_for_ack=True, ack_timeout=2.0
-    )
+    mock_device.preset_set.assert_called_once_with(0)
 
 
 async def test_upmixer_select(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
@@ -234,7 +225,7 @@ async def test_upmixer_select(hass: HomeAssistant, mock_config_entry, mock_setup
 async def test_upmixer_select_option_valid(
     hass: HomeAssistant, mock_config_entry, mock_setup_entry
 ):
-    """Test selecting a valid upmixer triggers ACK flow and readback."""
+    """Test selecting a valid upmixer delegates to the client."""
     mock_config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done()
@@ -251,10 +242,7 @@ async def test_upmixer_select_option_valid(
         blocking=True,
     )
 
-    mock_device.command.assert_called_once_with(
-        "upmixer dolby", wait_for_ack=True, ack_timeout=2.0
-    )
-    mock_device.upmixer_get.assert_called_once_with()
+    mock_device.upmixer_set.assert_called_once()
 
     state = hass.states.get("select.trinnov_altitude_192_168_1_100_upmixer")
     assert state
@@ -289,9 +277,7 @@ async def test_source_select_uses_index_fallback_when_label_missing(
         blocking=True,
     )
 
-    mock_device.command.assert_called_once_with(
-        "profile 4", wait_for_ack=True, ack_timeout=2.0
-    )
+    mock_device.source_set.assert_called_once_with(4)
 
 
 async def test_preset_select_uses_index_fallback_when_label_missing(
@@ -322,9 +308,7 @@ async def test_preset_select_uses_index_fallback_when_label_missing(
         blocking=True,
     )
 
-    mock_device.command.assert_called_once_with(
-        "loadp 2", wait_for_ack=True, ack_timeout=2.0
-    )
+    mock_device.preset_set.assert_called_once_with(2)
 
 
 async def test_upmixer_select_preserves_unknown_current_value(

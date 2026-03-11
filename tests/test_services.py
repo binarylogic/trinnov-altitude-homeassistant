@@ -43,9 +43,7 @@ async def test_service_set_source_by_name(
         blocking=True,
     )
 
-    mock_device.command.assert_called_once_with(
-        "profile 1", wait_for_ack=True, ack_timeout=2.0
-    )
+    mock_device.source_set.assert_called_once_with(1)
 
 
 async def test_service_set_preset(
@@ -64,9 +62,7 @@ async def test_service_set_preset(
         blocking=True,
     )
 
-    mock_device.command.assert_called_once_with(
-        "loadp 2", wait_for_ack=True, ack_timeout=2.0
-    )
+    mock_device.preset_set.assert_called_once_with(2)
 
 
 async def test_service_set_upmixer_invalid(

@@ -349,9 +349,7 @@ async def test_media_player_select_source(
         blocking=True,
     )
 
-    mock_device.command.assert_called_once_with(
-        "profile 1", wait_for_ack=True, ack_timeout=2.0
-    )
+    mock_device.source_set.assert_called_once_with(1)
 
 
 async def test_media_player_available_when_offline_with_mac(
