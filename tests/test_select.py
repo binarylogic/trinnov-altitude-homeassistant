@@ -234,7 +234,7 @@ async def test_upmixer_select(hass: HomeAssistant, mock_config_entry, mock_setup
 async def test_upmixer_select_option_valid(
     hass: HomeAssistant, mock_config_entry, mock_setup_entry
 ):
-    """Test selecting a valid upmixer updates the entity state."""
+    """Test selecting a valid upmixer triggers ACK flow and readback."""
     mock_config_entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done()
@@ -254,10 +254,11 @@ async def test_upmixer_select_option_valid(
     mock_device.command.assert_called_once_with(
         "upmixer dolby", wait_for_ack=True, ack_timeout=2.0
     )
+    mock_device.upmixer_get.assert_called_once_with()
 
     state = hass.states.get("select.trinnov_altitude_192_168_1_100_upmixer")
     assert state
-    assert state.state == "dolby"
+    assert state.state == "auto"
 
 
 async def test_source_select_uses_index_fallback_when_label_missing(

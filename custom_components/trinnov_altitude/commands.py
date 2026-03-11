@@ -26,8 +26,12 @@ class TrinnovAltitudeCommands:
                     wait_for_ack=True,
                     ack_timeout=self._client.command_timeout,
                 )
+                if method_name == "preset_set":
+                    await self._client.preset_get()
                 if method_name in {"source_set", "source_set_by_name"}:
                     await self._client.source_get()
+                if method_name == "upmixer_set":
+                    await self._client.upmixer_get()
                 return
 
         await getattr(self._client, method_name)(*args)

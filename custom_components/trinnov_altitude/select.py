@@ -1,7 +1,6 @@
 """Select platform for Trinnov Altitude integration."""
 
 from __future__ import annotations
-
 from copy import deepcopy
 from typing import TYPE_CHECKING
 
@@ -113,9 +112,6 @@ class TrinnovAltitudePresetSelect(TrinnovAltitudeEntity, SelectEntity):
         if preset_id is None:
             raise HomeAssistantError(f"Unknown preset option: {option}")
         await self._commands.invoke("preset_set", preset_id, require_ack=True)
-        self._client.state.current_preset_index = preset_id
-        self._client.state.preset = option
-        self.coordinator.async_set_updated_data(deepcopy(self._client.state))
 
     def _preset_options(self) -> dict[str, int]:
         """Build stable preset options keyed by display name."""
@@ -162,7 +158,5 @@ class TrinnovAltitudeUpmixerSelect(TrinnovAltitudeEntity, SelectEntity):
         for mode in UpmixerMode:
             if mode.value == option:
                 await self._commands.invoke("upmixer_set", mode, require_ack=True)
-                self._client.state.upmixer = option
-                self.coordinator.async_set_updated_data(deepcopy(self._client.state))
                 return
         raise HomeAssistantError(f"Unknown upmixer option: {option}")

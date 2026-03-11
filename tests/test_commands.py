@@ -13,7 +13,9 @@ def _mock_client() -> MagicMock:
     client.command = AsyncMock()
     client.mute_on = AsyncMock()
     client.preset_set = AsyncMock()
+    client.preset_get = AsyncMock()
     client.source_get = AsyncMock()
+    client.upmixer_get = AsyncMock()
     client.state.sources = {0: "Kaleidescape", 1: "Apple TV"}
     return client
 
@@ -40,6 +42,7 @@ async def test_invoke_with_ack_for_preset_set() -> None:
     client.command.assert_called_once_with(
         "loadp 3", wait_for_ack=True, ack_timeout=2.0
     )
+    client.preset_get.assert_called_once_with()
 
 
 async def test_invoke_without_ack_calls_client_method() -> None:
@@ -77,3 +80,16 @@ async def test_invoke_with_ack_for_remapping_mode_set() -> None:
     client.command.assert_called_once_with(
         "remapping_mode manual", wait_for_ack=True, ack_timeout=2.0
     )
+
+
+async def test_invoke_with_ack_for_upmixer_set() -> None:
+    """Upmixer set should use ACK flow and refresh authoritative state."""
+    client = _mock_client()
+    commands = TrinnovAltitudeCommands(client)
+
+    await commands.invoke("upmixer_set", "dolby", require_ack=True)
+
+    client.command.assert_called_once_with(
+        "upmixer dolby", wait_for_ack=True, ack_timeout=2.0
+    )
+    client.upmixer_get.assert_called_once_with()

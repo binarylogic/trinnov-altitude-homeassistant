@@ -86,6 +86,7 @@ def mock_trinnov_device():
     device.time_alignment_toggle = AsyncMock()
 
     device.upmixer_set = AsyncMock()
+    device.upmixer_get = AsyncMock()
     device.remapping_mode_set = AsyncMock()
 
     device.source_set = AsyncMock()
