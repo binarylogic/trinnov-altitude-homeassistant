@@ -66,9 +66,6 @@ class TrinnovAltitudeSourceSelect(TrinnovAltitudeEntity, SelectEntity):
             raise HomeAssistantError(f"Unknown source option: {option}")
         try:
             await self._commands.invoke("source_set", source_id, require_ack=True)
-            self._client.state.current_source_index = source_id
-            self._client.state.source = option
-            self.coordinator.async_set_updated_data(deepcopy(self._client.state))
         except ValueError as exc:
             raise HomeAssistantError(str(exc)) from exc
 

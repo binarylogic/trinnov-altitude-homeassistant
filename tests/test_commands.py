@@ -13,6 +13,7 @@ def _mock_client() -> MagicMock:
     client.command = AsyncMock()
     client.mute_on = AsyncMock()
     client.preset_set = AsyncMock()
+    client.source_get = AsyncMock()
     client.state.sources = {0: "Kaleidescape", 1: "Apple TV"}
     return client
 
@@ -61,6 +62,7 @@ async def test_invoke_with_ack_for_source_set_by_name() -> None:
     client.command.assert_called_once_with(
         "profile 1", wait_for_ack=True, ack_timeout=2.0
     )
+    client.source_get.assert_called_once_with()
 
 
 async def test_invoke_with_ack_for_remapping_mode_set() -> None:
