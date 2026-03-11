@@ -34,11 +34,13 @@ class TrinnovAltitudeCoordinator(DataUpdateCoordinator[AltitudeState]):
         hass: HomeAssistant,
         client: TrinnovAltitudeClient,
         commands: TrinnovAltitudeCommands,
+        stable_device_id: str,
     ) -> None:
         """Initialize coordinator."""
         super().__init__(hass, logger=client.logger, name="trinnov_altitude")
         self.client = client
         self.commands = commands
+        self.stable_device_id = stable_device_id
         self._state_adapter = AltitudeStateAdapter()
         self._callback_registered = False
         self._adapter_callback_registered = False

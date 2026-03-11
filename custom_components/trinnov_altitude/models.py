@@ -14,6 +14,7 @@ from .coordinator import TrinnovAltitudeCoordinator
 class TrinnovAltitudeIntegrationData:
     """Runtime data for a config entry."""
 
+    stable_device_id: str
     client: TrinnovAltitudeClient
     coordinator: TrinnovAltitudeCoordinator
     commands: TrinnovAltitudeCommands

@@ -4,7 +4,7 @@ import pytest
 from homeassistant.components.select import ATTR_OPTION, SERVICE_SELECT_OPTION
 from homeassistant.const import ATTR_ENTITY_ID
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ServiceValidationError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 
 
 async def test_source_select(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
@@ -61,6 +61,49 @@ async def test_source_select_option(
     mock_device.command.assert_called_once_with(
         "profile 1", wait_for_ack=True, ack_timeout=2.0
     )
+
+
+async def test_source_select_option_invalid(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test selecting an unknown source is rejected by select validation."""
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    with pytest.raises(ServiceValidationError):
+        await hass.services.async_call(
+            "select",
+            SERVICE_SELECT_OPTION,
+            {
+                ATTR_ENTITY_ID: "select.trinnov_altitude_192_168_1_100_source",
+                ATTR_OPTION: "Not A Source",
+            },
+            blocking=True,
+        )
+
+
+async def test_source_select_option_command_error(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Protocol command failures should surface as service validation errors."""
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    mock_device = mock_setup_entry.return_value
+    mock_device.command.side_effect = ValueError("boom")
+
+    with pytest.raises(HomeAssistantError, match="boom"):
+        await hass.services.async_call(
+            "select",
+            SERVICE_SELECT_OPTION,
+            {
+                ATTR_ENTITY_ID: "select.trinnov_altitude_192_168_1_100_source",
+                ATTR_OPTION: "Apple TV",
+            },
+            blocking=True,
+        )
 
 
 async def test_preset_select_option(
@@ -186,6 +229,35 @@ async def test_upmixer_select(hass: HomeAssistant, mock_config_entry, mock_setup
     assert "auto" in options
     assert "native" in options
     assert "dolby" in options
+
+
+async def test_upmixer_select_option_valid(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test selecting a valid upmixer updates the entity state."""
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    mock_device = mock_setup_entry.return_value
+
+    await hass.services.async_call(
+        "select",
+        SERVICE_SELECT_OPTION,
+        {
+            ATTR_ENTITY_ID: "select.trinnov_altitude_192_168_1_100_upmixer",
+            ATTR_OPTION: "dolby",
+        },
+        blocking=True,
+    )
+
+    mock_device.command.assert_called_once_with(
+        "upmixer dolby", wait_for_ack=True, ack_timeout=2.0
+    )
+
+    state = hass.states.get("select.trinnov_altitude_192_168_1_100_upmixer")
+    assert state
+    assert state.state == "dolby"
 
 
 async def test_source_select_uses_index_fallback_when_label_missing(

@@ -45,7 +45,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # to be online. This ensures that entities have an id to work with.
     device.state.id = entry.unique_id
 
-    coordinator = TrinnovAltitudeCoordinator(hass, device, commands)
+    coordinator = TrinnovAltitudeCoordinator(
+        hass, device, commands, stable_device_id=entry.unique_id
+    )
 
     try:
         await coordinator.async_start()
@@ -55,6 +57,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         raise
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = TrinnovAltitudeIntegrationData(
+        stable_device_id=entry.unique_id,
         client=device, coordinator=coordinator, commands=commands
     )
     async_setup_services(hass)

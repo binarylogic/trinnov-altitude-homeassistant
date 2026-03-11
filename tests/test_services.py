@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ServiceValidationError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 
 from custom_components.trinnov_altitude.commands import TrinnovAltitudeCommands
 from custom_components.trinnov_altitude.const import (
@@ -20,6 +20,11 @@ from custom_components.trinnov_altitude.const import (
     SERVICE_SET_UPMIXER,
 )
 from custom_components.trinnov_altitude.models import TrinnovAltitudeIntegrationData
+from custom_components.trinnov_altitude.services import (
+    _resolve_entry_data,
+    async_setup_services,
+    async_unload_services,
+)
 
 
 async def test_service_set_source_by_name(
@@ -156,6 +161,7 @@ async def test_service_routes_to_matching_entry_id(
 
     second_commands = SimpleNamespace(invoke=AsyncMock())
     second_data = TrinnovAltitudeIntegrationData(
+        stable_device_id="SECOND123",
         client=first_data.client,
         coordinator=first_data.coordinator,
         commands=cast(TrinnovAltitudeCommands, second_commands),
@@ -176,3 +182,18 @@ async def test_service_routes_to_matching_entry_id(
         "Apple TV",
         require_ack=True,
     )
+
+
+async def test_resolve_entry_data_raises_when_no_entries_loaded(hass: HomeAssistant):
+    """Entry resolution should fail clearly when nothing is loaded."""
+    with pytest.raises(HomeAssistantError, match="No Trinnov Altitude entries are loaded"):
+        _resolve_entry_data(hass, None)
+
+
+async def test_unload_services_is_safe_when_not_registered(hass: HomeAssistant):
+    """Service unload should be a no-op if services were never registered."""
+    async_unload_services(hass)
+    async_setup_services(hass)
+    assert hass.services.has_service(DOMAIN, SERVICE_SET_SOURCE_BY_NAME)
+    async_unload_services(hass)
+    assert not hass.services.has_service(DOMAIN, SERVICE_SET_SOURCE_BY_NAME)

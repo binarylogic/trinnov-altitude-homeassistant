@@ -39,7 +39,7 @@ async def test_coordinator_start_and_shutdown(hass: HomeAssistant) -> None:
     """Coordinator starts client, seeds snapshot, and shuts down cleanly."""
     client = _build_mock_client()
     coordinator = TrinnovAltitudeCoordinator(
-        hass, client, TrinnovAltitudeCommands(client)
+        hass, client, TrinnovAltitudeCommands(client), stable_device_id="ABC123"
     )
 
     await coordinator.async_start(sync_timeout=15.0)
@@ -61,7 +61,7 @@ async def test_coordinator_push_updates_from_callback(hass: HomeAssistant) -> No
     """Received-message callbacks should push fresh state snapshots to entities."""
     client = _build_mock_client()
     coordinator = TrinnovAltitudeCoordinator(
-        hass, client, TrinnovAltitudeCommands(client)
+        hass, client, TrinnovAltitudeCommands(client), stable_device_id="ABC123"
     )
     await coordinator.async_start()
 
@@ -78,7 +78,7 @@ async def test_coordinator_ignores_unrelated_events(hass: HomeAssistant) -> None
     """Unrelated client events should not trigger coordinator updates."""
     client = _build_mock_client()
     coordinator = TrinnovAltitudeCoordinator(
-        hass, client, TrinnovAltitudeCommands(client)
+        hass, client, TrinnovAltitudeCommands(client), stable_device_id="ABC123"
     )
     await coordinator.async_start()
     assert coordinator.data is not None
@@ -97,7 +97,7 @@ async def test_coordinator_updates_on_connection_events(hass: HomeAssistant) -> 
     """Connected/disconnected events should also push fresh snapshots."""
     client = _build_mock_client()
     coordinator = TrinnovAltitudeCoordinator(
-        hass, client, TrinnovAltitudeCommands(client)
+        hass, client, TrinnovAltitudeCommands(client), stable_device_id="ABC123"
     )
     await coordinator.async_start()
     assert coordinator.data is not None
@@ -116,7 +116,7 @@ async def test_coordinator_adapter_update_pushes_snapshot(
     """Adapter updates should publish latest state snapshots."""
     client = _build_mock_client()
     coordinator = TrinnovAltitudeCoordinator(
-        hass, client, TrinnovAltitudeCommands(client)
+        hass, client, TrinnovAltitudeCommands(client), stable_device_id="ABC123"
     )
     await coordinator.async_start()
 
@@ -135,7 +135,7 @@ async def test_coordinator_shutdown_noop_when_never_started(
     """Shutdown should be a no-op if startup never ran."""
     client = _build_mock_client()
     coordinator = TrinnovAltitudeCoordinator(
-        hass, client, TrinnovAltitudeCommands(client)
+        hass, client, TrinnovAltitudeCommands(client), stable_device_id="ABC123"
     )
 
     await coordinator.async_shutdown()
@@ -151,7 +151,7 @@ async def test_coordinator_async_update_data_returns_snapshot(
     """Internal update method should return current state snapshot."""
     client = _build_mock_client()
     coordinator = TrinnovAltitudeCoordinator(
-        hass, client, TrinnovAltitudeCommands(client)
+        hass, client, TrinnovAltitudeCommands(client), stable_device_id="ABC123"
     )
     await coordinator.async_start()
 
@@ -166,7 +166,7 @@ async def test_coordinator_retry_bootstrap_until_synced_success(
     client = _build_mock_client()
     client.connected = False
     coordinator = TrinnovAltitudeCoordinator(
-        hass, client, TrinnovAltitudeCommands(client)
+        hass, client, TrinnovAltitudeCommands(client), stable_device_id="ABC123"
     )
     coordinator._running = True
 
@@ -198,7 +198,7 @@ async def test_coordinator_retry_bootstrap_handles_cancelled_sleep(
     client.connected = False
     client.start = AsyncMock(side_effect=ConnectionFailedError(OSError("offline")))
     coordinator = TrinnovAltitudeCoordinator(
-        hass, client, TrinnovAltitudeCommands(client)
+        hass, client, TrinnovAltitudeCommands(client), stable_device_id="ABC123"
     )
     coordinator._running = True
 

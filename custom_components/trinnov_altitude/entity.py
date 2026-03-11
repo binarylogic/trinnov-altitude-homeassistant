@@ -32,7 +32,7 @@ class TrinnovAltitudeEntity(CoordinatorEntity[TrinnovAltitudeCoordinator]):
         self._client: TrinnovAltitudeClient = coordinator.client
         self._commands: TrinnovAltitudeCommands = coordinator.commands
 
-        device_id = str(self._client.state.id or "unknown")
+        device_id = coordinator.stable_device_id or self._client.state.id or "unknown"
         self._attr_unique_id = device_id
         host = self._client.host.strip() if self._client.host else "trinnov"
         self._attr_device_info = DeviceInfo(

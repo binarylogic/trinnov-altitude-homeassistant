@@ -1,5 +1,6 @@
 """Test the Trinnov Altitude media player platform."""
 
+import pytest
 from homeassistant.components.media_player import (
     ATTR_INPUT_SOURCE,
     ATTR_MEDIA_VOLUME_LEVEL,
@@ -15,6 +16,7 @@ from homeassistant.components.media_player import (
 )
 from homeassistant.const import ATTR_ENTITY_ID
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 
 
 async def test_media_player(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
@@ -84,6 +86,79 @@ async def test_media_player_booting_state(
     state = hass.states.get("media_player.trinnov_altitude_192_168_1_100")
     assert state
     assert state.state == MediaPlayerState.ON
+
+
+async def test_media_player_idle_state_when_ready_without_source_format(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test media player shows idle when ready without an active source format."""
+    mock_device = mock_setup_entry.return_value
+    mock_device.state.source_format = None
+
+    mock_config_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    state = hass.states.get("media_player.trinnov_altitude_192_168_1_100")
+    assert state
+    assert state.state == MediaPlayerState.IDLE
+
+
+async def test_media_player_select_source_invalid_name_raises_ha_error(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Invalid source names should surface as HomeAssistantError."""
+    mock_config_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    with pytest.raises(HomeAssistantError, match="Unknown source name: Bad Source"):
+        await hass.services.async_call(
+            "media_player",
+            SERVICE_SELECT_SOURCE,
+            {
+                ATTR_ENTITY_ID: "media_player.trinnov_altitude_192_168_1_100",
+                ATTR_INPUT_SOURCE: "Bad Source",
+            },
+            blocking=True,
+        )
+
+
+async def test_media_player_volume_level_none_when_percentage_missing(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Volume level should be None when the device has no percentage reading."""
+    mock_device = mock_setup_entry.return_value
+    mock_device.volume_percentage = None
+
+    mock_config_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    state = hass.states.get("media_player.trinnov_altitude_192_168_1_100")
+    assert state
+    assert state.attributes.get(ATTR_MEDIA_VOLUME_LEVEL) is None
+
+
+async def test_media_player_unavailable_when_not_connected_and_no_wake_path(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Media player should be unavailable if it is neither connected nor wakeable."""
+    mock_device = mock_setup_entry.return_value
+    mock_device.connected = False
+    mock_device.power_on_available.return_value = False
+
+    mock_config_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    state = hass.states.get("media_player.trinnov_altitude_192_168_1_100")
+    assert state
+    assert state.state == "unavailable"
 
 
 async def test_media_player_turn_on(
