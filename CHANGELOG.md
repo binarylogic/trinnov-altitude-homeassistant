@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.2](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.1.1...v2.1.2) (2026-03-12)
+
+
+### Bug Fixes
+
+* require trinnov-altitude 3.2.3 for ci startup stability ([17300a1](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/17300a1805f60085c2288832546713e43acbb9d0))
+
 ## [2.1.1](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.1.0...v2.1.1) (2026-03-11)
 
 
