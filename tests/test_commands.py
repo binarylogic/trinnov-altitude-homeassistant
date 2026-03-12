@@ -105,7 +105,9 @@ async def test_invoke_source_set_by_name_requires_single_arg() -> None:
     commands = TrinnovAltitudeCommands(client)
 
     with pytest.raises(ValueError, match="expects exactly one source name"):
-        await commands.invoke("source_set_by_name", "Apple TV", "Extra", require_ack=True)
+        await commands.invoke(
+            "source_set_by_name", "Apple TV", "Extra", require_ack=True
+        )
 
 
 async def test_invoke_with_ack_for_unknown_method_falls_back_to_client_method() -> None:

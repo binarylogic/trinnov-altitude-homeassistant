@@ -58,7 +58,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = TrinnovAltitudeIntegrationData(
         stable_device_id=entry.unique_id,
-        client=device, coordinator=coordinator, commands=commands
+        client=device,
+        coordinator=coordinator,
+        commands=commands,
     )
     async_setup_services(hass)
 

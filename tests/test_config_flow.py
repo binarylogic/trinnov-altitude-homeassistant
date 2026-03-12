@@ -237,7 +237,10 @@ async def test_options_flow_updates_mac(hass: HomeAssistant):
     )
 
     assert result["type"] == FlowResultType.CREATE_ENTRY
-    assert hass.config_entries.async_get_entry(entry.entry_id).data[CONF_MAC] == "00:11:22:33:44:55"
+    assert (
+        hass.config_entries.async_get_entry(entry.entry_id).data[CONF_MAC]
+        == "00:11:22:33:44:55"
+    )
 
 
 async def test_options_flow_rejects_invalid_mac(hass: HomeAssistant):
@@ -264,4 +267,7 @@ async def test_extract_mac_address_normalizes_mac():
     """Test command output MAC parsing normalizes separators and case."""
     from custom_components.trinnov_altitude.config_flow import _extract_mac_address
 
-    assert _extract_mac_address("? (192.168.1.100) at 00-11-22-AA-BB-CC on en0") == "00:11:22:aa:bb:cc"
+    assert (
+        _extract_mac_address("? (192.168.1.100) at 00-11-22-AA-BB-CC on en0")
+        == "00:11:22:aa:bb:cc"
+    )

@@ -11,7 +11,10 @@ from custom_components.trinnov_altitude.resolvers import (
 
 def test_resolve_source_name_returns_none_for_invalid_index() -> None:
     """Source resolver should return None when no valid source information exists."""
-    assert resolve_source_name(SimpleNamespace(source=None, current_source_index=-1)) is None
+    assert (
+        resolve_source_name(SimpleNamespace(source=None, current_source_index=-1))
+        is None
+    )
     assert (
         resolve_source_name(SimpleNamespace(source=None, current_source_index="bad"))
         is None
@@ -32,7 +35,10 @@ def test_resolve_source_name_ignores_empty_label_at_known_index() -> None:
 
 def test_resolve_preset_name_returns_none_for_invalid_index() -> None:
     """Preset resolver should return None when no valid preset information exists."""
-    assert resolve_preset_name(SimpleNamespace(preset=None, current_preset_index=-1)) is None
+    assert (
+        resolve_preset_name(SimpleNamespace(preset=None, current_preset_index=-1))
+        is None
+    )
     assert (
         resolve_preset_name(SimpleNamespace(preset=None, current_preset_index="bad"))
         is None
@@ -53,6 +59,9 @@ def test_resolve_preset_name_ignores_empty_label_at_known_index() -> None:
 
 def test_resolve_upmixer_uses_active_fallback_and_none() -> None:
     """Upmixer resolver should fall back to active mode and gracefully return None."""
-    assert resolve_upmixer_value(SimpleNamespace(upmixer=None, active_upmixer=None)) is None
+    assert (
+        resolve_upmixer_value(SimpleNamespace(upmixer=None, active_upmixer=None))
+        is None
+    )
     state = SimpleNamespace(upmixer=None, active_upmixer=" Dolby_Upmixer ")
     assert resolve_upmixer_value(state) == "Dolby_Upmixer"

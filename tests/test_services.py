@@ -182,7 +182,9 @@ async def test_service_routes_to_matching_entry_id(
 
 async def test_resolve_entry_data_raises_when_no_entries_loaded(hass: HomeAssistant):
     """Entry resolution should fail clearly when nothing is loaded."""
-    with pytest.raises(HomeAssistantError, match="No Trinnov Altitude entries are loaded"):
+    with pytest.raises(
+        HomeAssistantError, match="No Trinnov Altitude entries are loaded"
+    ):
         _resolve_entry_data(hass, None)
 
 
