@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.4](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.1.3...v2.1.4) (2026-03-16)
+
+
+### Bug Fixes
+
+* require trinnov-altitude 3.2.5 for selector state refresh ([65e5453](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/65e54532a5e3ccc3c29517087a318318d37c5f35))
+
 ## [2.1.3](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.1.2...v2.1.3) (2026-03-14)
 
 
