@@ -61,6 +61,46 @@ async def test_form_user_success(hass: HomeAssistant):
         mock_device.stop.assert_called_once()
 
 
+async def test_form_user_manual_mac_skips_discovery(hass: HomeAssistant):
+    """Test explicit setup MAC is normalized and stored without discovery."""
+    mock_device = MagicMock()
+    mock_device.state.id = "ABC123"
+    mock_device.start = AsyncMock()
+    mock_device.wait_synced = AsyncMock()
+    mock_device.stop = AsyncMock()
+
+    with (
+        patch(
+            "custom_components.trinnov_altitude.config_flow.TrinnovAltitudeClient",
+            return_value=mock_device,
+        ),
+        patch(
+            "custom_components.trinnov_altitude.config_flow.async_discover_mac_address",
+            AsyncMock(),
+        ) as discover_mac,
+    ):
+        result = await hass.config_entries.flow.async_init(
+            DOMAIN, context={"source": config_entries.SOURCE_USER}
+        )
+
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"],
+            {
+                CONF_HOST: "192.168.1.100",
+                CONF_MAC: "00-11-22-33-44-55",
+            },
+        )
+
+        await hass.async_block_till_done()
+
+        assert result["type"] == FlowResultType.CREATE_ENTRY
+        assert result["data"] == {
+            CONF_HOST: "192.168.1.100",
+            CONF_MAC: "00:11:22:33:44:55",
+        }
+        discover_mac.assert_not_awaited()
+
+
 async def test_form_user_without_mac(hass: HomeAssistant):
     """Test user setup without MAC address."""
     mock_device = MagicMock()
@@ -97,6 +137,24 @@ async def test_form_user_without_mac(hass: HomeAssistant):
             CONF_HOST: "192.168.1.100",
             CONF_MAC: None,
         }
+
+
+async def test_form_user_rejects_invalid_manual_mac(hass: HomeAssistant):
+    """Test manual setup rejects malformed MAC addresses."""
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_USER}
+    )
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {
+            CONF_HOST: "192.168.1.100",
+            CONF_MAC: "invalid",
+        },
+    )
+
+    assert result["type"] == FlowResultType.FORM
+    assert result["errors"] == {CONF_MAC: "invalid_mac"}
 
 
 async def test_form_invalid_host(hass: HomeAssistant):
@@ -219,7 +277,7 @@ async def test_form_already_configured(hass: HomeAssistant):
 
 
 async def test_options_flow_updates_mac(hass: HomeAssistant):
-    """Test options flow updates the stored MAC address in entry data."""
+    """Test options flow updates the stored MAC address in entry data and reloads."""
     entry = MockConfigEntry(
         domain=DOMAIN,
         title="Trinnov Altitude (192.168.1.100)",
@@ -228,19 +286,21 @@ async def test_options_flow_updates_mac(hass: HomeAssistant):
     )
     entry.add_to_hass(hass)
 
-    result = await hass.config_entries.options.async_init(entry.entry_id)
-    assert result["type"] == FlowResultType.FORM
+    with patch.object(hass.config_entries, "async_schedule_reload") as reload_entry:
+        result = await hass.config_entries.options.async_init(entry.entry_id)
+        assert result["type"] == FlowResultType.FORM
 
-    result = await hass.config_entries.options.async_configure(
-        result["flow_id"],
-        user_input={CONF_MAC: "00:11:22:33:44:55"},
-    )
+        result = await hass.config_entries.options.async_configure(
+            result["flow_id"],
+            user_input={CONF_MAC: "00-11-22-33-44-55"},
+        )
 
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert (
         hass.config_entries.async_get_entry(entry.entry_id).data[CONF_MAC]
         == "00:11:22:33:44:55"
     )
+    reload_entry.assert_called_once_with(entry.entry_id)
 
 
 async def test_options_flow_rejects_invalid_mac(hass: HomeAssistant):

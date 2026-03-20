@@ -63,6 +63,14 @@ class TrinnovAltitudeMediaPlayer(TrinnovAltitudeEntity, MediaPlayerEntity):
 
     async def async_turn_on(self) -> None:
         """Power on command."""
+        _LOGGER.debug(
+            "Wake-on-LAN requested via media_player: host=%s mac=%s connected=%s synced=%s power_status=%s",
+            self._client.host,
+            self._client.mac,
+            self._client.connected,
+            self._state.synced,
+            self.coordinator.power_status.value,
+        )
         self._client.power_on()
 
     async def async_turn_off(self) -> None:

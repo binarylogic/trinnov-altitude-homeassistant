@@ -27,7 +27,7 @@ from trinnov_altitude.exceptions import (
 from .const import CLIENT_ID, DOMAIN, NAME
 
 _LOGGER = logging.getLogger(__name__)
-DATA_SCHEMA = vol.Schema({vol.Required(CONF_HOST): str})
+DATA_SCHEMA = vol.Schema({vol.Required(CONF_HOST): str, vol.Optional(CONF_MAC): str})
 _MAC_PATTERN = re.compile(r"(?i)([0-9a-f]{2}(?::[0-9a-f]{2}){5})")
 
 
@@ -50,11 +50,17 @@ class TrinnovAltitudeConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             # Required attribute will always be present
             host = user_input[CONF_HOST].strip()
+            manual_mac = user_input.get(CONF_MAC)
 
             try:
+                mac = _normalize_manual_mac(manual_mac)
                 device = TrinnovAltitudeClient(host=host, client_id=CLIENT_ID)
                 await device.start()
                 await device.wait_synced()
+                if mac is None:
+                    mac = await async_discover_mac_address(host)
+            except MalformedMacAddressError:
+                errors[CONF_MAC] = "invalid_mac"
             except ConnectionFailedError:
                 errors[CONF_HOST] = "invalid_host"
             except ConnectionTimeoutError:
@@ -66,7 +72,6 @@ class TrinnovAltitudeConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors["base"] = "unknown"
             else:
                 await self.async_set_unique_id(device.state.id, raise_on_progress=False)
-                mac = await async_discover_mac_address(host)
                 processed_input = {CONF_HOST: host, CONF_MAC: mac}
                 self._abort_if_unique_id_configured(processed_input)
                 return self.async_create_entry(
@@ -93,18 +98,17 @@ class TrinnovAltitudeOptionsFlow(OptionsFlow):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            mac = user_input.get(CONF_MAC)
-            mac = mac.strip() if mac else None
-
             try:
-                if mac is not None:
-                    TrinnovAltitudeClient.validate_mac(mac)
+                mac = _normalize_manual_mac(user_input.get(CONF_MAC))
             except MalformedMacAddressError:
                 errors[CONF_MAC] = "invalid_mac"
             else:
                 self.hass.config_entries.async_update_entry(
                     self._config_entry,
                     data={**self._config_entry.data, CONF_MAC: mac},
+                )
+                self.hass.config_entries.async_schedule_reload(
+                    self._config_entry.entry_id
                 )
                 return self.async_create_entry(title="", data={})
 
@@ -161,9 +165,22 @@ def _extract_mac_address(output: str) -> str | None:
     match = _MAC_PATTERN.search(output.replace("-", ":"))
     if match is None:
         return None
-    mac = match.group(1).lower()
+    mac = match.group(1)
     try:
-        TrinnovAltitudeClient.validate_mac(mac)
+        return _normalize_manual_mac(mac)
     except MalformedMacAddressError:
         return None
-    return mac
+
+
+def _normalize_manual_mac(raw_mac: str | None) -> str | None:
+    """Normalize a manually supplied MAC address or return None when blank."""
+    if raw_mac is None:
+        return None
+
+    mac = raw_mac.strip()
+    if not mac:
+        return None
+
+    normalized = mac.replace("-", ":").lower()
+    TrinnovAltitudeClient.validate_mac(normalized)
+    return normalized

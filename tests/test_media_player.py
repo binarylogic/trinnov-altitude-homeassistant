@@ -1,5 +1,7 @@
 """Test the Trinnov Altitude media player platform."""
 
+import logging
+
 import pytest
 from homeassistant.components.media_player import (
     ATTR_INPUT_SOURCE,
@@ -162,9 +164,13 @@ async def test_media_player_unavailable_when_not_connected_and_no_wake_path(
 
 
 async def test_media_player_turn_on(
-    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry, caplog
 ):
     """Test turning on media player."""
+    caplog.set_level(
+        logging.DEBUG,
+        logger="custom_components.trinnov_altitude.media_player",
+    )
     mock_config_entry.add_to_hass(hass)
 
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
@@ -182,6 +188,9 @@ async def test_media_player_turn_on(
     )
 
     mock_device.power_on.assert_called_once()
+    assert "Wake-on-LAN requested via media_player" in caplog.text
+    assert "host=192.168.1.100" in caplog.text
+    assert "mac=00:11:22:33:44:55" in caplog.text
 
 
 async def test_media_player_turn_off(

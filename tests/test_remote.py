@@ -1,5 +1,6 @@
 """Test the Trinnov Altitude remote platform."""
 
+import logging
 from unittest.mock import AsyncMock
 
 import pytest
@@ -35,8 +36,11 @@ async def test_remote(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
     ]
 
 
-async def test_remote_turn_on(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
+async def test_remote_turn_on(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry, caplog
+):
     """Test turning on remote (power on device)."""
+    caplog.set_level(logging.DEBUG, logger="custom_components.trinnov_altitude.remote")
     mock_device = mock_setup_entry.return_value
     # Set device as disconnected so power_on will be called
     mock_device.connected = False
@@ -56,6 +60,9 @@ async def test_remote_turn_on(hass: HomeAssistant, mock_config_entry, mock_setup
     )
 
     mock_device.power_on.assert_called_once()
+    assert "Wake-on-LAN requested via remote" in caplog.text
+    assert "host=192.168.1.100" in caplog.text
+    assert "mac=00:11:22:33:44:55" in caplog.text
 
 
 async def test_remote_turn_on_no_mac(
