@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.5](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.1.4...v2.1.5) (2026-03-20)
+
+
+### Bug Fixes
+
+* restore explicit wake-on-lan mac handling ([7026298](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/7026298a7c305fbb97cb3603d3573ea7e418e53a))
+
 ## [2.1.4](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.1.3...v2.1.4) (2026-03-16)
 
 
