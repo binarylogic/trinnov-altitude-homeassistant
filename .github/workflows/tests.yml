@@ -18,7 +18,7 @@ jobs:
           python-version: "3.14"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@e06108dd0aef18192324c70427afc47652e63a82 # v7
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v7
 
       - name: Install dependencies
         run: make install
@@ -49,7 +49,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install uv
-        uses: astral-sh/setup-uv@e06108dd0aef18192324c70427afc47652e63a82 # v7
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v7
 
       - name: Install dependencies
         run: make install
@@ -58,7 +58,7 @@ jobs:
         run: make test-cov
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v5
         if: matrix.python-version == '3.14'
         with:
           fail_ci_if_error: false
