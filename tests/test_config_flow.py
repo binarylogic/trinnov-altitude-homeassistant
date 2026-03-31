@@ -296,10 +296,9 @@ async def test_options_flow_updates_mac(hass: HomeAssistant):
         )
 
     assert result["type"] == FlowResultType.CREATE_ENTRY
-    assert (
-        hass.config_entries.async_get_entry(entry.entry_id).data[CONF_MAC]
-        == "00:11:22:33:44:55"
-    )
+    updated_entry = hass.config_entries.async_get_entry(entry.entry_id)
+    assert updated_entry is not None
+    assert updated_entry.data[CONF_MAC] == "00:11:22:33:44:55"
     reload_entry.assert_called_once_with(entry.entry_id)
 
 
