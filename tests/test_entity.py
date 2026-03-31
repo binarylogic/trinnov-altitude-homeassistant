@@ -24,9 +24,11 @@ async def test_base_entity_uses_stable_device_id_when_runtime_id_missing(
     )
 
     entity = TrinnovAltitudeEntity(coordinator)
+    device_info = entity.device_info
 
     assert entity.unique_id == "ABC123"
-    assert entity.device_info["identifiers"] == {
+    assert device_info is not None
+    assert device_info["identifiers"] == {
         ("trinnov_altitude", "ABC123"),
     }
 

@@ -16,15 +16,15 @@
           "mac": "MAC Address"
         }
       }
-    },
-    "options": {
-      "step": {
-        "init": {
-          "title": "Trinnov Altitude Options",
-          "description": "Override the Wake-on-LAN MAC address when automatic discovery is unavailable. Saving this will reload the integration immediately.",
-          "data": {
-            "mac": "MAC Address"
-          }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Trinnov Altitude Options",
+        "description": "Override the Wake-on-LAN MAC address when automatic discovery is unavailable. Saving this will reload the integration immediately.",
+        "data": {
+          "mac": "MAC Address"
         }
       }
     }

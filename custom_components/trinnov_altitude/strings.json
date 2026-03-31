@@ -22,18 +22,18 @@
           "mac": "Optional explicit MAC address for Wake-On-LAN. Leave blank to auto-discover it from the local network when possible."
         }
       }
-    },
-    "options": {
-      "step": {
-        "init": {
-          "title": "Trinnov Altitude Options",
-          "description": "Override the Wake-on-LAN MAC address when automatic discovery is unavailable. Saving this will reload the integration immediately.",
-          "data": {
-            "mac": "MAC address"
-          },
-          "data_description": {
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Trinnov Altitude Options",
+        "description": "Override the Wake-on-LAN MAC address when automatic discovery is unavailable. Saving this will reload the integration immediately.",
+        "data": {
+          "mac": "MAC address"
+        },
+        "data_description": {
           "mac": "The MAC address of your Trinnov Altitude device. Used for Wake-On-Lan (WAL)."
-          }
         }
       }
     }

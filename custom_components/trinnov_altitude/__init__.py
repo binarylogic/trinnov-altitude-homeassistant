@@ -33,6 +33,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up a config entry for Trinnov Altitude."""
 
     host = entry.data[CONF_HOST].strip()
+    stable_device_id = entry.unique_id
+    if stable_device_id is None:
+        raise ValueError("Trinnov config entry is missing a unique_id")
 
     # Optional attributes may not be present
     mac = entry.data.get(CONF_MAC)
@@ -43,10 +46,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # Force set the id from the config flow since the device is not guaranteed
     # to be online. This ensures that entities have an id to work with.
-    device.state.id = entry.unique_id
+    device.state.id = stable_device_id
 
     coordinator = TrinnovAltitudeCoordinator(
-        hass, device, commands, stable_device_id=entry.unique_id
+        hass, device, commands, stable_device_id=stable_device_id
     )
 
     try:
@@ -57,7 +60,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         raise
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = TrinnovAltitudeIntegrationData(
-        stable_device_id=entry.unique_id,
+        stable_device_id=stable_device_id,
         client=device,
         coordinator=coordinator,
         commands=commands,
