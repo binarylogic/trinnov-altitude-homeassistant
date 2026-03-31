@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.6](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.1.5...v2.1.6) (2026-03-31)
+
+
+### Bug Fixes
+
+* resolve PR validation failures ([31d2f58](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/31d2f5849be5c958e06e3433fcab9c7813c9c9c0))
+
 ## [2.1.5](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.1.4...v2.1.5) (2026-03-20)
 
 
