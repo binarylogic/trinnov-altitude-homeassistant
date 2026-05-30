@@ -7,6 +7,13 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 from homeassistant.core import HomeAssistant
 from trinnov_altitude.exceptions import ConnectionFailedError
+from trinnov_altitude.lifecycle import (
+    AltitudeRuntimeState,
+    ControlHealth,
+    PowerState,
+    SyncState,
+    TransportState,
+)
 
 from custom_components.trinnov_altitude.commands import TrinnovAltitudeCommands
 from custom_components.trinnov_altitude.coordinator import TrinnovAltitudeCoordinator
@@ -16,6 +23,12 @@ def _build_mock_client() -> MagicMock:
     """Build a mock client with realistic v2 surface area for coordinator tests."""
     client = MagicMock()
     client.logger = logging.getLogger("test.trinnov_altitude.coordinator")
+    client.runtime = AltitudeRuntimeState(
+        transport=TransportState.CONNECTED,
+        sync=SyncState.SYNCED,
+        control=ControlHealth.AVAILABLE,
+        power=PowerState.READY,
+    )
     client.state = SimpleNamespace(
         id="ABC123",
         version="4.2.9",
@@ -24,6 +37,19 @@ def _build_mock_client() -> MagicMock:
         preset="Movies",
         presets={0: "Built-in", 1: "Movies"},
         synced=True,
+        volume=-40.0,
+        mute=False,
+        dim=False,
+        bypass=False,
+        sampling_rate=48000,
+        audiosync="Master",
+        audiosync_status=True,
+        decoder="Dolby Atmos",
+        source_format="Dolby TrueHD 7.1",
+        active_upmixer="none",
+        upmixer="auto",
+        current_preset_index=1,
+        current_source_index=0,
     )
     client.start = AsyncMock()
     client.wait_synced = AsyncMock()

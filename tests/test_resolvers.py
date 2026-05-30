@@ -33,6 +33,14 @@ def test_resolve_source_name_ignores_empty_label_at_known_index() -> None:
     assert resolve_source_name(state) == "Source 2"
 
 
+def test_resolve_source_name_accepts_snapshot_tuple_catalog() -> None:
+    """Snapshot source catalogs should resolve by source index."""
+    state = SimpleNamespace(
+        source=None, current_source_index=2, sources=((2, "Blu-ray"),)
+    )
+    assert resolve_source_name(state) == "Blu-ray"
+
+
 def test_resolve_preset_name_returns_none_for_invalid_index() -> None:
     """Preset resolver should return None when no valid preset information exists."""
     assert (
@@ -55,6 +63,14 @@ def test_resolve_preset_name_ignores_empty_label_at_known_index() -> None:
     """Empty preset labels should still fall back to the numeric index."""
     state = SimpleNamespace(preset=None, current_preset_index=1, presets={1: ""})
     assert resolve_preset_name(state) == "Preset 1"
+
+
+def test_resolve_preset_name_accepts_snapshot_tuple_catalog() -> None:
+    """Snapshot preset catalogs should resolve by preset index."""
+    state = SimpleNamespace(
+        preset=None, current_preset_index=1, presets=((1, "Movies"),)
+    )
+    assert resolve_preset_name(state) == "Movies"
 
 
 def test_resolve_upmixer_uses_active_fallback_and_none() -> None:

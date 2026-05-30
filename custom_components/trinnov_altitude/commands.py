@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from trinnov_altitude.client import TrinnovAltitudeClient
+from trinnov_altitude.lifecycle import PowerState
 
 
 class TrinnovAltitudeCommands:
@@ -47,6 +48,10 @@ class TrinnovAltitudeCommands:
                     wait_for_ack=True,
                     ack_timeout=self._client.command_timeout,
                 )
+                if method_name == "power_off":
+                    self._client.runtime = self._client.runtime.with_changes(
+                        power=PowerState.OFF
+                    )
                 return
 
         await getattr(self._client, method_name)(*args)

@@ -1,6 +1,12 @@
 """Test the Trinnov Altitude sensor platform."""
 
 from homeassistant.core import HomeAssistant
+from trinnov_altitude.lifecycle import (
+    ControlHealth,
+    PowerState,
+    SyncState,
+    TransportState,
+)
 
 
 async def test_power_status_ready(
@@ -20,9 +26,15 @@ async def test_power_status_ready(
 async def test_power_status_off(
     hass: HomeAssistant, mock_config_entry, mock_setup_entry
 ):
-    """Test power_status sensor shows 'off' when not connected."""
+    """Test power_status sensor shows explicit off when runtime says off."""
     mock_device = mock_setup_entry.return_value
     mock_device.connected = False
+    mock_device.runtime = mock_device.runtime.with_changes(
+        transport=TransportState.DISCONNECTED,
+        sync=SyncState.UNSYNCED,
+        control=ControlHealth.UNAVAILABLE,
+        power=PowerState.OFF,
+    )
 
     mock_config_entry.add_to_hass(hass)
 
@@ -37,10 +49,15 @@ async def test_power_status_off(
 async def test_power_status_booting(
     hass: HomeAssistant, mock_config_entry, mock_setup_entry
 ):
-    """Test power_status sensor shows 'booting' when connected but not synced."""
+    """Test power_status sensor shows waking while the processor is booting."""
     mock_device = mock_setup_entry.return_value
     mock_device.connected = True
     mock_device.state.synced = False
+    mock_device.runtime = mock_device.runtime.with_changes(
+        sync=SyncState.SYNCING,
+        control=ControlHealth.CONNECTING,
+        power=PowerState.WAKING,
+    )
 
     mock_config_entry.add_to_hass(hass)
 
@@ -49,7 +66,7 @@ async def test_power_status_booting(
 
     state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_power_status")
     assert state
-    assert state.state == "booting"
+    assert state.state == "waking"
 
 
 async def test_power_status_transitions(
@@ -59,29 +76,46 @@ async def test_power_status_transitions(
     mock_device = mock_setup_entry.return_value
     mock_device.connected = False
     mock_device.state.synced = False
+    mock_device.runtime = mock_device.runtime.with_changes(
+        transport=TransportState.DISCONNECTED,
+        sync=SyncState.UNSYNCED,
+        control=ControlHealth.UNAVAILABLE,
+        power=PowerState.UNKNOWN,
+    )
 
     mock_config_entry.add_to_hass(hass)
 
     assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
     await hass.async_block_till_done()
 
-    # Initially off
+    # Initially disconnected without claiming power truth.
     state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_power_status")
     assert state
-    assert state.state == "off"
+    assert state.state == "unknown"
 
     # Simulate connection (but not synced yet)
     mock_device.connected = True
+    mock_device.runtime = mock_device.runtime.with_changes(
+        transport=TransportState.CONNECTED,
+        sync=SyncState.SYNCING,
+        control=ControlHealth.CONNECTING,
+        power=PowerState.WAKING,
+    )
     callback = mock_device.register_callback.call_args[0][0]
     callback("connected", None)
     await hass.async_block_till_done()
 
     state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_power_status")
     assert state
-    assert state.state == "booting"
+    assert state.state == "waking"
 
     # Simulate sync complete
     mock_device.state.synced = True
+    mock_device.runtime = mock_device.runtime.with_changes(
+        sync=SyncState.SYNCED,
+        control=ControlHealth.AVAILABLE,
+        power=PowerState.READY,
+    )
     callback = mock_device.register_adapter_callback.call_args[0][1]
     callback(None, [], [])
     await hass.async_block_till_done()
@@ -162,6 +196,10 @@ async def test_sensors(hass: HomeAssistant, mock_config_entry, mock_setup_entry)
     state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_sync_status")
     assert state
     assert state.state == "synced"
+
+    state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_control_health")
+    assert state
+    assert state.state == "available"
 
     state = hass.states.get("sensor.trinnov_altitude_192_168_1_100_version")
     assert state

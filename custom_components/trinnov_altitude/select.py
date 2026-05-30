@@ -72,8 +72,8 @@ class TrinnovAltitudeSourceSelect(TrinnovAltitudeEntity, SelectEntity):
         """Build stable source options keyed by display name."""
         options: dict[str, int] = {}
         sources = getattr(self._state, "sources", {})
-        if isinstance(sources, dict):
-            for source_id, source_name in sources.items():
+        if isinstance(sources, tuple):
+            for source_id, source_name in sources:
                 options[str(source_name)] = int(source_id)
 
         index = getattr(self._state, "current_source_index", None)
@@ -117,8 +117,8 @@ class TrinnovAltitudePresetSelect(TrinnovAltitudeEntity, SelectEntity):
         """Build stable preset options keyed by display name."""
         options: dict[str, int] = {}
         presets = getattr(self._state, "presets", {})
-        if isinstance(presets, dict):
-            for preset_id, preset_name in presets.items():
+        if isinstance(presets, tuple):
+            for preset_id, preset_name in presets:
                 options[str(preset_name)] = int(preset_id)
 
         index = getattr(self._state, "current_preset_index", None)

@@ -13,9 +13,10 @@ from homeassistant.components.media_player import (
 )
 from homeassistant.exceptions import HomeAssistantError
 
+from trinnov_altitude.lifecycle import PowerState
+
 from .const import DOMAIN
 from .entity import TrinnovAltitudeEntity
-from .lifecycle import PowerStatus
 from .models import TrinnovAltitudeIntegrationData
 
 if TYPE_CHECKING:
@@ -72,11 +73,12 @@ class TrinnovAltitudeMediaPlayer(TrinnovAltitudeEntity, MediaPlayerEntity):
             self.coordinator.power_status.value,
         )
         self._client.power_on()
+        self.coordinator.async_set_updated_data(self.coordinator._snapshot_state())
 
     async def async_turn_off(self) -> None:
         """Power off command."""
         await self._commands.invoke("power_off", require_ack=True)
-        self.coordinator.set_power_status_override(PowerStatus.OFF)
+        self.coordinator.async_set_updated_data(self.coordinator._snapshot_state())
 
     async def async_volume_up(self) -> None:
         """Turn volume up for media player."""
@@ -104,7 +106,7 @@ class TrinnovAltitudeMediaPlayer(TrinnovAltitudeEntity, MediaPlayerEntity):
     @property
     def input_source_list(self) -> list[str] | None:
         """Current source."""
-        return list(self._state.sources.values())
+        return [value for _, value in self._state.sources]
 
     @property
     def is_volume_muted(self) -> bool | None:
@@ -115,9 +117,9 @@ class TrinnovAltitudeMediaPlayer(TrinnovAltitudeEntity, MediaPlayerEntity):
     def state(self) -> MediaPlayerState:
         """State of device."""
         power_status = self.coordinator.power_status
-        if power_status is PowerStatus.OFF:
+        if power_status is PowerState.OFF:
             return MediaPlayerState.OFF
-        if power_status is PowerStatus.BOOTING:
+        if power_status in {PowerState.WAKING, PowerState.UNKNOWN}:
             return MediaPlayerState.ON
         if self._state.source_format:
             return MediaPlayerState.PLAYING

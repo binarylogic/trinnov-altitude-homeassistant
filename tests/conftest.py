@@ -7,6 +7,13 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from homeassistant.const import CONF_HOST, CONF_MAC
 from pytest_homeassistant_custom_component.common import MockConfigEntry
+from trinnov_altitude.lifecycle import (
+    AltitudeRuntimeState,
+    ControlHealth,
+    PowerState,
+    SyncState,
+    TransportState,
+)
 
 from custom_components.trinnov_altitude.const import CLIENT_ID, DOMAIN
 
@@ -26,6 +33,12 @@ def mock_trinnov_device():
     device.host = "192.168.1.100"
     device.mac = "00:11:22:33:44:55"
     device.connected = True
+    device.runtime = AltitudeRuntimeState(
+        transport=TransportState.CONNECTED,
+        sync=SyncState.SYNCED,
+        control=ControlHealth.AVAILABLE,
+        power=PowerState.READY,
+    )
     device.logger = logging.getLogger("test.trinnov_altitude")
     device.command_timeout = 2.0
 
@@ -42,11 +55,15 @@ def mock_trinnov_device():
         sources={0: "Kaleidescape", 1: "Apple TV", 2: "Blu-ray"},
         preset="Movies",
         presets={0: "Built-in", 1: "Movies", 2: "Music"},
+        sampling_rate=48000,
         audiosync="Master",
+        audiosync_status=True,
         decoder="Dolby Atmos",
         source_format="Dolby TrueHD 7.1",
         active_upmixer="none",
         upmixer="auto",
+        current_preset_index=1,
+        current_source_index=0,
     )
 
     # Async methods
@@ -113,6 +130,12 @@ def mock_trinnov_device_offline():
     device.host = "192.168.1.100"
     device.mac = "00:11:22:33:44:55"
     device.connected = False
+    device.runtime = AltitudeRuntimeState(
+        transport=TransportState.DISCONNECTED,
+        sync=SyncState.UNSYNCED,
+        control=ControlHealth.UNAVAILABLE,
+        power=PowerState.UNKNOWN,
+    )
     device.logger = logging.getLogger("test.trinnov_altitude")
     device.command_timeout = 2.0
     device.state = SimpleNamespace(
@@ -126,13 +149,17 @@ def mock_trinnov_device_offline():
         source_format=None,
         sources={},
         presets={},
+        sampling_rate=None,
         audiosync=None,
+        audiosync_status=None,
         decoder=None,
         active_upmixer=None,
         upmixer=None,
         mute=None,
         dim=None,
         bypass=None,
+        current_preset_index=None,
+        current_source_index=None,
     )
     device.start = AsyncMock()
     device.wait_synced = AsyncMock()

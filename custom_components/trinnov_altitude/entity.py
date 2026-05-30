@@ -12,8 +12,8 @@ from .const import DOMAIN, MANUFACTURER, MODEL, NAME
 from .coordinator import TrinnovAltitudeCoordinator
 
 if TYPE_CHECKING:
+    from trinnov_altitude.adapter import AltitudeSnapshot
     from trinnov_altitude.client import TrinnovAltitudeClient
-    from trinnov_altitude.state import AltitudeState
 
     from .commands import TrinnovAltitudeCommands
 
@@ -45,8 +45,15 @@ class TrinnovAltitudeEntity(CoordinatorEntity[TrinnovAltitudeCoordinator]):
         )
 
     @property
-    def _state(self) -> AltitudeState:
+    def _state(self) -> AltitudeSnapshot:
         """Return latest coordinator-backed state."""
         if self.coordinator.data is not None:
             return self.coordinator.data
-        return self._client.state
+        return self._client.snapshot
+
+    @property
+    def _snapshot_state(self) -> AltitudeSnapshot:
+        """Return latest coordinator-backed snapshot."""
+        if self.coordinator.data is not None:
+            return self.coordinator.data
+        return self._client.snapshot

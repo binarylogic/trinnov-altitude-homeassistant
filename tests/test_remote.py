@@ -16,6 +16,9 @@ from homeassistant.exceptions import HomeAssistantError
 from trinnov_altitude.const import RemappingMode
 from trinnov_altitude.exceptions import NoMacAddressError, NotConnectedError
 
+from custom_components.trinnov_altitude.const import DOMAIN
+from custom_components.trinnov_altitude.remote import TrinnovAltitudeRemote
+
 
 async def test_remote(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
     """Test remote entity is created with correct state."""
@@ -34,6 +37,10 @@ async def test_remote(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
         "Apple TV",
         "Blu-ray",
     ]
+
+    data = hass.data[DOMAIN][mock_config_entry.entry_id]
+    entity = TrinnovAltitudeRemote(data.coordinator)
+    assert entity.activity_list == ["Kaleidescape", "Apple TV", "Blu-ray"]
 
 
 async def test_remote_turn_on(

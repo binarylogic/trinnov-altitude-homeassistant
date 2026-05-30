@@ -19,6 +19,10 @@ from homeassistant.components.media_player import (
 from homeassistant.const import ATTR_ENTITY_ID
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
+from trinnov_altitude.lifecycle import ControlHealth, PowerState, SyncState
+
+from custom_components.trinnov_altitude.const import DOMAIN
+from custom_components.trinnov_altitude.media_player import TrinnovAltitudeMediaPlayer
 
 
 async def test_media_player(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
@@ -34,6 +38,11 @@ async def test_media_player(hass: HomeAssistant, mock_config_entry, mock_setup_e
     assert state.state == MediaPlayerState.PLAYING
     assert state.attributes.get(ATTR_MEDIA_VOLUME_MUTED) is False
     assert state.attributes.get(ATTR_MEDIA_VOLUME_LEVEL) == 0.5
+
+    data = hass.data[DOMAIN][mock_config_entry.entry_id]
+    entity = TrinnovAltitudeMediaPlayer(data.coordinator)
+    assert entity.input_source == "Kaleidescape"
+    assert entity.input_source_list == ["Kaleidescape", "Apple TV", "Blu-ray"]
 
 
 async def test_media_player_playing_state(
@@ -59,7 +68,7 @@ async def test_media_player_off_state(
     mock_trinnov_device_offline,
     mock_setup_entry,
 ):
-    """Test media player shows off state when device is disconnected."""
+    """Test media player does not claim off from disconnected transport alone."""
     mock_setup_entry.return_value = mock_trinnov_device_offline
 
     mock_config_entry.add_to_hass(hass)
@@ -69,7 +78,7 @@ async def test_media_player_off_state(
 
     state = hass.states.get("media_player.trinnov_altitude_192_168_1_100")
     assert state
-    assert state.state == MediaPlayerState.OFF
+    assert state.state == MediaPlayerState.ON
 
 
 async def test_media_player_booting_state(
@@ -79,6 +88,11 @@ async def test_media_player_booting_state(
     mock_device = mock_setup_entry.return_value
     mock_device.connected = True
     mock_device.state.synced = False
+    mock_device.runtime = mock_device.runtime.with_changes(
+        sync=SyncState.SYNCING,
+        control=ControlHealth.CONNECTING,
+        power=PowerState.WAKING,
+    )
 
     mock_config_entry.add_to_hass(hass)
 
@@ -380,4 +394,4 @@ async def test_media_player_available_when_offline_with_mac(
     state = hass.states.get("media_player.trinnov_altitude_192_168_1_100")
     assert state
     # Should be available even when offline because power_on_available returns True
-    assert state.state == MediaPlayerState.OFF
+    assert state.state == MediaPlayerState.ON

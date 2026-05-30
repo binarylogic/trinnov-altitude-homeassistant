@@ -15,8 +15,8 @@ def resolve_source_name(state: object) -> str | None:
     if not isinstance(index, int) or index < 0:
         return None
 
-    sources = getattr(state, "sources", {})
-    if isinstance(sources, dict) and index in sources:
+    sources = _indexed_values(getattr(state, "sources", {}))
+    if index in sources:
         value = sources.get(index)
         if value:
             return str(value)
@@ -34,8 +34,8 @@ def resolve_preset_name(state: object) -> str | None:
     if not isinstance(index, int) or index < 0:
         return None
 
-    presets = getattr(state, "presets", {})
-    if isinstance(presets, dict) and index in presets:
+    presets = _indexed_values(getattr(state, "presets", {}))
+    if index in presets:
         value = presets.get(index)
         if value:
             return str(value)
@@ -56,3 +56,22 @@ def resolve_upmixer_value(state: object) -> str | None:
     if normalized in known:
         return normalized
     return str(upmixer).strip()
+
+
+def _indexed_values(value: object) -> dict[int, str]:
+    if isinstance(value, dict):
+        out: dict[int, str] = {}
+        for key, item in value.items():
+            if isinstance(key, int):
+                out[key] = str(item)
+        return out
+    if isinstance(value, tuple):
+        out: dict[int, str] = {}
+        for item in value:
+            if not isinstance(item, tuple) or len(item) != 2:
+                continue
+            key, entry = item
+            if isinstance(key, int):
+                out[key] = str(entry)
+        return out
+    return {}

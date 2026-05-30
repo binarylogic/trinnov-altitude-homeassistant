@@ -3,28 +3,26 @@
 from __future__ import annotations
 
 import asyncio
-from copy import deepcopy
 from typing import TYPE_CHECKING
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
-from trinnov_altitude.adapter import AltitudeStateAdapter
+from trinnov_altitude.adapter import AltitudeStateAdapter, snapshot_from_state
 from trinnov_altitude.exceptions import ConnectionFailedError, ConnectionTimeoutError
-from trinnov_altitude.state import AltitudeState
-
-from .lifecycle import PowerStatus
+from trinnov_altitude.lifecycle import PowerState
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from trinnov_altitude.adapter import AltitudeSnapshot
     from trinnov_altitude.client import TrinnovAltitudeClient
     from trinnov_altitude.protocol import Message
 
     from .commands import TrinnovAltitudeCommands
 
 
-class TrinnovAltitudeCoordinator(DataUpdateCoordinator[AltitudeState]):
+class TrinnovAltitudeCoordinator(DataUpdateCoordinator["AltitudeSnapshot"]):
     """Push coordinator for Trinnov Altitude state."""
 
     _BOOTSTRAP_RETRY_INTERVAL_SECONDS = 5.0
@@ -49,7 +47,6 @@ class TrinnovAltitudeCoordinator(DataUpdateCoordinator[AltitudeState]):
         )
         self._running = False
         self._bootstrap_retry_task: asyncio.Task[None] | None = None
-        self._power_status_override: PowerStatus | None = None
 
     async def async_start(self, sync_timeout: float | None = 10.0) -> None:
         """Start push updates and attempt initial client bootstrap."""
@@ -102,44 +99,28 @@ class TrinnovAltitudeCoordinator(DataUpdateCoordinator[AltitudeState]):
         await self.client.stop()
         self._running = False
 
-    async def _async_update_data(self) -> AltitudeState:
+    async def _async_update_data(self) -> AltitudeSnapshot:
         """Return latest state snapshot."""
         return self._snapshot_state()
 
-    def _snapshot_state(self) -> AltitudeState:
+    def _snapshot_state(self) -> AltitudeSnapshot:
         """Create a stable snapshot for entity reads."""
-        return deepcopy(self.client.state)
+        return snapshot_from_state(self.client.state, self.client.runtime)
 
     @property
-    def power_status(self) -> PowerStatus:
+    def power_status(self) -> PowerState:
         """Return lifecycle state for primary power entities."""
-        if self._power_status_override is not None:
-            return self._power_status_override
-
-        state = self.data if self.data is not None else self.client.state
-        if not self.client.connected:
-            return PowerStatus.OFF
-        if not state.synced:
-            return PowerStatus.BOOTING
-        return PowerStatus.READY
-
-    def set_power_status_override(self, status: PowerStatus | None) -> None:
-        """Force a temporary lifecycle state until transport catches up."""
-        self._power_status_override = status
-        self.async_set_updated_data(self._snapshot_state())
+        return self._snapshot_state().runtime.power
 
     def _handle_client_event(self, event: str, _message: object | None = None) -> None:
         """Forward connection lifecycle events into coordinator updates."""
-        if event in {"connected", "disconnected"}:
-            self._power_status_override = None
+        if event in {"connected", "disconnected", "runtime_changed"}:
             self.hass.add_job(self._async_push_update)
 
     def _handle_adapter_update(
         self, _snapshot: object, _deltas: object, _events: object
     ) -> None:
         """Forward adapter updates into coordinator snapshots."""
-        if self.client.connected and self.client.state.synced:
-            self._power_status_override = None
         self.hass.add_job(self._async_push_update)
 
     async def _async_push_update(self) -> None:

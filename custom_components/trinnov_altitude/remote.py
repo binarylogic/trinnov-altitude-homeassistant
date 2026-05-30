@@ -15,6 +15,7 @@ from trinnov_altitude.command_bridge import (
     parse_command,
 )
 from trinnov_altitude.exceptions import NoMacAddressError, NotConnectedError
+from trinnov_altitude.lifecycle import ControlHealth
 
 from .const import DOMAIN
 from .entity import TrinnovAltitudeEntity
@@ -49,7 +50,7 @@ class TrinnovAltitudeRemote(TrinnovAltitudeEntity, RemoteEntity):
     @property
     def activity_list(self) -> list[str] | None:
         """Returns the list of sources"""
-        return list(self._state.sources.values())
+        return [value for _, value in self._state.sources]
 
     @property
     def current_activity(self) -> str | None:
@@ -59,7 +60,7 @@ class TrinnovAltitudeRemote(TrinnovAltitudeEntity, RemoteEntity):
     @property
     def is_on(self) -> bool:
         """Return true if device is on and ready."""
-        return self._client.connected and self._state.synced
+        return self._snapshot_state.runtime.control is ControlHealth.AVAILABLE
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the device on."""
@@ -82,6 +83,7 @@ class TrinnovAltitudeRemote(TrinnovAltitudeEntity, RemoteEntity):
                 self._state.synced,
             )
             self._client.power_on()
+            self.coordinator.async_set_updated_data(self.coordinator._snapshot_state())
         except NoMacAddressError as exc:
             raise HomeAssistantError(
                 "Trinnov Altitude is not configured with a mac address, which is required to power it on."
@@ -90,6 +92,7 @@ class TrinnovAltitudeRemote(TrinnovAltitudeEntity, RemoteEntity):
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the device off."""
         await self._commands.invoke("power_off", require_ack=True)
+        self.coordinator.async_set_updated_data(self.coordinator._snapshot_state())
 
     async def async_send_command(self, command: Iterable[str], **kwargs: Any) -> None:
         """Send a command to a device."""

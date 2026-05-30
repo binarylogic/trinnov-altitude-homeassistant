@@ -6,6 +6,13 @@ from homeassistant.const import ATTR_ENTITY_ID
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 
+from custom_components.trinnov_altitude.const import DOMAIN
+from custom_components.trinnov_altitude.select import (
+    TrinnovAltitudePresetSelect,
+    TrinnovAltitudeSourceSelect,
+    TrinnovAltitudeUpmixerSelect,
+)
+
 
 async def test_source_select(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
     """Test source select entity is created with correct state."""
@@ -20,6 +27,10 @@ async def test_source_select(hass: HomeAssistant, mock_config_entry, mock_setup_
     assert state.state == "Kaleidescape"
     assert state.attributes.get("options") == ["Kaleidescape", "Apple TV", "Blu-ray"]
 
+    data = hass.data[DOMAIN][mock_config_entry.entry_id]
+    entity = TrinnovAltitudeSourceSelect(data.coordinator)
+    assert entity.options == ["Kaleidescape", "Apple TV", "Blu-ray"]
+
 
 async def test_preset_select(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
     """Test preset select entity is created with correct state."""
@@ -33,6 +44,10 @@ async def test_preset_select(hass: HomeAssistant, mock_config_entry, mock_setup_
     assert state
     assert state.state == "Movies"
     assert state.attributes.get("options") == ["Built-in", "Movies", "Music"]
+
+    data = hass.data[DOMAIN][mock_config_entry.entry_id]
+    entity = TrinnovAltitudePresetSelect(data.coordinator)
+    assert entity.options == ["Built-in", "Movies", "Music"]
 
 
 async def test_source_select_option(
@@ -78,6 +93,11 @@ async def test_source_select_option_invalid(
             },
             blocking=True,
         )
+
+    data = hass.data[DOMAIN][mock_config_entry.entry_id]
+    entity = TrinnovAltitudeSourceSelect(data.coordinator)
+    with pytest.raises(HomeAssistantError, match="Unknown source option"):
+        await entity.async_select_option("Not A Source")
 
 
 async def test_source_select_option_command_error(
@@ -366,6 +386,11 @@ async def test_preset_select_option_invalid(
             blocking=True,
         )
 
+    data = hass.data[DOMAIN][mock_config_entry.entry_id]
+    entity = TrinnovAltitudePresetSelect(data.coordinator)
+    with pytest.raises(HomeAssistantError, match="Unknown preset option"):
+        await entity.async_select_option("Not A Preset")
+
 
 async def test_upmixer_select_option_invalid(
     hass: HomeAssistant, mock_config_entry, mock_setup_entry
@@ -385,3 +410,8 @@ async def test_upmixer_select_option_invalid(
             },
             blocking=True,
         )
+
+    data = hass.data[DOMAIN][mock_config_entry.entry_id]
+    entity = TrinnovAltitudeUpmixerSelect(data.coordinator)
+    with pytest.raises(HomeAssistantError, match="Unknown upmixer option"):
+        await entity.async_select_option("bad")

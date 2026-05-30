@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import StrEnum
 from typing import TYPE_CHECKING, cast
 
 from homeassistant.components.sensor import (
@@ -13,10 +12,16 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.const import EntityCategory
 
+from trinnov_altitude.lifecycle import (
+    ControlHealth,
+    PowerState,
+    SyncState,
+    TransportState,
+)
+
 from .const import DOMAIN
 from .coordinator import TrinnovAltitudeCoordinator
 from .entity import TrinnovAltitudeEntity
-from .lifecycle import PowerStatus
 from .models import TrinnovAltitudeIntegrationData
 from .resolvers import resolve_preset_name, resolve_source_name, resolve_upmixer_value
 
@@ -28,34 +33,19 @@ if TYPE_CHECKING:
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
     from homeassistant.helpers.typing import StateType
 
-    from trinnov_altitude.state import AltitudeState
-
-
-class ConnectionStatus(StrEnum):
-    """Connection status states."""
-
-    DISCONNECTED = "disconnected"
-    CONNECTED = "connected"
-
-
-class SyncStatus(StrEnum):
-    """Sync status states."""
-
-    SYNCING = "syncing"
-    SYNCED = "synced"
-
 
 @dataclass(frozen=True, kw_only=True)
 class TrinnovAltitudeSensorEntityDescription(SensorEntityDescription):
     """Describes Trinnov Altitude sensor entity."""
 
-    value_fn: Callable[[AltitudeState], StateType]
+    value_fn: Callable[[object], StateType]
 
 
 POWER_STATUS_ICONS = {
-    PowerStatus.OFF: "mdi:power-off",
-    PowerStatus.BOOTING: "mdi:power-settings",
-    PowerStatus.READY: "mdi:power-on",
+    PowerState.OFF: "mdi:power-off",
+    PowerState.WAKING: "mdi:power-settings",
+    PowerState.READY: "mdi:power-on",
+    PowerState.UNKNOWN: "mdi:power-alert",
 }
 
 
@@ -65,8 +55,8 @@ SENSORS: tuple[TrinnovAltitudeSensorEntityDescription, ...] = (
         translation_key="power_status",
         name="Power Status",
         device_class=SensorDeviceClass.ENUM,
-        options=[status.value for status in PowerStatus],
-        value_fn=lambda _state: PowerStatus.READY,
+        options=[status.value for status in PowerState],
+        value_fn=lambda _state: PowerState.UNKNOWN,
     ),
     TrinnovAltitudeSensorEntityDescription(
         key="audiosync",
@@ -80,8 +70,8 @@ SENSORS: tuple[TrinnovAltitudeSensorEntityDescription, ...] = (
         name="Connection Status",
         device_class=SensorDeviceClass.ENUM,
         entity_category=EntityCategory.DIAGNOSTIC,
-        options=[status.value for status in ConnectionStatus],
-        value_fn=lambda _state: ConnectionStatus.CONNECTED,
+        options=[status.value for status in TransportState],
+        value_fn=lambda _state: TransportState.DISCONNECTED,
     ),
     TrinnovAltitudeSensorEntityDescription(
         key="sync_status",
@@ -89,10 +79,31 @@ SENSORS: tuple[TrinnovAltitudeSensorEntityDescription, ...] = (
         name="Sync Status",
         device_class=SensorDeviceClass.ENUM,
         entity_category=EntityCategory.DIAGNOSTIC,
-        options=[status.value for status in SyncStatus],
-        value_fn=lambda state: (
-            SyncStatus.SYNCED if state.synced else SyncStatus.SYNCING
-        ),
+        options=[status.value for status in SyncState],
+        value_fn=lambda _state: SyncState.UNSYNCED,
+    ),
+    TrinnovAltitudeSensorEntityDescription(
+        key="control_health",
+        translation_key="control_health",
+        name="Control Health",
+        device_class=SensorDeviceClass.ENUM,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        options=[status.value for status in ControlHealth],
+        value_fn=lambda _state: ControlHealth.UNAVAILABLE,
+    ),
+    TrinnovAltitudeSensorEntityDescription(
+        key="last_error",
+        translation_key="last_error",
+        name="Last Error",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda _state: None,
+    ),
+    TrinnovAltitudeSensorEntityDescription(
+        key="last_error_kind",
+        translation_key="last_error_kind",
+        name="Last Error Kind",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda _state: None,
     ),
     TrinnovAltitudeSensorEntityDescription(
         key="version",
@@ -176,18 +187,26 @@ class TrinnovAltitudeSensor(TrinnovAltitudeEntity, SensorEntity):
     def native_value(self) -> StateType:
         """Return value of sensor."""
         if self.entity_description.key == "power_status":
-            return self.coordinator.power_status
+            return self.coordinator.power_status.value
         if self.entity_description.key == "connection_status":
-            return (
-                ConnectionStatus.CONNECTED
-                if self._client.connected
-                else ConnectionStatus.DISCONNECTED
-            )
+            return self._snapshot_state.runtime.transport.value
+        if self.entity_description.key == "sync_status":
+            return self._snapshot_state.runtime.sync.value
+        if self.entity_description.key == "control_health":
+            return self._snapshot_state.runtime.control.value
+        if self.entity_description.key == "last_error":
+            error = self._snapshot_state.runtime.last_error
+            return error.message if error is not None else None
+        if self.entity_description.key == "last_error_kind":
+            error = self._snapshot_state.runtime.last_error
+            return error.kind.value if error is not None else None
         return self.entity_description.value_fn(self._state)
 
     @property
     def icon(self) -> str | None:
         """Return dynamic icon for power_status sensor."""
         if self.entity_description.key == "power_status":
-            return POWER_STATUS_ICONS.get(cast(PowerStatus, self.native_value))
+            return POWER_STATUS_ICONS.get(
+                cast(PowerState, self.coordinator.power_status)
+            )
         return None
