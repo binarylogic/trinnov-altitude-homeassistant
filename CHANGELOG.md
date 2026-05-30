@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.0](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.1.6...v2.2.0) (2026-05-30)
+
+
+### Features
+
+* project explicit Trinnov runtime lifecycle ([c0d735c](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/c0d735c1ac6779c4130251822ceb61c0cd71f0ec))
+
 ## [2.1.6](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.1.5...v2.1.6) (2026-03-31)
 
 
