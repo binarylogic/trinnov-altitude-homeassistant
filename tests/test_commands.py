@@ -3,7 +3,9 @@
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+from homeassistant.exceptions import HomeAssistantError
 from trinnov_altitude.const import RemappingMode
+from trinnov_altitude.exceptions import CommandConvergenceTimeoutError
 
 from custom_components.trinnov_altitude.commands import TrinnovAltitudeCommands
 
@@ -63,6 +65,18 @@ async def test_invoke_with_ack_for_source_set_by_name() -> None:
 
     client.source_set.assert_called_once_with(1)
     client.command.assert_not_called()
+
+
+async def test_invoke_wraps_protocol_command_errors() -> None:
+    """Protocol command failures should surface as Home Assistant errors."""
+    client = _mock_client()
+    client.source_set.side_effect = CommandConvergenceTimeoutError(
+        "source 0 to become active", 5.0
+    )
+    commands = TrinnovAltitudeCommands(client)
+
+    with pytest.raises(HomeAssistantError, match="source 0"):
+        await commands.invoke("source_set", 0, require_ack=True)
 
 
 async def test_invoke_with_ack_for_remapping_mode_set() -> None:

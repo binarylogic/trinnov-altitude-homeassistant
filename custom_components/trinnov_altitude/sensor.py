@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -33,12 +33,14 @@ if TYPE_CHECKING:
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
     from homeassistant.helpers.typing import StateType
 
+    from trinnov_altitude.adapter import AltitudeSnapshot
+
 
 @dataclass(frozen=True, kw_only=True)
 class TrinnovAltitudeSensorEntityDescription(SensorEntityDescription):
     """Describes Trinnov Altitude sensor entity."""
 
-    value_fn: Callable[[object], StateType]
+    value_fn: Callable[[AltitudeSnapshot], StateType]
 
 
 POWER_STATUS_ICONS = {
@@ -206,7 +208,5 @@ class TrinnovAltitudeSensor(TrinnovAltitudeEntity, SensorEntity):
     def icon(self) -> str | None:
         """Return dynamic icon for power_status sensor."""
         if self.entity_description.key == "power_status":
-            return POWER_STATUS_ICONS.get(
-                cast(PowerState, self.coordinator.power_status)
-            )
+            return POWER_STATUS_ICONS.get(self.coordinator.power_status)
         return None

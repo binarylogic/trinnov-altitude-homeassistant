@@ -1,8 +1,11 @@
 """Test the Trinnov Altitude number platform."""
 
+import pytest
 from homeassistant.components.number import ATTR_VALUE, SERVICE_SET_VALUE
 from homeassistant.const import ATTR_ENTITY_ID
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
+from trinnov_altitude.exceptions import CommandConvergenceTimeoutError
 
 
 async def test_volume_number(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
@@ -45,6 +48,32 @@ async def test_volume_number_set_value(
 
     # Verify device method was called
     mock_device.volume_set.assert_called_once_with(-35.5)
+
+
+async def test_volume_number_set_value_surfaces_command_error(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test volume convergence failures surface as Home Assistant errors."""
+    mock_config_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    mock_device = mock_setup_entry.return_value
+    mock_device.volume_set.side_effect = CommandConvergenceTimeoutError(
+        "volume -15.0 dB to be active", 5.0
+    )
+
+    with pytest.raises(HomeAssistantError, match="volume -15.0"):
+        await hass.services.async_call(
+            "number",
+            SERVICE_SET_VALUE,
+            {
+                ATTR_ENTITY_ID: "number.trinnov_altitude_192_168_1_100_volume",
+                ATTR_VALUE: -15.0,
+            },
+            blocking=True,
+        )
 
 
 async def test_volume_number_updates(
