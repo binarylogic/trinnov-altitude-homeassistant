@@ -15,7 +15,7 @@ from trinnov_altitude.exceptions import (
 from custom_components.trinnov_altitude.const import DOMAIN
 
 
-async def test_form_user_success(hass: HomeAssistant):
+async def test_form_user_success(hass: HomeAssistant, mock_setup_entry):
     """Test successful user setup."""
     mock_device = MagicMock()
     mock_device.state.id = "ABC123"
@@ -61,7 +61,9 @@ async def test_form_user_success(hass: HomeAssistant):
         mock_device.stop.assert_called_once()
 
 
-async def test_form_user_manual_mac_skips_discovery(hass: HomeAssistant):
+async def test_form_user_manual_mac_skips_discovery(
+    hass: HomeAssistant, mock_setup_entry
+):
     """Test explicit setup MAC is normalized and stored without discovery."""
     mock_device = MagicMock()
     mock_device.state.id = "ABC123"
@@ -101,7 +103,7 @@ async def test_form_user_manual_mac_skips_discovery(hass: HomeAssistant):
         discover_mac.assert_not_awaited()
 
 
-async def test_form_user_without_mac(hass: HomeAssistant):
+async def test_form_user_without_mac(hass: HomeAssistant, mock_setup_entry):
     """Test user setup without MAC address."""
     mock_device = MagicMock()
     mock_device.state.id = "ABC123"

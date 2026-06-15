@@ -1,10 +1,11 @@
-.PHONY: help install test test-cov test-fast lint format format-check typecheck clean check
+.PHONY: help install lock test test-cov test-fast lint format format-check typecheck clean check
 
 VENV_PYTHON := .venv/bin/python
 RUFF := .venv/bin/ruff
 PYTEST := .venv/bin/pytest
 TY := .venv/bin/ty
 TRINNOV_LIB_PATH ?= ../py-trinnov-altitude
+UV_CACHE_DIR ?= .uv-cache
 
 help: ## Show this help message
 	@echo 'Usage: make [target]'
@@ -12,15 +13,14 @@ help: ## Show this help message
 	@echo 'Available targets:'
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-install: ## Install test dependencies with uv
-	UV_CACHE_DIR=.uv-cache uv venv --clear .venv
-	UV_CACHE_DIR=.uv-cache uv pip install -p $(VENV_PYTHON) -r requirements_test.txt
+install: ## Install dependencies with uv
+	UV_CACHE_DIR=$(UV_CACHE_DIR) uv sync --locked --no-sources
 	@if [ -d "$(TRINNOV_LIB_PATH)" ]; then \
-		UV_CACHE_DIR=.uv-cache uv pip install -p $(VENV_PYTHON) -e $(TRINNOV_LIB_PATH); \
-	else \
-		UV_CACHE_DIR=.uv-cache uv pip install -p $(VENV_PYTHON) "trinnov-altitude @ git+https://github.com/binarylogic/py-trinnov-altitude.git"; \
+		UV_CACHE_DIR=$(UV_CACHE_DIR) uv pip install -p $(VENV_PYTHON) -e $(TRINNOV_LIB_PATH); \
 	fi
-	UV_CACHE_DIR=.uv-cache uv pip install -p $(VENV_PYTHON) ty
+
+lock: ## Update the uv lockfile from published package metadata
+	UV_CACHE_DIR=$(UV_CACHE_DIR) uv lock --no-sources
 
 test: ## Run tests
 	$(PYTEST)

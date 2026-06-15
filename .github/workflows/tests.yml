@@ -22,6 +22,8 @@ jobs:
 
       - name: Install dependencies
         run: make install
+        env:
+          UV_PYTHON: "3.14"
 
       - name: Run ruff check
         run: make lint
@@ -53,6 +55,8 @@ jobs:
 
       - name: Install dependencies
         run: make install
+        env:
+          UV_PYTHON: ${{ matrix.python-version }}
 
       - name: Run tests with coverage
         run: make test-cov

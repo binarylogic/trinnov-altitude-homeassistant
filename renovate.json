@@ -1,0 +1,56 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    ":semanticCommitTypeAll(chore)",
+    ":semanticCommitScope(deps)"
+  ],
+  "labels": ["dependencies"],
+  "dependencyDashboard": false,
+  "platformAutomerge": true,
+  "automerge": true,
+  "automergeType": "pr",
+  "automergeStrategy": "rebase",
+  "rebaseWhen": "behind-base-branch",
+  "prHourlyLimit": 0,
+  "prConcurrentLimit": 10,
+  "rangeStrategy": "bump",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 6am on monday"],
+    "automerge": true,
+    "platformAutomerge": true
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "^custom_components/trinnov_altitude/manifest\\.json$"
+      ],
+      "matchStrings": [
+        "\"trinnov-altitude>=(?<currentValue>[^\"\\s]+)\""
+      ],
+      "depNameTemplate": "trinnov-altitude",
+      "datasourceTemplate": "pypi"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "github-actions",
+      "groupSlug": "github-actions"
+    },
+    {
+      "matchManagers": ["pep621"],
+      "groupName": "python dependencies",
+      "groupSlug": "python-dependencies"
+    },
+    {
+      "matchPackageNames": ["trinnov-altitude"],
+      "groupName": "trinnov-altitude runtime",
+      "groupSlug": "trinnov-altitude-runtime",
+      "semanticCommitType": "fix"
+    }
+  ]
+}
