@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.2](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.2.1...v2.2.2) (2026-06-15)
+
+
+### Bug Fixes
+
+* surface Trinnov command convergence failures ([041e1ec](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/041e1ec6bba8b34b7e4e32858a278325ae3206bb))
+
 ## [2.2.1](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.2.0...v2.2.1) (2026-05-31)
 
 
