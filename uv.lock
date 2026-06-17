@@ -6602,7 +6602,6 @@ resolution-markers = [
 dependencies = [
     { name = "pytest", version = "9.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.13.2' and python_full_version < '3.14.2'" },
     { name = "pytest", version = "9.0.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14.2'" },
-    { name = "typing-extensions", marker = "python_version < '0'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/90/2c/8af215c0f776415f3590cac4f9086ccefd6fd463befeae41cd4d3f193e5a/pytest_asyncio-1.3.0.tar.gz", hash = "sha256:d7f52f36d231b80ee124cd216ffb19369aa168fc10095013c6b014a34d3ee9e5", size = 50087, upload-time = "2025-11-10T16:07:47.256Z" }
 wheels = [
@@ -8320,14 +8319,14 @@ wheels = [
 
 [[package]]
 name = "trinnov-altitude"
-version = "3.3.3"
+version = "3.3.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "wakeonlan" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c4/e7/9516b686cecc085fcb6ba9bbc1b0be7b30954f03745acb5d91e44375721d/trinnov_altitude-3.3.3.tar.gz", hash = "sha256:65ba4d01639639c80b1570226ee839986f4d697611609a967c896ea1b4209459", size = 242316, upload-time = "2026-06-15T23:37:01.039Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d9/28/079b71fb5b6ec780a32e512b58044675bb41676c2072accfd69508d18c4b/trinnov_altitude-3.3.4.tar.gz", hash = "sha256:63981aa1a4adc42fc3b31b47f92834d68ee95ef9dfa71df98b68f83b68794a7d", size = 253879, upload-time = "2026-06-17T19:00:44.688Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/13/5a/dac29e4b4e61a2d9ec84e2bf001fa2ed85461c8d4705845344a4eb285ea1/trinnov_altitude-3.3.3-py3-none-any.whl", hash = "sha256:ca5a6e19af98ff70d88ca56e28ef2aeaa3d65e3c5551f95c7e5822631ee3df54", size = 28839, upload-time = "2026-06-15T23:36:59.632Z" },
+    { url = "https://files.pythonhosted.org/packages/a6/9b/6d3b8f6fd6d4bd205b4a55193d302fba4bfdfffa4abe03bbf4442a904875/trinnov_altitude-3.3.4-py3-none-any.whl", hash = "sha256:96ddd2726bc77b4028c79c207229b089acfc2de546d8823b7bf5899c64928a73", size = 29582, upload-time = "2026-06-17T19:00:43.605Z" },
 ]
 
 [[package]]
@@ -8363,7 +8362,7 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "trinnov-altitude", specifier = ">=3.3.3" }]
+requires-dist = [{ name = "trinnov-altitude", specifier = ">=3.3.4" }]
 
 [package.metadata.requires-dev]
 dev = [
