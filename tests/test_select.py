@@ -1,12 +1,17 @@
 """Test the Trinnov Altitude select platform."""
 
+from unittest.mock import patch
+
 import pytest
 from homeassistant.components.select import ATTR_OPTION, SERVICE_SELECT_OPTION
-from homeassistant.const import ATTR_ENTITY_ID
+from homeassistant.const import ATTR_ENTITY_ID, CONF_HOST, CONF_MAC
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
+from pytest_homeassistant_custom_component.common import MockConfigEntry
+from trinnov_altitude.client import TrinnovAltitudeClient
+from trinnov_altitude.mocks import MockTrinnovAltitudeServer
 
-from custom_components.trinnov_altitude.const import DOMAIN
+from custom_components.trinnov_altitude.const import CLIENT_ID, DOMAIN
 from custom_components.trinnov_altitude.select import (
     TrinnovAltitudePresetSelect,
     TrinnovAltitudeSourceSelect,
@@ -146,6 +151,70 @@ async def test_preset_select_option(
     )
 
     mock_device.preset_set.assert_called_once_with(2)
+
+
+async def test_preset_select_uses_safe_library_wire_flow(
+    hass: HomeAssistant, socket_enabled
+):
+    """Preset select should send one load command and converge with readback."""
+    server = MockTrinnovAltitudeServer(
+        host="127.0.0.1",
+        port=0,
+        presets={0: "Built-in", 1: "Movies", 2: "Music"},
+        current_preset_index=1,
+        preset_readback_lag=2,
+    )
+    await server.start_server()
+
+    config_entry = MockConfigEntry(
+        domain=DOMAIN,
+        title="Trinnov Altitude (127.0.0.1)",
+        data={
+            CONF_HOST: "127.0.0.1",
+            CONF_MAC: "00:11:22:33:44:55",
+            CLIENT_ID: "test_client",
+        },
+        unique_id="ABC123",
+    )
+
+    def client_factory(host: str, mac: str | None, client_id: str):
+        return TrinnovAltitudeClient(
+            host=host,
+            port=server.port,
+            mac=mac,
+            client_id=client_id,
+            auto_reconnect=False,
+            connect_timeout=1.0,
+            command_timeout=1.0,
+            read_timeout=0.1,
+            selector_convergence_timeout=1.0,
+            selector_convergence_interval=0.0,
+        )
+
+    try:
+        with patch(
+            "custom_components.trinnov_altitude.TrinnovAltitudeClient",
+            side_effect=client_factory,
+        ):
+            config_entry.add_to_hass(hass)
+            assert await hass.config_entries.async_setup(config_entry.entry_id)
+            await hass.async_block_till_done()
+
+            await hass.services.async_call(
+                "select",
+                SERVICE_SELECT_OPTION,
+                {
+                    ATTR_ENTITY_ID: "select.trinnov_altitude_127_0_0_1_preset",
+                    ATTR_OPTION: "Music",
+                },
+                blocking=True,
+            )
+
+            assert server.received_messages.count("loadp 2") == 1
+            assert server.received_messages.count("get_current_preset") >= 3
+    finally:
+        await hass.config_entries.async_unload(config_entry.entry_id)
+        await server.stop_server()
 
 
 async def test_select_updates(hass: HomeAssistant, mock_config_entry, mock_setup_entry):
