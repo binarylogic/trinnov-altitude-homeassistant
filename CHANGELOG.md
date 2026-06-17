@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.3](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.2.2...v2.2.3) (2026-06-17)
+
+
+### Bug Fixes
+
+* require safe preset convergence library ([a5bf066](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/a5bf066b88438ee5dd735c21550eb6deb039d4fa))
+
 ## [2.2.2](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.2.1...v2.2.2) (2026-06-15)
 
 
