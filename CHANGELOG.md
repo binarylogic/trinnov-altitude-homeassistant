@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.4](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.2.3...v2.2.4) (2026-06-18)
+
+
+### Bug Fixes
+
+* project media player volume from db ([04e8e76](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/04e8e76c0bacd425722b211d031fcb56eb43e0c6))
+* use db volume flow ([feef869](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/feef86984cdb8ecfd0bfe05688cb3f1281feaee4))
+
 ## [2.2.3](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.2.2...v2.2.3) (2026-06-17)
 
 
