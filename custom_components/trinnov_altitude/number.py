@@ -11,16 +11,12 @@ from .const import DOMAIN
 from .coordinator import TrinnovAltitudeCoordinator
 from .entity import TrinnovAltitudeEntity
 from .models import TrinnovAltitudeIntegrationData
+from .volume import VOLUME_MAX_DB, VOLUME_MIN_DB
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
-
-# Volume range: -120 dB to 0 dB (capped at 0 for safety)
-# Reference level (0 dB) is very loud. Values above 0 dB can damage speakers/hearing.
-VOLUME_MIN = -120.0
-VOLUME_MAX = 0.0
 
 
 async def async_setup_entry(
@@ -34,8 +30,8 @@ async def async_setup_entry(
 class TrinnovAltitudeVolumeNumber(TrinnovAltitudeEntity, NumberEntity):
     """Representation of a Trinnov Altitude volume number entity."""
 
-    _attr_native_min_value = VOLUME_MIN
-    _attr_native_max_value = VOLUME_MAX
+    _attr_native_min_value = VOLUME_MIN_DB
+    _attr_native_max_value = VOLUME_MAX_DB
     _attr_native_step = 0.5
     _attr_mode = NumberMode.SLIDER
     _attr_native_unit_of_measurement = UnitOfSoundPressure.DECIBEL
