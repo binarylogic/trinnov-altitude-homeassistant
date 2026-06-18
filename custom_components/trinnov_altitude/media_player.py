@@ -47,7 +47,6 @@ class TrinnovAltitudeMediaPlayer(TrinnovAltitudeEntity, MediaPlayerEntity):
         | MediaPlayerEntityFeature.TURN_ON
         | MediaPlayerEntityFeature.TURN_OFF
         | MediaPlayerEntityFeature.VOLUME_MUTE
-        | MediaPlayerEntityFeature.VOLUME_SET
         | MediaPlayerEntityFeature.VOLUME_STEP
     )
 
@@ -88,11 +87,6 @@ class TrinnovAltitudeMediaPlayer(TrinnovAltitudeEntity, MediaPlayerEntity):
         """Turn volume down for media player."""
         await self._commands.invoke("volume_down")
 
-    async def async_set_volume_level(self, volume: float) -> None:
-        """Set volume level, range 0..1."""
-        percentage = volume * 100.0
-        await self._commands.invoke("volume_percentage_set", percentage)
-
     @property
     def available(self) -> bool:
         """Return if device is available."""
@@ -124,12 +118,3 @@ class TrinnovAltitudeMediaPlayer(TrinnovAltitudeEntity, MediaPlayerEntity):
         if self._state.source_format:
             return MediaPlayerState.PLAYING
         return MediaPlayerState.IDLE
-
-    @property
-    def volume_level(self) -> float | None:
-        """Volume level of the media player (0..1)."""
-        percentage = self._client.volume_percentage
-        if percentage is None:
-            return None
-        else:
-            return percentage / 100.0
