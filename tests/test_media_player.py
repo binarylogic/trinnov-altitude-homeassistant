@@ -5,12 +5,14 @@ import logging
 import pytest
 from homeassistant.components.media_player import (
     ATTR_INPUT_SOURCE,
+    ATTR_MEDIA_VOLUME_LEVEL,
     ATTR_MEDIA_VOLUME_MUTED,
     SERVICE_SELECT_SOURCE,
     SERVICE_TURN_OFF,
     SERVICE_TURN_ON,
     SERVICE_VOLUME_DOWN,
     SERVICE_VOLUME_MUTE,
+    SERVICE_VOLUME_SET,
     SERVICE_VOLUME_UP,
     MediaPlayerState,
 )
@@ -35,7 +37,7 @@ async def test_media_player(hass: HomeAssistant, mock_config_entry, mock_setup_e
     assert state
     assert state.state == MediaPlayerState.PLAYING
     assert state.attributes.get(ATTR_MEDIA_VOLUME_MUTED) is False
-    assert "volume_level" not in state.attributes
+    assert state.attributes.get(ATTR_MEDIA_VOLUME_LEVEL) == pytest.approx(2 / 3)
 
     data = hass.data[DOMAIN][mock_config_entry.entry_id]
     entity = TrinnovAltitudeMediaPlayer(data.coordinator)
@@ -265,6 +267,47 @@ async def test_media_player_volume_down(
     )
 
     mock_device.volume_down.assert_called_once()
+
+
+async def test_media_player_set_volume_maps_ha_level_to_db(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Test setting media player volume maps HA level to Trinnov dB."""
+    mock_config_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    mock_device = mock_setup_entry.return_value
+
+    await hass.services.async_call(
+        "media_player",
+        SERVICE_VOLUME_SET,
+        {
+            ATTR_ENTITY_ID: "media_player.trinnov_altitude_192_168_1_100",
+            ATTR_MEDIA_VOLUME_LEVEL: 0.8541666667,
+        },
+        blocking=True,
+    )
+
+    mock_device.volume_set.assert_called_once_with(-17.5)
+
+
+async def test_media_player_volume_level_none_when_db_missing(
+    hass: HomeAssistant, mock_config_entry, mock_setup_entry
+):
+    """Volume level should be None when the device has no dB reading."""
+    mock_device = mock_setup_entry.return_value
+    mock_device.state.volume = None
+
+    mock_config_entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    state = hass.states.get("media_player.trinnov_altitude_192_168_1_100")
+    assert state
+    assert state.attributes.get(ATTR_MEDIA_VOLUME_LEVEL) is None
 
 
 async def test_media_player_mute(

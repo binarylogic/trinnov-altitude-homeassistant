@@ -18,6 +18,7 @@ from trinnov_altitude.lifecycle import PowerState
 from .const import DOMAIN
 from .entity import TrinnovAltitudeEntity
 from .models import TrinnovAltitudeIntegrationData
+from .volume import db_to_level, level_to_db
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
@@ -47,6 +48,7 @@ class TrinnovAltitudeMediaPlayer(TrinnovAltitudeEntity, MediaPlayerEntity):
         | MediaPlayerEntityFeature.TURN_ON
         | MediaPlayerEntityFeature.TURN_OFF
         | MediaPlayerEntityFeature.VOLUME_MUTE
+        | MediaPlayerEntityFeature.VOLUME_SET
         | MediaPlayerEntityFeature.VOLUME_STEP
     )
 
@@ -87,6 +89,10 @@ class TrinnovAltitudeMediaPlayer(TrinnovAltitudeEntity, MediaPlayerEntity):
         """Turn volume down for media player."""
         await self._commands.invoke("volume_down")
 
+    async def async_set_volume_level(self, volume: float) -> None:
+        """Set volume level, range 0..1."""
+        await self._commands.invoke("volume_set", level_to_db(volume))
+
     @property
     def available(self) -> bool:
         """Return if device is available."""
@@ -106,6 +112,13 @@ class TrinnovAltitudeMediaPlayer(TrinnovAltitudeEntity, MediaPlayerEntity):
     def is_volume_muted(self) -> bool | None:
         """Boolean if volume is currently muted."""
         return self._state.mute
+
+    @property
+    def volume_level(self) -> float | None:
+        """Volume level of the media player, range 0..1."""
+        if self._state.volume is None:
+            return None
+        return db_to_level(self._state.volume)
 
     @property
     def state(self) -> MediaPlayerState:
