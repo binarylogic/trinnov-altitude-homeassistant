@@ -12,7 +12,7 @@
     "trinnov_altitude"
   ],
   "requirements": [
-    "trinnov-altitude>=3.3.4"
+    "trinnov-altitude>=3.3.5"
   ],
   "version": "2.2.3"
 }

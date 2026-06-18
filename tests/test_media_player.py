@@ -5,14 +5,12 @@ import logging
 import pytest
 from homeassistant.components.media_player import (
     ATTR_INPUT_SOURCE,
-    ATTR_MEDIA_VOLUME_LEVEL,
     ATTR_MEDIA_VOLUME_MUTED,
     SERVICE_SELECT_SOURCE,
     SERVICE_TURN_OFF,
     SERVICE_TURN_ON,
     SERVICE_VOLUME_DOWN,
     SERVICE_VOLUME_MUTE,
-    SERVICE_VOLUME_SET,
     SERVICE_VOLUME_UP,
     MediaPlayerState,
 )
@@ -37,7 +35,7 @@ async def test_media_player(hass: HomeAssistant, mock_config_entry, mock_setup_e
     assert state
     assert state.state == MediaPlayerState.PLAYING
     assert state.attributes.get(ATTR_MEDIA_VOLUME_MUTED) is False
-    assert state.attributes.get(ATTR_MEDIA_VOLUME_LEVEL) == 0.5
+    assert "volume_level" not in state.attributes
 
     data = hass.data[DOMAIN][mock_config_entry.entry_id]
     entity = TrinnovAltitudeMediaPlayer(data.coordinator)
@@ -140,23 +138,6 @@ async def test_media_player_select_source_invalid_name_raises_ha_error(
             },
             blocking=True,
         )
-
-
-async def test_media_player_volume_level_none_when_percentage_missing(
-    hass: HomeAssistant, mock_config_entry, mock_setup_entry
-):
-    """Volume level should be None when the device has no percentage reading."""
-    mock_device = mock_setup_entry.return_value
-    mock_device.volume_percentage = None
-
-    mock_config_entry.add_to_hass(hass)
-
-    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
-    await hass.async_block_till_done()
-
-    state = hass.states.get("media_player.trinnov_altitude_192_168_1_100")
-    assert state
-    assert state.attributes.get(ATTR_MEDIA_VOLUME_LEVEL) is None
 
 
 async def test_media_player_unavailable_when_not_connected_and_no_wake_path(
@@ -284,32 +265,6 @@ async def test_media_player_volume_down(
     )
 
     mock_device.volume_down.assert_called_once()
-
-
-async def test_media_player_set_volume(
-    hass: HomeAssistant, mock_config_entry, mock_setup_entry
-):
-    """Test setting volume level."""
-    mock_config_entry.add_to_hass(hass)
-
-    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
-    await hass.async_block_till_done()
-
-    mock_device = mock_setup_entry.return_value
-
-    # Set volume to 75% (0.75)
-    await hass.services.async_call(
-        "media_player",
-        SERVICE_VOLUME_SET,
-        {
-            ATTR_ENTITY_ID: "media_player.trinnov_altitude_192_168_1_100",
-            ATTR_MEDIA_VOLUME_LEVEL: 0.75,
-        },
-        blocking=True,
-    )
-
-    # Should convert to percentage
-    mock_device.volume_percentage_set.assert_called_once_with(75.0)
 
 
 async def test_media_player_mute(
