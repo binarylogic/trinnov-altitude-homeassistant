@@ -112,6 +112,18 @@ class TrinnovAltitudeCoordinator(DataUpdateCoordinator["AltitudeSnapshot"]):
         """Return lifecycle state for primary power entities."""
         return self._snapshot_state().runtime.power
 
+    async def async_power_on(self, sync_timeout: float | None = 10.0) -> None:
+        """Wake the processor and actively bootstrap until protocol state is ready."""
+        self.client.power_on()
+        self.async_set_updated_data(self._snapshot_state())
+        if not self._client_synced:
+            self._schedule_bootstrap_retry(sync_timeout)
+
+    @property
+    def _client_synced(self) -> bool:
+        """Return whether the client has completed protocol bootstrap."""
+        return bool(getattr(self.client.state, "synced", False))
+
     def _handle_client_event(self, event: str, _message: object | None = None) -> None:
         """Forward connection lifecycle events into coordinator updates."""
         if event in {"connected", "disconnected", "runtime_changed"}:
@@ -142,15 +154,17 @@ class TrinnovAltitudeCoordinator(DataUpdateCoordinator["AltitudeSnapshot"]):
     async def _async_retry_bootstrap_until_synced(
         self, sync_timeout: float | None
     ) -> None:
-        """Retry initial bootstrap so offline-at-start devices recover automatically."""
+        """Retry bootstrap so offline or half-synced devices recover automatically."""
         try:
-            while self._running and not self.client.connected:
+            while self._running and not self._client_synced:
                 try:
                     await self.client.start()
                     await self.client.wait_synced(sync_timeout)
-                    self.async_set_updated_data(self._snapshot_state())
-                    return
+                    if self._client_synced:
+                        self.async_set_updated_data(self._snapshot_state())
+                        return
                 except (ConnectionFailedError, ConnectionTimeoutError, TimeoutError):
-                    await asyncio.sleep(self._BOOTSTRAP_RETRY_INTERVAL_SECONDS)
+                    pass
+                await asyncio.sleep(self._BOOTSTRAP_RETRY_INTERVAL_SECONDS)
         except asyncio.CancelledError:
             return

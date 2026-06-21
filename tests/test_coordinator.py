@@ -54,6 +54,7 @@ def _build_mock_client() -> MagicMock:
     client.start = AsyncMock()
     client.wait_synced = AsyncMock()
     client.stop = AsyncMock()
+    client.power_on = MagicMock()
     client.register_callback = MagicMock()
     client.deregister_callback = MagicMock()
     client.register_adapter_callback = MagicMock()
@@ -191,6 +192,7 @@ async def test_coordinator_retry_bootstrap_until_synced_success(
     """Retry loop should recover after transient connection failures."""
     client = _build_mock_client()
     client.connected = False
+    client.state.synced = False
     coordinator = TrinnovAltitudeCoordinator(
         hass, client, TrinnovAltitudeCommands(client), stable_device_id="ABC123"
     )
@@ -203,6 +205,7 @@ async def test_coordinator_retry_bootstrap_until_synced_success(
         if attempts["count"] == 1:
             raise ConnectionFailedError(OSError("network down"))
         client.connected = True
+        client.state.synced = True
 
     client.start = AsyncMock(side_effect=start_side_effect)
     client.wait_synced = AsyncMock()
@@ -214,6 +217,55 @@ async def test_coordinator_retry_bootstrap_until_synced_success(
 
     assert attempts["count"] == 2
     client.wait_synced.assert_called_once_with(5.0)
+
+
+async def test_coordinator_retry_bootstrap_continues_until_synced(
+    hass: HomeAssistant,
+) -> None:
+    """Retry loop should not stop at a TCP connection without protocol sync."""
+    client = _build_mock_client()
+    client.connected = True
+    client.state.synced = False
+    coordinator = TrinnovAltitudeCoordinator(
+        hass, client, TrinnovAltitudeCommands(client), stable_device_id="ABC123"
+    )
+    coordinator._running = True
+
+    attempts = {"count": 0}
+
+    async def wait_synced_side_effect(_timeout: float) -> None:
+        attempts["count"] += 1
+        if attempts["count"] == 1:
+            raise TimeoutError
+        client.state.synced = True
+
+    client.wait_synced = AsyncMock(side_effect=wait_synced_side_effect)
+
+    with patch(
+        "custom_components.trinnov_altitude.coordinator.asyncio.sleep", new=AsyncMock()
+    ):
+        await coordinator._async_retry_bootstrap_until_synced(sync_timeout=5.0)
+
+    assert attempts["count"] == 2
+    assert client.start.await_count == 2
+    assert coordinator.data is not None
+
+
+async def test_coordinator_power_on_schedules_bootstrap_when_unsynced(
+    hass: HomeAssistant,
+) -> None:
+    """Power-on should wake the device and hand recovery to the coordinator."""
+    client = _build_mock_client()
+    client.state.synced = False
+    coordinator = TrinnovAltitudeCoordinator(
+        hass, client, TrinnovAltitudeCommands(client), stable_device_id="ABC123"
+    )
+
+    with patch.object(coordinator, "_schedule_bootstrap_retry") as schedule:
+        await coordinator.async_power_on(sync_timeout=5.0)
+
+    client.power_on.assert_called_once()
+    schedule.assert_called_once_with(5.0)
 
 
 async def test_coordinator_retry_bootstrap_handles_cancelled_sleep(

@@ -73,8 +73,7 @@ class TrinnovAltitudeMediaPlayer(TrinnovAltitudeEntity, MediaPlayerEntity):
             self._state.synced,
             self.coordinator.power_status.value,
         )
-        self._client.power_on()
-        self.coordinator.async_set_updated_data(self.coordinator._snapshot_state())
+        await self.coordinator.async_power_on()
 
     async def async_turn_off(self) -> None:
         """Power off command."""
