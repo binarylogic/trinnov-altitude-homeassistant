@@ -8319,14 +8319,14 @@ wheels = [
 
 [[package]]
 name = "trinnov-altitude"
-version = "3.3.5"
+version = "3.3.6"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "wakeonlan" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/25/2c/302010338aca3f1383b35a94277b3b3ccf311925c49f1c80aad761373cfa/trinnov_altitude-3.3.5.tar.gz", hash = "sha256:3db790e88df6d4bb0753787d5bbee258e8cef8319dfd434eeffeabc880af93c9", size = 253979, upload-time = "2026-06-18T06:05:49.873Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/79/1d/a82fcda96c6722b017d55970e1aa6c7ac921e9d9a3f6797161babcd50824/trinnov_altitude-3.3.6.tar.gz", hash = "sha256:3db5990e2812e17f1fad56b21629e981289cfd1f6963fa8a7515686752635e4a", size = 257576, upload-time = "2026-06-28T19:22:03.35Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/98/9a/5f4972c9adff60653c5431e2961fcf86d9a039fb71d91265dc5e4b05c846/trinnov_altitude-3.3.5-py3-none-any.whl", hash = "sha256:151f16d2e87827a28d5a177be0b8a207d4f3498912d00c4ee103985a541e4f39", size = 29569, upload-time = "2026-06-18T06:05:48.61Z" },
+    { url = "https://files.pythonhosted.org/packages/3f/74/33730f72ecef5d26bba9a50014a6d368195bdda650f9956b6e444ee6c4b6/trinnov_altitude-3.3.6-py3-none-any.whl", hash = "sha256:09b3a2ca978ec550324b4eb3664d242fb000058394f130fdfd52242a05075504", size = 31707, upload-time = "2026-06-28T19:22:02.157Z" },
 ]
 
 [[package]]
@@ -8362,7 +8362,7 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "trinnov-altitude", specifier = ">=3.3.5" }]
+requires-dist = [{ name = "trinnov-altitude", specifier = ">=3.3.6" }]
 
 [package.metadata.requires-dev]
 dev = [
