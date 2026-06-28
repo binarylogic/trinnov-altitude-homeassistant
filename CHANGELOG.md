@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.5](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.2.4...v2.2.5) (2026-06-28)
+
+
+### Bug Fixes
+
+* bootstrap Trinnov after wake ([fd5bf81](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/fd5bf81dfedfbc125d7134eaf6cc21ea1ec45863))
+* require trinnov-altitude 3.3.6 ([c72cf2c](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/c72cf2c46de9a795ff9b0c0a9402455f3537bff6))
+
 ## [2.2.4](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.2.3...v2.2.4) (2026-06-18)
 
 
