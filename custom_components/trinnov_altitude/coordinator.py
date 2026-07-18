@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+from datetime import timedelta
 from typing import TYPE_CHECKING
 
 from homeassistant.core import HomeAssistant
@@ -26,6 +27,13 @@ class TrinnovAltitudeCoordinator(DataUpdateCoordinator["AltitudeSnapshot"]):
     """Push coordinator for Trinnov Altitude state."""
 
     _BOOTSTRAP_RETRY_INTERVAL_SECONDS = 5.0
+    # Reconciliation backstop: the integration is push-driven, but a live control
+    # link can silently miss an individual state-change message, leaving HA stale
+    # until the next incidental push. A light periodic poll asks the device to
+    # re-report its current state so a dropped push self-corrects. Every push
+    # resets this timer (async_set_updated_data), so it effectively only fires
+    # after a quiet period -- push stays the fast path, this is only a backstop.
+    _RECONCILE_INTERVAL_SECONDS = 20.0
 
     def __init__(
         self,
@@ -35,7 +43,12 @@ class TrinnovAltitudeCoordinator(DataUpdateCoordinator["AltitudeSnapshot"]):
         stable_device_id: str,
     ) -> None:
         """Initialize coordinator."""
-        super().__init__(hass, logger=client.logger, name="trinnov_altitude")
+        super().__init__(
+            hass,
+            logger=client.logger,
+            name="trinnov_altitude",
+            update_interval=timedelta(seconds=self._RECONCILE_INTERVAL_SECONDS),
+        )
         self.client = client
         self.commands = commands
         self.stable_device_id = stable_device_id
@@ -100,7 +113,27 @@ class TrinnovAltitudeCoordinator(DataUpdateCoordinator["AltitudeSnapshot"]):
         self._running = False
 
     async def _async_update_data(self) -> AltitudeSnapshot:
-        """Return latest state snapshot."""
+        """Reconcile with the device, then return the latest snapshot.
+
+        Push remains the primary path; this periodic reconcile only asks the
+        device to re-report its current state so a silently dropped push
+        self-corrects. The responses flow back through the existing adapter
+        callback. A failed poll is non-fatal -- push and the bootstrap retry
+        still recover a genuinely dead link -- so we keep the last snapshot
+        rather than marking entities unavailable.
+        """
+        if self._running and self.client.connected:
+            try:
+                await self.client.state_get_current()
+            except (
+                ConnectionFailedError,
+                ConnectionTimeoutError,
+                TimeoutError,
+            ) as err:
+                self.client.logger.debug(
+                    "Trinnov reconcile poll failed (%s); relying on push + bootstrap retry.",
+                    err,
+                )
         return self._snapshot_state()
 
     def _snapshot_state(self) -> AltitudeSnapshot:
