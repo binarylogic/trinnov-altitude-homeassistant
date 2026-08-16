@@ -123,9 +123,9 @@ class TrinnovAltitudeMediaPlayer(TrinnovAltitudeEntity, MediaPlayerEntity):
     def state(self) -> MediaPlayerState:
         """State of device."""
         power_status = self.coordinator.power_status
-        if power_status is PowerState.OFF:
+        if power_status in {PowerState.OFF, PowerState.UNKNOWN}:
             return MediaPlayerState.OFF
-        if power_status in {PowerState.WAKING, PowerState.UNKNOWN}:
+        if power_status is PowerState.WAKING:
             return MediaPlayerState.ON
         if self._state.source_format:
             return MediaPlayerState.PLAYING

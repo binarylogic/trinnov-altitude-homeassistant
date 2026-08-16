@@ -73,7 +73,11 @@ def mock_trinnov_device():
 
     # Commands
     device.power_on = MagicMock()
-    device.power_off = AsyncMock()
+
+    async def _power_off(wait_for_ack: bool = False) -> None:
+        device.runtime = device.runtime.with_changes(power=PowerState.OFF)
+
+    device.power_off = AsyncMock(side_effect=_power_off)
     device.power_on_available = MagicMock(return_value=True)
 
     device.volume_set = AsyncMock()

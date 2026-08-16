@@ -68,7 +68,10 @@ async def test_media_player_off_state(
     mock_trinnov_device_offline,
     mock_setup_entry,
 ):
-    """Test media player does not claim off from disconnected transport alone."""
+    """Test media player reports off, not a stale on, once the device is
+    disconnected with an unknown power state (e.g. it dropped into standby
+    on its own). Per AGENTS.md's lifecycle contract, media_player should be
+    off when powered down as long as HA can still turn it on."""
     mock_setup_entry.return_value = mock_trinnov_device_offline
 
     mock_config_entry.add_to_hass(hass)
@@ -78,7 +81,7 @@ async def test_media_player_off_state(
 
     state = hass.states.get("media_player.trinnov_altitude_192_168_1_100")
     assert state
-    assert state.state == MediaPlayerState.ON
+    assert state.state == MediaPlayerState.OFF
 
 
 async def test_media_player_booting_state(
@@ -210,9 +213,7 @@ async def test_media_player_turn_off(
         blocking=True,
     )
 
-    mock_device.command.assert_called_once_with(
-        "power_off_SECURED_FHZMCH48FE", wait_for_ack=True, ack_timeout=2.0
-    )
+    mock_device.power_off.assert_called_once_with(wait_for_ack=True)
 
     state = hass.states.get("media_player.trinnov_altitude_192_168_1_100")
     assert state
@@ -391,5 +392,7 @@ async def test_media_player_available_when_offline_with_mac(
 
     state = hass.states.get("media_player.trinnov_altitude_192_168_1_100")
     assert state
-    # Should be available even when offline because power_on_available returns True
-    assert state.state == MediaPlayerState.ON
+    # Available (not "unavailable") because power_on_available returns True, but
+    # still reports off since the device is actually disconnected.
+    assert state.state != "unavailable"
+    assert state.state == MediaPlayerState.OFF

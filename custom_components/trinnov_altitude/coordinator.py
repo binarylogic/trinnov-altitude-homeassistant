@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+from contextlib import suppress
 from typing import TYPE_CHECKING
 
 from homeassistant.core import HomeAssistant
@@ -84,6 +85,8 @@ class TrinnovAltitudeCoordinator(DataUpdateCoordinator["AltitudeSnapshot"]):
 
         if self._bootstrap_retry_task is not None:
             self._bootstrap_retry_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await self._bootstrap_retry_task
             self._bootstrap_retry_task = None
 
         if self._callback_registered:

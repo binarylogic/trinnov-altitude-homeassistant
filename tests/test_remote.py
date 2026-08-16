@@ -117,9 +117,7 @@ async def test_remote_turn_off(
         blocking=True,
     )
 
-    mock_device.command.assert_called_once_with(
-        "power_off_SECURED_FHZMCH48FE", wait_for_ack=True, ack_timeout=2.0
-    )
+    mock_device.power_off.assert_called_once_with(wait_for_ack=True)
 
 
 async def test_remote_send_command_simple(

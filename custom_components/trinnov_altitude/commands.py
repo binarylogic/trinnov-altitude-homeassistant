@@ -8,7 +8,6 @@ from homeassistant.exceptions import HomeAssistantError
 
 from trinnov_altitude.client import TrinnovAltitudeClient
 from trinnov_altitude.exceptions import NotConnectedError, TrinnovAltitudeError
-from trinnov_altitude.lifecycle import PowerState
 
 
 class TrinnovAltitudeCommands:
@@ -46,6 +45,10 @@ class TrinnovAltitudeCommands:
                 await getattr(self._client, method_name)(*args)
                 return
 
+            if method_name == "power_off":
+                await self._client.power_off(wait_for_ack=require_ack)
+                return
+
             if require_ack:
                 line = self._build_line(method_name, args)
                 if line is not None:
@@ -54,10 +57,6 @@ class TrinnovAltitudeCommands:
                         wait_for_ack=True,
                         ack_timeout=self._client.command_timeout,
                     )
-                    if method_name == "power_off":
-                        self._client.runtime = self._client.runtime.with_changes(
-                            power=PowerState.OFF
-                        )
                     return
 
             await getattr(self._client, method_name)(*args)
@@ -68,8 +67,6 @@ class TrinnovAltitudeCommands:
 
     def _build_line(self, method_name: str, args: tuple[Any, ...]) -> str | None:
         """Build raw protocol line for known methods."""
-        if method_name == "power_off":
-            return "power_off_SECURED_FHZMCH48FE"
         if method_name == "preset_set" and len(args) == 1:
             return f"loadp {int(args[0])}"
         if method_name == "source_set" and len(args) == 1:
