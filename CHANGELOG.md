@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.10](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.2.9...v2.2.10) (2026-08-18)
+
+
+### Bug Fixes
+
+* require trinnov-altitude 3.3.11 ([963b7c9](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/963b7c98d617822aba94e0d00f7ac063da3bd59a))
+
 ## [2.2.9](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.2.8...v2.2.9) (2026-08-16)
 
 
