@@ -114,7 +114,7 @@ class TrinnovAltitudeCoordinator(DataUpdateCoordinator["AltitudeSnapshot"]):
 
     async def async_power_on(self, sync_timeout: float | None = 10.0) -> None:
         """Wake the processor and actively bootstrap until protocol state is ready."""
-        self.client.power_on()
+        await self.client.wake()
         self.async_set_updated_data(self._snapshot_state())
         if not self._client_synced:
             self._schedule_bootstrap_retry(sync_timeout)
@@ -158,6 +158,10 @@ class TrinnovAltitudeCoordinator(DataUpdateCoordinator["AltitudeSnapshot"]):
         try:
             while self._running and not self._client_synced:
                 try:
+                    # An accepted wake can overlap the tail of physical shutdown.
+                    # Retry WOL only for that explicit intent, never at startup.
+                    if self.client.runtime.power is PowerState.WAKING:
+                        await self.client.wake()
                     await self.client.start()
                     await self.client.wait_synced(sync_timeout)
                     if self._client_synced:

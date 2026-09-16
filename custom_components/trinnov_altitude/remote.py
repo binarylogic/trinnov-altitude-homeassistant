@@ -64,16 +64,6 @@ class TrinnovAltitudeRemote(TrinnovAltitudeEntity, RemoteEntity):
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the device on."""
-        if self._client.connected:
-            _LOGGER.debug(
-                "Wake-on-LAN skipped via remote: host=%s mac=%s connected=%s synced=%s reason=already_connected",
-                self._client.host,
-                self._client.mac,
-                self._client.connected,
-                self._state.synced,
-            )
-            return
-
         try:
             _LOGGER.debug(
                 "Wake-on-LAN requested via remote: host=%s mac=%s connected=%s synced=%s",
@@ -82,8 +72,7 @@ class TrinnovAltitudeRemote(TrinnovAltitudeEntity, RemoteEntity):
                 self._client.connected,
                 self._state.synced,
             )
-            self._client.power_on()
-            self.coordinator.async_set_updated_data(self.coordinator._snapshot_state())
+            await self.coordinator.async_power_on()
         except NoMacAddressError as exc:
             raise HomeAssistantError(
                 "Trinnov Altitude is not configured with a mac address, which is required to power it on."

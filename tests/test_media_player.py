@@ -184,7 +184,7 @@ async def test_media_player_turn_on(
         blocking=True,
     )
 
-    mock_device.power_on.assert_called_once()
+    mock_device.wake.assert_awaited_once()
     assert "Wake-on-LAN requested via media_player" in caplog.text
     assert "host=192.168.1.100" in caplog.text
     assert "mac=00:11:22:33:44:55" in caplog.text
@@ -210,9 +210,8 @@ async def test_media_player_turn_off(
         blocking=True,
     )
 
-    mock_device.command.assert_called_once_with(
-        "power_off_SECURED_FHZMCH48FE", wait_for_ack=True, ack_timeout=2.0
-    )
+    mock_device.power_off.assert_awaited_once_with()
+    mock_device.command.assert_not_called()
 
     state = hass.states.get("media_player.trinnov_altitude_192_168_1_100")
     assert state
