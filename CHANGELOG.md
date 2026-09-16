@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.11](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.2.10...v2.2.11) (2026-09-16)
+
+
+### Bug Fixes
+
+* delegate wake and shutdown to native lifecycle API ([2eeb294](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/2eeb294a40f694b1ba26a10114bc45aee6f647d0))
+
 ## [2.2.10](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.2.9...v2.2.10) (2026-08-18)
 
 
