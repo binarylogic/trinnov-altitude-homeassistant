@@ -55,6 +55,7 @@ def _build_mock_client() -> MagicMock:
     client.wait_synced = AsyncMock()
     client.stop = AsyncMock()
     client.power_on = MagicMock()
+    client.wake = AsyncMock()
     client.register_callback = MagicMock()
     client.deregister_callback = MagicMock()
     client.register_adapter_callback = MagicMock()
@@ -264,7 +265,7 @@ async def test_coordinator_power_on_schedules_bootstrap_when_unsynced(
     with patch.object(coordinator, "_schedule_bootstrap_retry") as schedule:
         await coordinator.async_power_on(sync_timeout=5.0)
 
-    client.power_on.assert_called_once()
+    client.wake.assert_awaited_once()
     schedule.assert_called_once_with(5.0)
 
 
@@ -285,3 +286,31 @@ async def test_coordinator_retry_bootstrap_handles_cancelled_sleep(
         new=AsyncMock(side_effect=asyncio.CancelledError),
     ):
         await coordinator._async_retry_bootstrap_until_synced(sync_timeout=5.0)
+
+
+async def test_bootstrap_retries_only_an_explicit_wake_intent(hass: HomeAssistant):
+    """A wake packet ignored during physical shutdown gets another attempt."""
+    client = _build_mock_client()
+    client.state.synced = False
+    client.runtime = client.runtime.with_changes(power=PowerState.WAKING)
+    attempts = 0
+
+    async def connect():
+        nonlocal attempts
+        attempts += 1
+        if attempts == 1:
+            raise ConnectionFailedError(OSError("still shutting down"))
+        client.state.synced = True
+        client.runtime = client.runtime.with_changes(power=PowerState.READY)
+
+    client.start.side_effect = connect
+    coordinator = TrinnovAltitudeCoordinator(
+        hass, client, TrinnovAltitudeCommands(client), stable_device_id="ABC123"
+    )
+    coordinator._running = True
+    with patch(
+        "custom_components.trinnov_altitude.coordinator.asyncio.sleep", new=AsyncMock()
+    ):
+        await coordinator._async_retry_bootstrap_until_synced(sync_timeout=1)
+    assert client.wake.await_count == 2
+    assert coordinator.power_status is PowerState.READY

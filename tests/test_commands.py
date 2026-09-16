@@ -14,6 +14,7 @@ def _mock_client() -> MagicMock:
     client = MagicMock()
     client.command_timeout = 2.0
     client.command = AsyncMock()
+    client.power_off = AsyncMock()
     client.mute_on = AsyncMock()
     client.preset_set = AsyncMock()
     client.source_set = AsyncMock()
@@ -24,15 +25,14 @@ def _mock_client() -> MagicMock:
 
 
 async def test_invoke_with_ack_for_power_off() -> None:
-    """Power off should use raw command + ACK flow when required."""
+    """The library owns acknowledged shutdown and lifecycle publication."""
     client = _mock_client()
     commands = TrinnovAltitudeCommands(client)
 
     await commands.invoke("power_off", require_ack=True)
 
-    client.command.assert_called_once_with(
-        "power_off_SECURED_FHZMCH48FE", wait_for_ack=True, ack_timeout=2.0
-    )
+    client.power_off.assert_awaited_once_with()
+    client.command.assert_not_called()
 
 
 async def test_invoke_with_ack_for_preset_set() -> None:
