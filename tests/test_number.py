@@ -76,8 +76,9 @@ async def test_volume_number_uses_db_wire_flow(hass: HomeAssistant, socket_enabl
         unique_id="ABC123",
     )
 
-    def client_factory(host: str, mac: str | None, client_id: str):
+    def client_factory(host: str, mac: str | None, client_id: str, **kwargs):
         return TrinnovAltitudeClient(
+            **kwargs,
             host=host,
             port=server.port,
             mac=mac,

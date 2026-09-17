@@ -177,8 +177,9 @@ async def test_preset_select_uses_safe_library_wire_flow(
         unique_id="ABC123",
     )
 
-    def client_factory(host: str, mac: str | None, client_id: str):
+    def client_factory(host: str, mac: str | None, client_id: str, **kwargs):
         return TrinnovAltitudeClient(
+            **kwargs,
             host=host,
             port=server.port,
             mac=mac,

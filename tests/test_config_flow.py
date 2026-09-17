@@ -2,6 +2,7 @@
 
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
 from homeassistant import config_entries
 from homeassistant.const import CONF_HOST, CONF_MAC
 from homeassistant.core import HomeAssistant
@@ -279,7 +280,7 @@ async def test_form_already_configured(hass: HomeAssistant):
 
 
 async def test_options_flow_updates_mac(hass: HomeAssistant):
-    """Test options flow updates the stored MAC address in entry data and reloads."""
+    """Test options flow updates the MAC override in entry options and reloads."""
     entry = MockConfigEntry(
         domain=DOMAIN,
         title="Trinnov Altitude (192.168.1.100)",
@@ -300,8 +301,8 @@ async def test_options_flow_updates_mac(hass: HomeAssistant):
     assert result["type"] == FlowResultType.CREATE_ENTRY
     updated_entry = hass.config_entries.async_get_entry(entry.entry_id)
     assert updated_entry is not None
-    assert updated_entry.data[CONF_MAC] == "00:11:22:33:44:55"
-    reload_entry.assert_called_once_with(entry.entry_id)
+    assert updated_entry.options[CONF_MAC] == "00:11:22:33:44:55"
+    reload_entry.assert_not_called()
 
 
 async def test_options_flow_rejects_invalid_mac(hass: HomeAssistant):
@@ -332,3 +333,112 @@ async def test_extract_mac_address_normalizes_mac():
         _extract_mac_address("? (192.168.1.100) at 00-11-22-AA-BB-CC on en0")
         == "00:11:22:aa:bb:cc"
     )
+
+
+async def test_options_flow_wake_network_settings(hass: HomeAssistant):
+    """Store explicit packet routing and allow restoring the default route."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={CONF_HOST: "192.168.20.10", CONF_MAC: "00:11:22:33:44:55"},
+        unique_id="ABC123",
+    )
+    entry.add_to_hass(hass)
+    settings = {
+        CONF_MAC: "00:11:22:33:44:55",
+        "wol_host": "192.168.20.255",
+        "wol_port": 7,
+        "wol_interface": "192.168.10.2",
+        "wol_family": "ipv4",
+    }
+    with patch.object(hass.config_entries, "async_schedule_reload") as reload_entry:
+        result = await hass.config_entries.options.async_init(entry.entry_id)
+        result = await hass.config_entries.options.async_configure(
+            result["flow_id"], user_input=settings
+        )
+        assert result["type"] == FlowResultType.CREATE_ENTRY
+        assert dict(entry.options) == settings
+        reload_entry.assert_not_called()
+        result = await hass.config_entries.options.async_init(entry.entry_id)
+        assert result["data_schema"] is not None
+        assert result["data_schema"]({})["wol_host"] == "192.168.20.255"
+        result = await hass.config_entries.options.async_configure(
+            result["flow_id"],
+            user_input={
+                **settings,
+                "wol_host": "255.255.255.255",
+                "wol_port": 9,
+                "wol_interface": "",
+            },
+        )
+        assert result["type"] == FlowResultType.CREATE_ENTRY
+        assert entry.options["wol_interface"] == ""
+        assert entry.options["wol_host"] == "255.255.255.255"
+
+
+async def test_wake_network_options_schema(hass: HomeAssistant):
+    """Reject invalid routing inputs before persisting integration options."""
+    import voluptuous as vol
+
+    entry = MockConfigEntry(
+        domain=DOMAIN, data={CONF_HOST: "unused", CONF_MAC: None}, unique_id="ABC123"
+    )
+    entry.add_to_hass(hass)
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    schema = result["data_schema"]
+    assert schema is not None
+    for invalid in [
+        {"wol_port": 0},
+        {"wol_port": 65536},
+        {"wol_family": "unknown"},
+    ]:
+        with pytest.raises(vol.Invalid):
+            schema(invalid)
+
+
+@pytest.mark.parametrize(
+    "settings,error",
+    [
+        ({"wol_host": " "}, {"wol_host": "invalid_wol_host"}),
+        ({"wol_interface": "eth0"}, {"wol_interface": "invalid_wol_interface"}),
+    ],
+)
+async def test_invalid_wake_options_do_not_save(hass, settings, error):
+    entry = MockConfigEntry(
+        domain=DOMAIN, data={CONF_HOST: "unused", CONF_MAC: None}, unique_id="ABC123"
+    )
+    entry.add_to_hass(hass)
+    with patch.object(hass.config_entries, "async_schedule_reload") as reload_entry:
+        result = await hass.config_entries.options.async_init(entry.entry_id)
+        result = await hass.config_entries.options.async_configure(
+            result["flow_id"], user_input=settings
+        )
+    assert result["type"] == FlowResultType.FORM
+    assert result["errors"] == error
+    assert not entry.options
+    reload_entry.assert_not_called()
+
+
+async def test_saved_wake_settings_are_used_by_reloaded_entry(
+    hass, mock_config_entry, mock_setup_entry
+):
+    """Exercise saving and the real reload path, not just the options payload."""
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+    result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        user_input={
+            "wol_host": "192.168.20.255",
+            "wol_port": 7,
+            "wol_interface": "127.0.0.1",
+        },
+    )
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    await hass.async_block_till_done()
+    assert mock_setup_entry.call_count == 2
+    assert mock_setup_entry.call_args.kwargs["wol_host"] == "192.168.20.255"
+    assert mock_setup_entry.call_args.kwargs["wol_port"] == 7
+    assert mock_setup_entry.call_args.kwargs["wol_interface"] == "127.0.0.1"
+    assert mock_setup_entry.call_args.kwargs["mac"] == "00:11:22:33:44:55"
+    mock_setup_entry.return_value.wake.assert_not_called()

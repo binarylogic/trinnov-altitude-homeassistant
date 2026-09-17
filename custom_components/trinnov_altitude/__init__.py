@@ -11,7 +11,18 @@ from homeassistant.core import Event, HomeAssistant
 from trinnov_altitude.client import TrinnovAltitudeClient
 
 from .commands import TrinnovAltitudeCommands
-from .const import CLIENT_ID, DOMAIN
+from .const import (
+    CLIENT_ID,
+    CONF_WOL_FAMILY,
+    CONF_WOL_HOST,
+    CONF_WOL_INTERFACE,
+    CONF_WOL_PORT,
+    DEFAULT_WOL_FAMILY,
+    DEFAULT_WOL_HOST,
+    DEFAULT_WOL_PORT,
+    DOMAIN,
+    WOL_FAMILIES,
+)
 from .coordinator import TrinnovAltitudeCoordinator
 from .models import TrinnovAltitudeIntegrationData
 from .services import async_setup_services, async_unload_services
@@ -38,10 +49,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         raise ValueError("Trinnov config entry is missing a unique_id")
 
     # Optional attributes may not be present
-    mac = entry.data.get(CONF_MAC)
+    mac = entry.options.get(CONF_MAC, entry.data.get(CONF_MAC))
     mac = mac.strip() if mac else None
 
-    device = TrinnovAltitudeClient(host=host, mac=mac, client_id=CLIENT_ID)
+    device = TrinnovAltitudeClient(
+        host=host,
+        mac=mac,
+        client_id=CLIENT_ID,
+        wol_host=entry.options.get(CONF_WOL_HOST, DEFAULT_WOL_HOST),
+        wol_port=entry.options.get(CONF_WOL_PORT, DEFAULT_WOL_PORT),
+        wol_interface=entry.options.get(CONF_WOL_INTERFACE) or None,
+        wol_family=WOL_FAMILIES[entry.options.get(CONF_WOL_FAMILY, DEFAULT_WOL_FAMILY)],
+    )
     commands = TrinnovAltitudeCommands(device)
 
     # Force set the id from the config flow since the device is not guaranteed
@@ -72,6 +91,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         await coordinator.async_shutdown()
 
     entry.async_on_unload(hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, unload))
+    entry.async_on_unload(entry.add_update_listener(async_reload_entry))
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
@@ -89,3 +109,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             hass.data.pop(DOMAIN, None)
 
     return unload_ok
+
+
+async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Apply saved options after Home Assistant has persisted them."""
+    await hass.config_entries.async_reload(entry.entry_id)

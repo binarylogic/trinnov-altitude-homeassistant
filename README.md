@@ -110,6 +110,16 @@ automation:
 
 ## Wake-on-LAN (Recommended)
 
+For VLANs or hosts with multiple network interfaces, open the integration's
+**Configure** options. You can set the WOL destination (broadcast IP or hostname),
+UDP port, local interface IP address, and address family. Existing entries keep
+IPv4 broadcast to `255.255.255.255:9` with automatic interface selection.
+The local interface address must exist inside Home Assistant's network namespace;
+it is not an interface name such as `eth0`. Network routing/firewall rules must
+still allow the packet to reach the receiver. Saving reloads the integration;
+it does not send a wake request.
+
+
 Wake-on-LAN lets Home Assistant power on the Trinnov when it is off.
 
 Requirements:

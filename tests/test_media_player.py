@@ -5,6 +5,7 @@ import logging
 import pytest
 from homeassistant.components.media_player import (
     ATTR_INPUT_SOURCE,
+    ATTR_INPUT_SOURCE_LIST,
     ATTR_MEDIA_VOLUME_LEVEL,
     ATTR_MEDIA_VOLUME_MUTED,
     SERVICE_SELECT_SOURCE,
@@ -41,8 +42,14 @@ async def test_media_player(hass: HomeAssistant, mock_config_entry, mock_setup_e
 
     data = hass.data[DOMAIN][mock_config_entry.entry_id]
     entity = TrinnovAltitudeMediaPlayer(data.coordinator)
-    assert entity.input_source == "Kaleidescape"
-    assert entity.input_source_list == ["Kaleidescape", "Apple TV", "Blu-ray"]
+    assert state.attributes[ATTR_INPUT_SOURCE] == "Kaleidescape"
+    assert state.attributes[ATTR_INPUT_SOURCE_LIST] == [
+        "Kaleidescape",
+        "Apple TV",
+        "Blu-ray",
+    ]
+    assert entity.source == "Kaleidescape"
+    assert entity.source_list == ["Kaleidescape", "Apple TV", "Blu-ray"]
 
 
 async def test_media_player_playing_state(
@@ -392,3 +399,22 @@ async def test_media_player_available_when_offline_with_mac(
     assert state
     # Should be available even when offline because power_on_available returns True
     assert state.state == MediaPlayerState.ON
+
+
+async def test_published_source_attributes_follow_device_feedback(
+    hass, mock_config_entry, mock_setup_entry
+):
+    """Source readback and catalog changes reach HA's actual entity state."""
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+    data = hass.data[DOMAIN][mock_config_entry.entry_id]
+    device = mock_setup_entry.return_value
+    device.state.source = "Apple TV"
+    device.state.sources = {1: "Apple TV", 4: "Console"}
+    data.coordinator.async_set_updated_data(data.coordinator._snapshot_state())
+    await hass.async_block_till_done()
+    state = hass.states.get("media_player.trinnov_altitude_192_168_1_100")
+    assert state is not None
+    assert state.attributes[ATTR_INPUT_SOURCE] == "Apple TV"
+    assert state.attributes[ATTR_INPUT_SOURCE_LIST] == ["Apple TV", "Console"]
