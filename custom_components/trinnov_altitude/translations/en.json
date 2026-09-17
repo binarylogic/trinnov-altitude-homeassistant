@@ -22,11 +22,27 @@
     "step": {
       "init": {
         "title": "Trinnov Altitude Options",
-        "description": "Override the Wake-on-LAN MAC address when automatic discovery is unavailable. Saving this will reload the integration immediately.",
+        "description": "Configure Wake-on-LAN targeting. Saving reloads the integration immediately. Leave the defaults for a standard local network.",
         "data": {
-          "mac": "MAC Address"
+          "mac": "MAC Address",
+          "wol_host": "Wake-on-LAN destination",
+          "wol_port": "Wake-on-LAN UDP port",
+          "wol_interface": "Wake-on-LAN local interface address",
+          "wol_family": "Wake-on-LAN address family"
+        },
+        "data_description": {
+          "mac": "The receiver MAC address used for Wake-on-LAN.",
+          "wol_host": "Broadcast IP or hostname; default 255.255.255.255. VLAN routing must permit delivery.",
+          "wol_port": "Destination UDP port; default 9.",
+          "wol_interface": "Optional local IP address inside the Home Assistant network environment, not an interface name. Leave blank for automatic routing.",
+          "wol_family": "IPv4 preserves the default behavior; choose IPv6 only for an IPv6 destination."
         }
       }
+    },
+    "error": {
+      "invalid_mac": "Invalid MAC address",
+      "invalid_wol_host": "Enter a Wake-on-LAN destination.",
+      "invalid_wol_interface": "Enter a local IP address, or leave blank for automatic routing."
     }
   },
   "exceptions": {

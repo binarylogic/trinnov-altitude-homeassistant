@@ -98,13 +98,13 @@ class TrinnovAltitudeMediaPlayer(TrinnovAltitudeEntity, MediaPlayerEntity):
         return self._client.power_on_available() or self._client.connected
 
     @property
-    def input_source(self) -> str | None:
+    def source(self) -> str | None:
         """Current source."""
         return self._state.source
 
     @property
-    def input_source_list(self) -> list[str] | None:
-        """Current source."""
+    def source_list(self) -> list[str] | None:
+        """List of available input sources."""
         return [value for _, value in self._state.sources]
 
     @property

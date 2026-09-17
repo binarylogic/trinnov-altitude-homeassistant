@@ -1,5 +1,6 @@
 """Test the Trinnov Altitude integration initialization."""
 
+import socket
 from unittest.mock import AsyncMock
 
 from homeassistant.const import CONF_HOST
@@ -29,6 +30,10 @@ async def test_async_setup_entry(
         host="192.168.1.100",
         mac="00:11:22:33:44:55",
         client_id=CLIENT_ID,
+        wol_host="255.255.255.255",
+        wol_port=9,
+        wol_interface=None,
+        wol_family=socket.AF_INET,
     )
 
     # Verify device startup lifecycle
@@ -65,6 +70,10 @@ async def test_async_setup_entry_without_mac(hass: HomeAssistant, mock_setup_ent
         host="192.168.1.100",
         mac=None,
         client_id=CLIENT_ID,
+        wol_host="255.255.255.255",
+        wol_port=9,
+        wol_interface=None,
+        wol_family=socket.AF_INET,
     )
 
 
@@ -120,3 +129,31 @@ async def test_async_setup_entry_unexpected_error_shuts_down(
     await hass.async_block_till_done()
     mock_device.start.assert_called_once()
     mock_device.stop.assert_called_once()
+
+
+async def test_setup_passes_wake_network_settings(
+    hass, mock_config_entry, mock_setup_entry
+):
+    """Saved settings reach the library without triggering a wake at setup."""
+    mock_config_entry.add_to_hass(hass)
+    hass.config_entries.async_update_entry(
+        mock_config_entry,
+        options={
+            "wol_host": "ff02::1",
+            "wol_port": 7,
+            "wol_interface": "fe80::1234%eth0",
+            "wol_family": "ipv6",
+        },
+    )
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+    mock_setup_entry.assert_called_once_with(
+        host="192.168.1.100",
+        mac="00:11:22:33:44:55",
+        client_id=CLIENT_ID,
+        wol_host="ff02::1",
+        wol_port=7,
+        wol_interface="fe80::1234%eth0",
+        wol_family=socket.AF_INET6,
+    )
+    mock_setup_entry.return_value.wake.assert_not_called()

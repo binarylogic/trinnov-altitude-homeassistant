@@ -6,6 +6,7 @@ import asyncio
 import logging
 import re
 from collections.abc import Sequence
+from ipaddress import ip_address
 from typing import Any
 
 import voluptuous as vol
@@ -16,6 +17,7 @@ from homeassistant.config_entries import (
     OptionsFlow,
 )
 from homeassistant.const import CONF_HOST, CONF_MAC
+from homeassistant.helpers import config_validation as cv
 
 from trinnov_altitude.client import TrinnovAltitudeClient
 from trinnov_altitude.exceptions import (
@@ -24,7 +26,19 @@ from trinnov_altitude.exceptions import (
     MalformedMacAddressError,
 )
 
-from .const import CLIENT_ID, DOMAIN, NAME
+from .const import (
+    CLIENT_ID,
+    CONF_WOL_FAMILY,
+    CONF_WOL_HOST,
+    CONF_WOL_INTERFACE,
+    CONF_WOL_PORT,
+    DEFAULT_WOL_FAMILY,
+    DEFAULT_WOL_HOST,
+    DEFAULT_WOL_PORT,
+    DOMAIN,
+    NAME,
+    WOL_FAMILIES,
+)
 
 _LOGGER = logging.getLogger(__name__)
 DATA_SCHEMA = vol.Schema({vol.Required(CONF_HOST): str, vol.Optional(CONF_MAC): str})
@@ -102,15 +116,28 @@ class TrinnovAltitudeOptionsFlow(OptionsFlow):
                 mac = _normalize_manual_mac(user_input.get(CONF_MAC))
             except MalformedMacAddressError:
                 errors[CONF_MAC] = "invalid_mac"
-            else:
-                self.hass.config_entries.async_update_entry(
-                    self._config_entry,
-                    data={**self._config_entry.data, CONF_MAC: mac},
+            wol_host = user_input.get(CONF_WOL_HOST, DEFAULT_WOL_HOST).strip()
+            if not wol_host:
+                errors[CONF_WOL_HOST] = "invalid_wol_host"
+            wol_interface = user_input.get(CONF_WOL_INTERFACE, "").strip()
+            if wol_interface:
+                try:
+                    wol_interface = str(ip_address(wol_interface))
+                except ValueError:
+                    errors[CONF_WOL_INTERFACE] = "invalid_wol_interface"
+            if not errors:
+                return self.async_create_entry(
+                    title="",
+                    data={
+                        CONF_MAC: mac,
+                        CONF_WOL_HOST: wol_host,
+                        CONF_WOL_PORT: user_input.get(CONF_WOL_PORT, DEFAULT_WOL_PORT),
+                        CONF_WOL_INTERFACE: wol_interface,
+                        CONF_WOL_FAMILY: user_input.get(
+                            CONF_WOL_FAMILY, DEFAULT_WOL_FAMILY
+                        ),
+                    },
                 )
-                self.hass.config_entries.async_schedule_reload(
-                    self._config_entry.entry_id
-                )
-                return self.async_create_entry(title="", data={})
 
         return self.async_show_form(
             step_id="init",
@@ -118,8 +145,33 @@ class TrinnovAltitudeOptionsFlow(OptionsFlow):
                 {
                     vol.Optional(
                         CONF_MAC,
-                        default=self._config_entry.data.get(CONF_MAC, ""),
-                    ): str
+                        default=self._config_entry.options.get(
+                            CONF_MAC, self._config_entry.data.get(CONF_MAC)
+                        )
+                        or "",
+                    ): str,
+                    vol.Optional(
+                        CONF_WOL_HOST,
+                        default=self._config_entry.options.get(
+                            CONF_WOL_HOST, DEFAULT_WOL_HOST
+                        ),
+                    ): str,
+                    vol.Optional(
+                        CONF_WOL_PORT,
+                        default=self._config_entry.options.get(
+                            CONF_WOL_PORT, DEFAULT_WOL_PORT
+                        ),
+                    ): cv.port,
+                    vol.Optional(
+                        CONF_WOL_INTERFACE,
+                        default=self._config_entry.options.get(CONF_WOL_INTERFACE, ""),
+                    ): str,
+                    vol.Optional(
+                        CONF_WOL_FAMILY,
+                        default=self._config_entry.options.get(
+                            CONF_WOL_FAMILY, DEFAULT_WOL_FAMILY
+                        ),
+                    ): vol.In(WOL_FAMILIES),
                 }
             ),
             errors=errors,
