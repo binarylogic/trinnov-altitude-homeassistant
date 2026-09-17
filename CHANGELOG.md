@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.0](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.2.11...v2.3.0) (2026-09-17)
+
+
+### Features
+
+* configure wake routing and expose media player sources ([ef8a35a](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/ef8a35a6520b3bcf638886d8a4061ff44f417352))
+
 ## [2.2.11](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.2.10...v2.2.11) (2026-09-16)
 
 
