@@ -14,5 +14,5 @@
   "requirements": [
     "trinnov-altitude>=3.4.0"
   ],
-  "version": "2.2.11"
+  "version": "2.3.0"
 }
