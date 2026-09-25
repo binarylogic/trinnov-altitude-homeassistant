@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.3.1](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.3.0...v2.3.1) (2026-09-25)
+
+
+### Bug Fixes
+
+* require trinnov-altitude&gt;=3.4.1 for upmixer readback fix ([267392b](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/267392b29a33a2681b959e154b48e6ce8b8cfb40))
+* reuse library upmixer normalization ([ef8a2cd](https://github.com/binarylogic/trinnov-altitude-homeassistant/commit/ef8a2cdaac6bdb8aa66827496e6b7e297ae02b07))
+
 ## [2.3.0](https://github.com/binarylogic/trinnov-altitude-homeassistant/compare/v2.2.11...v2.3.0) (2026-09-17)
 
 
