@@ -81,3 +81,18 @@ def test_resolve_upmixer_uses_active_fallback_and_none() -> None:
     )
     state = SimpleNamespace(upmixer=None, active_upmixer=" Dolby_Upmixer ")
     assert resolve_upmixer_value(state) == "Dolby_Upmixer"
+
+
+def test_upmixer_resolver_uses_library_normalization() -> None:
+    """Known spellings agree across wire state and the HA projection."""
+    for raw in ("UPMIX_ON_NATIVE", " upmix  on native "):
+        assert (
+            resolve_upmixer_value(SimpleNamespace(upmixer=raw, active_upmixer="dolby"))
+            == "upmix on native"
+        )
+    assert (
+        resolve_upmixer_value(
+            SimpleNamespace(upmixer="Future Mode", active_upmixer="dolby")
+        )
+        == "Future Mode"
+    )

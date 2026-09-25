@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from trinnov_altitude.const import UpmixerMode
+from trinnov_altitude.normalizer import normalize_upmixer_mode
 
 
 def resolve_source_name(state: object) -> str | None:
@@ -51,11 +51,7 @@ def resolve_upmixer_value(state: object) -> str | None:
     if upmixer is None:
         return None
 
-    normalized = str(upmixer).strip().lower().replace("_", " ")
-    known = {mode.value for mode in UpmixerMode}
-    if normalized in known:
-        return normalized
-    return str(upmixer).strip()
+    return normalize_upmixer_mode(str(upmixer))
 
 
 def _indexed_values(value: object) -> dict[int, str]:
